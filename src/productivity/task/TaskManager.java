@@ -1,3 +1,5 @@
+package productivity.task;
+
 import productivity.database.DatabaseConnection;
 import productivity.tracking.ProductivityTracker;
 
@@ -79,4 +81,5 @@ public class TaskManager {
 
         saveTaskToDatabase(goal);
     }
+
 }
