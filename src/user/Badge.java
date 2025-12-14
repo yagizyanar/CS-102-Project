@@ -1,5 +1,8 @@
-package src.user;
+/**
+ * @author Javanshir Aghayev
+ */
 
+package src.user;
 import java.util.HashMap;
 import java.util.Map;
 

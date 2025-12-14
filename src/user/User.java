@@ -1,4 +1,8 @@
-package user;
+/**
+ * @author Javanshir Aghayev
+ */
+
+package src.user;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
