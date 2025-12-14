@@ -1,4 +1,4 @@
-package src.user;
+package user;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
