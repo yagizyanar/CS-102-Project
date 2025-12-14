@@ -1,4 +1,4 @@
-package productivity.task;
+package src.productivity.task;
 /**
  * @author Elshan Iskandarli
  */
