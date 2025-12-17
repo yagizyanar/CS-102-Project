@@ -13,10 +13,10 @@ public class Task {
     private boolean complete;
     private int xpReward;
 
-    public Task(String title, String description, LocalDateTime deadline) {
+    public Task(String title, String description, String deadlineStr) {
         this.title = title;
         this.description = description;
-        this.deadline = deadline;
+        this.deadline = LocalDateTime.parse(deadlineStr);
         this.complete = false;
         this.xpReward = 10;
 

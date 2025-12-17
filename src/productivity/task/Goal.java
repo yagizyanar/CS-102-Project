@@ -7,8 +7,8 @@ import src.productivity.task.Task;
 
 public class Goal extends Task {
     private boolean isLongTerm;
-    private String category;
-    private LocalDateTime date;
+    private final String category;
+    private final LocalDateTime date;
 
     public Goal(int id, String title, String description, LocalDateTime targetDate, boolean isLongTerm, String category) {
         super(id, title, description, targetDate, false, 10);
@@ -23,12 +23,11 @@ public class Goal extends Task {
         }
     }
 
-    public Goal(String title, String description, LocalDateTime targetDate, boolean isLongTerm, String category) {
-        super(title, description, targetDate);
+    public Goal(String title, String description, String targetDateStr, boolean isLongTerm, String category) {
+        super(title, description, targetDateStr);
         this.isLongTerm = isLongTerm;
-        date = targetDate;
+        date = LocalDateTime.parse(targetDateStr);
         this.category = category;
-
         if(isLongTerm) {
             setXpReward(50);
         } else {

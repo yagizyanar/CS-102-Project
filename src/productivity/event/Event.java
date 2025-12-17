@@ -21,10 +21,10 @@ public class Event {
         this.notes = notes;
     }
 
-    public Event(String title, String eventType, LocalDateTime eventDate, String notes) {
+    public Event(String title, String eventType, String eventDateStr, String notes) {
         this.title = title;
         this.type = eventType;
-        this.date = eventDate;
+        this.date = LocalDateTime.parse(eventDateStr);
         this.notes = notes;
     }
 
