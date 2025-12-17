@@ -1,0 +1,47 @@
+package productivity.database;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp; 
+import java.time.format.DateTimeFormatter;
+
+public class SessionDAO {
+    private static final String INSERT_SESSION_SQL = 
+        "INSERT INTO study_sessions(start_time, end_time, duration_minutes, xp_earned, session_date) VALUES(?,?,?,?,?)";
+
+    public static void saveStudySession(PomodoroSession session) {
+        if (session.getStartTime() == null || session.getEndTime() == null) {
+            System.err.println("cannot save session.");
+            return;
+        }
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(INSERT_SESSION_SQL, Statement.RETURN_GENERATED_KEYS)) {
+            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            int minutes = session.calculateStdTime();
+            
+            
+            pstmt.setTimestamp(1, Timestamp.valueOf(session.getStartTime().toString()));
+            pstmt.setTimestamp(2, Timestamp.valueOf(session.getEndTime().toString()));
+            pstmt.setInt(3, minutes); 
+            pstmt.setInt(4, session.calculateXP(minutes));
+            pstmt.setString(5, session.getStartTime().toLocalDate().format(formatter)); 
+
+            if (pstmt.executeUpdate() > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        session.setSessionId(rs.getInt(1));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("couldn't saving study session: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
