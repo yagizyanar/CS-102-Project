@@ -1,14 +1,7 @@
 package productivity.event;
 
-import java.sql.Connection;
-import productivity.database.DatabaseConnection
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import src.productivity.database.EventDAO;
 import java.time.LocalDateTime;
-import java.sql.Timestamp; 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +64,10 @@ public class EventManager {
 
     public List<Event> getEvents() { 
         return events; 
+    }
+
+    public void setEvents(List<Event> events) {
+        this.events = events;
     }
 
 }
