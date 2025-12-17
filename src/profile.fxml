@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/25"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="project.ProfileController">
+
+    <children>
+
+        <ImageView fitHeight="1080.0" fitWidth="1920.0" preserveRatio="false">
+            <image><Image url="@background.png"/></image>
+        </ImageView>
+
+        <BorderPane prefWidth="1200.0" prefHeight="700.0">
+
+            <top>
+                <fx:include fx:id="bar" source="bar.fxml"/>
+            </top>
+
+            <center>
+                <StackPane fx:id="contentRoot">
+                    <padding><Insets top="10" right="4" bottom="12" left="4"/></padding>
+
+                    <VBox prefWidth="1200" maxWidth="1200" prefHeight="680"
+                          spacing="16"
+                          style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 22;">
+
+                        <HBox spacing="16">
+
+                            <StackPane prefWidth="260" prefHeight="200"
+                                       style="-fx-background-color:#59B5E0; -fx-background-radius:16;">
+                                <children>
+                                    <ImageView fx:id="imgProfile"
+                                               fitWidth="140" fitHeight="140"
+                                               preserveRatio="true"/>
+                                </children>
+                            </StackPane>
+
+                            <VBox spacing="8"
+                                  prefHeight="200"
+                                  HBox.hgrow="ALWAYS"
+                                  style="-fx-border-color:#D0D0D0; -fx-border-radius:12; -fx-background-radius:12; -fx-padding:14;">
+
+                                <HBox spacing="6">
+                                    <Label text="Username:" style="-fx-font-weight:bold;"/>
+                                    <Label fx:id="lblUsername" text="Loading..."/>
+                                </HBox>
+
+                                <HBox spacing="6">
+                                    <Label text="  E-mail:" style="-fx-font-weight:bold;"/>
+                                    <Label fx:id="lblEmail" text="..."/>
+                                </HBox>
+
+                                <HBox spacing="6">
+                                    <Label text="University:" style="-fx-font-weight:bold;"/>
+                                    <Label fx:id="lblUniversity" text="—" style="-fx-text-fill:#999;"/>
+                                </HBox>
+
+                                <HBox spacing="6">
+                                    <Label text="Major:" style="-fx-font-weight:bold;"/>
+                                    <Label fx:id="lblMajor" text="—" style="-fx-text-fill:#999;"/>
+                                </HBox>
+
+                                <HBox spacing="6">
+                                    <Label text="Classes:" style="-fx-font-weight:bold;"/>
+                                    <Label fx:id="lblClasses" text="—" style="-fx-text-fill:#999;"/>
+                                </HBox>
+
+                                <Region VBox.vgrow="ALWAYS"/>
+
+                                <HBox alignment="CENTER_RIGHT" spacing="10">
+                                    <Label fx:id="lblStreakText" text="Streak: 0"
+                                           style="-fx-font-size:11; -fx-text-fill:#666;"/>
+                                    <Button fx:id="btnEditInfo" text="Edit ✎" onAction="#openEditInfo"/>
+                                </HBox>
+                            </VBox>
+
+                            <StackPane prefWidth="280" prefHeight="200"
+                                       style="-fx-background-color:#59B5E0; -fx-background-radius:16;">
+                                <VBox spacing="8">
+                                    <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+                                    <HBox>
+                                        <Label text="Bio:" style="-fx-text-fill:white; -fx-font-weight:bold;"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="btnEditBio" text="Edit ✎" onAction="#openEditBio"
+                                                style="-fx-background-color: rgba(255,255,255,0.18); -fx-text-fill:white;"/>
+                                    </HBox>
+
+                                    <TextArea fx:id="txtBio" prefRowCount="6" promptText="Write your bio..."/>
+                                </VBox>
+                            </StackPane>
+                        </HBox>
+
+                        <Separator/>
+
+                        <VBox spacing="10">
+                            <HBox alignment="CENTER">
+                                <Label text="Tasks" style="-fx-font-size:16; -fx-font-weight:bold;"/>
+                            </HBox>
+                            <VBox fx:id="tasksBox" spacing="10"/>
+                        </VBox>
+
+                        <Separator/>
+
+                        <VBox spacing="10">
+                            <HBox alignment="CENTER">
+                                <Label text="Self Notes" style="-fx-font-size:16; -fx-font-weight:bold;"/>
+                            </HBox>
+                            <TextArea fx:id="txtNotes" prefHeight="160" wrapText="true"
+                                      promptText="Write your notes here..."/>
+                        </VBox>
+
+                        <Separator/>
+
+                        <HBox alignment="TOP_CENTER" spacing="120">
+
+                            <VBox alignment="TOP_CENTER" spacing="10" prefWidth="420">
+                                <HBox alignment="CENTER">
+                                    <Label text="Level XP Progress" style="-fx-font-size:15; -fx-font-weight:bold;"/>
+                                </HBox>
+
+                                <Label fx:id="lblLevel" text="LVL 0" style="-fx-font-size:20; -fx-font-weight:bold;"/>
+
+                                <HBox alignment="CENTER" spacing="10">
+                                    <ProgressBar fx:id="xpBar" prefWidth="240" progress="0"/>
+                                    <Label fx:id="lblXpText" text="0xp / 50xp" style="-fx-font-size:13; -fx-text-fill:#444;"/>
+                                </HBox>
+                            </VBox>
+
+                            <VBox alignment="TOP_CENTER" spacing="10" prefWidth="420">
+                                <HBox alignment="CENTER">
+                                    <Label text="Badges" style="-fx-font-size:15; -fx-font-weight:bold;"/>
+                                </HBox>
+
+                                <FlowPane fx:id="badgesTop3Pane"
+                                          alignment="CENTER"
+                                          hgap="10" vgap="10"
+                                          prefWrapLength="380"/>
+
+                                <HBox alignment="CENTER" spacing="10">
+                                    <Button fx:id="btnMoreBadges" text="+" onAction="#openBadges"
+                                            style="-fx-font-weight:bold;"/>
+                                    <Label fx:id="lblMoreBadgesCount" text="0" style="-fx-font-weight:bold;"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <fx:include fx:id="editBioOverlay" source="profileEditBio.fxml" visible="false"/>
+                    <fx:include fx:id="badgesOverlay" source="badgesCollection.fxml" visible="false"/>
+                    <fx:include fx:id="editInfoOverlay" source="profileEditInfo.fxml" visible="false"/>
+
+                </StackPane>
+            </center>
+
+        </BorderPane>
+
+    </children>
+</StackPane>

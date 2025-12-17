@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="project.DashboardController"
+            prefWidth="1200"
+            prefHeight="700"
+            style="-fx-background-color: linear-gradient(to bottom right, #22b8c7, #6c4bd9);">
+
+    <!-- ===================== TOP BAR ===================== -->
+    <fx:include source="bar.fxml"
+                AnchorPane.topAnchor="0"
+                AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0"/>
+
+    <!-- ===================== XP STRIP (DASHBOARD ONLY) ===================== -->
+    <HBox fx:id="xpStrip"
+          AnchorPane.topAnchor="126"
+          AnchorPane.leftAnchor="28"
+          AnchorPane.rightAnchor="28"
+          alignment="CENTER_LEFT"
+          spacing="14"
+          style="-fx-background-color: rgba(255,255,255,0.92);
+                 -fx-background-radius: 14;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 10, 0, 0, 2);">
+        <padding>
+            <Insets top="10" bottom="10" left="14" right="14"/>
+        </padding>
+
+        <!-- Hello username -->
+        <Label fx:id="lblXpGreeting"
+               text="Hello"
+               style="-fx-font-size: 13;
+                      -fx-font-weight: 900;
+                      -fx-text-fill: #111827;"/>
+
+        <HBox HBox.hgrow="ALWAYS"/>
+
+        <!-- Level + XP -->
+        <Label fx:id="lblLevelRange"
+               text="LVL 1 → LVL 2"
+               style="-fx-font-size: 12;
+                      -fx-font-weight: 900;
+                      -fx-text-fill: #374151;"/>
+
+        <Slider fx:id="lvlSlider"
+                min="0"
+                max="100"
+                prefWidth="240"
+                disable="true"/>
+
+        <Label fx:id="lblXp"
+               text="Current: 0 XP"
+               style="-fx-font-size: 12;
+                      -fx-font-weight: 900;
+                      -fx-text-fill: #374151;"/>
+    </HBox>
+
+    <!-- ===================== MAIN CONTENT ===================== -->
+    <AnchorPane AnchorPane.topAnchor="190"
+                AnchorPane.leftAnchor="28"
+                AnchorPane.rightAnchor="28"
+                AnchorPane.bottomAnchor="28">
+
+        <!-- MY COURSES -->
+        <VBox AnchorPane.leftAnchor="18"
+              AnchorPane.topAnchor="18"
+              prefWidth="820"
+              prefHeight="180"
+              spacing="10"
+              style="-fx-background-color: rgba(255,255,255,0.92);
+                     -fx-background-radius: 16;
+                     -fx-padding: 14;">
+            <Label text="My Courses"
+                   style="-fx-font-size: 13;
+                          -fx-font-weight: 900;
+                          -fx-text-fill: #2563eb;"/>
+            <TilePane fx:id="coursesTile"
+                      prefColumns="3"
+                      hgap="14"
+                      vgap="14"/>
+        </VBox>
+
+        <!-- PROGRESS -->
+        <VBox AnchorPane.leftAnchor="18"
+              AnchorPane.topAnchor="220"
+              prefWidth="820"
+              prefHeight="320"
+              spacing="10"
+              style="-fx-background-color: rgba(255,255,255,0.92);
+                     -fx-background-radius: 16;
+                     -fx-padding: 14;">
+            <Label text="Your Progress"
+                   style="-fx-font-size: 13;
+                          -fx-font-weight: 900;
+                          -fx-text-fill: #2563eb;"/>
+            <BarChart fx:id="progressChart"
+                      legendVisible="false"
+                      animated="false">
+                <xAxis>
+                    <CategoryAxis/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+
+        <!-- TO-DO LIST -->
+        <VBox AnchorPane.rightAnchor="18"
+              AnchorPane.topAnchor="18"
+              prefWidth="260"
+              prefHeight="420"
+              spacing="10"
+              style="-fx-background-color: rgba(255,255,255,0.92);
+                     -fx-background-radius: 16;
+                     -fx-padding: 14;">
+            <Label text="To-Do List"
+                   style="-fx-font-size: 13;
+                          -fx-font-weight: 900;
+                          -fx-text-fill: #2563eb;"/>
+            <ListView fx:id="todoList"/>
+        </VBox>
+
+        <!-- ===================== STREAK BUBBLE ===================== -->
+        <VBox AnchorPane.rightAnchor="22"
+              AnchorPane.bottomAnchor="18"
+              prefWidth="108"
+              prefHeight="108"
+              alignment="CENTER"
+              spacing="2"
+              style="-fx-background-color: transparent;">
+
+            <Circle radius="48"
+                    fill="white"
+                    stroke="#E5E7EB"
+                    strokeWidth="2"/>
+
+            <Label fx:id="lblStreak"
+                   text="0"
+                   style="-fx-font-size: 26;
+                          -fx-font-weight: 900;
+                          -fx-text-fill: #1f2937;"/>
+
+            <Label text="Current Streak"
+                   style="-fx-font-size: 9;
+                          -fx-font-weight: 700;
+                          -fx-text-fill: #6b7280;"/>
+        </VBox>
+
+    </AnchorPane>
+
+</AnchorPane>
