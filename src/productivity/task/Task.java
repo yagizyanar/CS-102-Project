@@ -22,12 +22,11 @@ public class Task {
 
     }
 
-    public Task(int id, String title, String description, String deadlineStr, boolean completed, int xpReward) {
+    public Task(int id, String title, String description, LocalDateTime deadline, boolean completed, int xpReward) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.deadline = LocalDateTime.parse(deadlineStr, 
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        this.deadline = deadline;
         this.complete = completed;
         this.xpReward = xpReward;
     }
@@ -78,6 +77,10 @@ public class Task {
 
     public boolean isComplete() {
         return complete;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getXpReward() {

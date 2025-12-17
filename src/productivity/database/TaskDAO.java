@@ -1,6 +1,6 @@
 package productivity.database;
 
-import productivity.task.Task;
+import src.productivity.task.Task;
 import productivity.task.Goal;
 
 import java.sql.Connection;

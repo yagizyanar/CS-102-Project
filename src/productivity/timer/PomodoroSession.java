@@ -3,6 +3,8 @@ package productivity.timer;
  * @author Elshan Iskandarli
  */
 import productivity.database.SessionDAO;
+import productivity.tracking.StreakMan;
+import productivity.tracking.ProductivityTracker;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Timer;

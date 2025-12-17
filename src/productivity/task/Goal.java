@@ -1,7 +1,9 @@
+package productivity.task;
 /**
  * @author Elshan Iskandarli
  */
 import java.time.LocalDateTime;
+import src.productivity.task.Task;
 
 public class Goal extends Task {
     private boolean isLongTerm;

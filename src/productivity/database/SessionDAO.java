@@ -1,5 +1,6 @@
 package productivity.database;
 
+import productivity.timer.PomodoroSession;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
