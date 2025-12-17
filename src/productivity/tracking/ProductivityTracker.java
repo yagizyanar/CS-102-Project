@@ -17,7 +17,6 @@ public class ProductivityTracker{
     private static int totalMin = 0;
     private static int currentXP = 0;
     private static int currentLevel = 1;
-    private static int streak = 0;
     public static ProductivityTracker instance;
     private static LocalDate lastStudyDate = null;
     private static final int[] LEVEL_BARRAGES = {0, 10, 25, 50, 100, 200, 500, 1000 };
@@ -39,6 +38,7 @@ public class ProductivityTracker{
     /**
      * Adds duration of the session to the total study duration 
      * and updates streak. then checks for new achievemnt
+     * @param session session to be recorded
      */
     public void recordStdSession(PomodoroSession session) {
         int mins = session.calculateStdTime();
