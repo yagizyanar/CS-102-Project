@@ -13,12 +13,11 @@ public class Event {
     private LocalDateTime date;
     private String notes;
 
-    public Event(int id, String title, String eventType, String dateStr, String notes) {
+    public Event(int id, String title, String eventType, LocalDateTime eventDate, String notes) {
         this.id = id;
         this.title = title;
         this.type = eventType;
-        this.date = LocalDateTime.parse(dateStr, 
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        this.date = eventDate;
         this.notes = notes;
     }
 
@@ -27,11 +26,6 @@ public class Event {
         this.type = eventType;
         this.date = eventDate;
         this.notes = notes;
-    }
-
-    public static Event createEvent( String title, String type, LocalDateTime date, String notes) {
-        String dateStr = date.toString();
-        return new Event(title, type, date, notes);
     }
 
     public boolean isUpcoming() {
@@ -77,6 +71,10 @@ public class Event {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
