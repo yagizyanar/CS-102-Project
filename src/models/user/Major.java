@@ -1,4 +1,4 @@
-package src.user;
+package models.user;
 
 public class Major {
     private int majorID;

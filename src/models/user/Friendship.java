@@ -2,7 +2,7 @@
  * @author Javanshir Aghayev
  */
 
-package src.user;
+package models.user;
 
 import java.time.LocalDateTime;
 
