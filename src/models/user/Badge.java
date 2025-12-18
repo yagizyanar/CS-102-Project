@@ -2,7 +2,9 @@
  * @author Javanshir Aghayev
  */
 
-package src.user;
+package models.user;
+
+import models.user.User;
 import java.util.HashMap;
 import java.util.Map;
 

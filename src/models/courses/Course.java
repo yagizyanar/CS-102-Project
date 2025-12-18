@@ -1,6 +1,8 @@
-package model;
+package models.courses;
 
 import java.util.ArrayList;
+import models.courses.ForumPost;
+import models.user.User;
 
 public class Course {
     private int courseId;

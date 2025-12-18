@@ -2,8 +2,7 @@ package dao;
 
 import java.sql.*;
 import java.util.ArrayList;
-import model.Course;
-import utils.DatabaseConnection;
+import models.courses.Course;
 
 public class CourseDAO {
     public ArrayList<Course> getAllCourses() {
