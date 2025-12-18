@@ -10,7 +10,7 @@ public class PomodoroDAO {
     public boolean saveSession(PomodoroSession session) {
 
         String sql =
-            "INSERT INTO pomodoro_sessions " +
+            "INSERT INTO pomodoroSessions " +
             "(userId, groupId, sessionType, startTime, endTime, durationMinutes) " +
             "VALUES (?, ?, ?, ?, ?, ?)";
 

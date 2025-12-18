@@ -4,6 +4,7 @@ import dao.PomodoroDAO;
 import model.PomodoroSession;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import pomodoroInterface.TimerListener;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package src.pomodoro; 
+package pomodoro; 
 
 public class Time {
     private int hours;
