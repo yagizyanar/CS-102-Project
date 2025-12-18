@@ -1,8 +1,5 @@
 package productivity.database;
 
-import src.productivity.task.Task;
-import productivity.task.Goal;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +8,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import productivity.task.Goal;
+import src.productivity.task.Task;
 
 public class TaskDAO {
     private static List<Task> tasks;

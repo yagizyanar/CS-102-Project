@@ -1,15 +1,12 @@
 package productivity.manager;
 
-import productivity.database.DatabaseConnection;
-import productivity.database.TaskDAO;
-import productivity.tracking.ProductivityTracker;
-import productivity.task.Task;
-import productivity.task.Goal;
-
-import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import productivity.database.TaskDAO;
+import productivity.task.Goal;
+import productivity.tracking.ProductivityTracker;
+import src.productivity.task.Task;
 
 public class TaskManager {
     private static List<Task> tasks;
@@ -24,7 +21,7 @@ public class TaskManager {
     /**
      * createTask() creates a new general task, saves it to the database, and adds it to the databbase.
      */
-    public static void createTask(String title, String description, LocalDateTime deadline) {
+    public static void createTask(String title, String description, String deadline) {
         Task task = new Task(title, description, deadline);
         TaskDAO.saveTaskToDatabase(task);
         tasks.add(task);

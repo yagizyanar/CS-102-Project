@@ -1,8 +1,5 @@
 package productivity.tracking;
 
-import productivity.database.DatabaseConnection;
-import productivity.timer.PomodoroSession;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,10 +9,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import productivity.database.DatabaseConnection;
+import productivity.timer.PomodoroSession;
 
 public class ProductivityTracker{
     private static int totalMin = 0;
     private static int currentXP = 0;
+    private static int streak = 0;
     private static int currentLevel = 1;
     public static ProductivityTracker instance;
     private static LocalDate lastStudyDate = null;

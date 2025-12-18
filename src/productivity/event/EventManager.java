@@ -1,9 +1,8 @@
 package productivity.event;
 
-import src.productivity.database.EventDAO;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import productivity.database.EventDAO;
 
 public class EventManager {
     private List<Event> events;
@@ -13,7 +12,7 @@ public class EventManager {
         EventDAO.loadFromDatabase();
     }
 
-    public void addEvent(String title, String type, LocalDateTime date, String notes) {
+    public void addEvent(String title, String type, String date, String notes) {
         Event event = new Event(title, type, date, notes);
         events.add(event);
         EventDAO.saveEventToDatabase(event);
