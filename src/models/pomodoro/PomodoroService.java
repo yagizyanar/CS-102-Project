@@ -6,6 +6,7 @@ import models.pomodoro.PomodoroSession;
 import models.pomodorointerface.TimerListener;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import pomodoroInterface.TimerListener;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
