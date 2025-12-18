@@ -1,6 +1,6 @@
-package productivity.tracking;
+package models.tracking;
 
-import productivity.database.DatabaseConnection;
+import dao.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,7 +1,7 @@
-package productivity.tracking;
+package models.tracking;
 
-import productivity.database.DatabaseConnection;
-import productivity.timer.PomodoroSession;
+import dao.DatabaseConnection;
+import models.pomodoro.PomodoroSession;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

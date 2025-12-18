@@ -1,7 +1,6 @@
-package productivity.database;
+package dao;
 
-import src.productivity.task.Task;
-import productivity.task.Goal;
+import models.task.Task;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

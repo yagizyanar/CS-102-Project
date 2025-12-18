@@ -1,10 +1,9 @@
-package productivity.manager;
+package models.manager;
 
-import productivity.database.DatabaseConnection;
-import productivity.database.TaskDAO;
-import productivity.tracking.ProductivityTracker;
-import productivity.task.Task;
-import productivity.task.Goal;
+
+import models.tracking.ProductivityTracker;
+import models.task.Goal;
+import models.task.Task;
 
 import java.sql.*;
 import java.time.LocalDateTime;

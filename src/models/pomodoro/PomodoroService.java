@@ -1,7 +1,9 @@
-package model;
+package models.pomodoro;
 
 import dao.PomodoroDAO;
-import model.PomodoroSession;
+import java.time.Duration;
+import models.pomodoro.PomodoroSession;
+import models.pomodorointerface.TimerListener;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;

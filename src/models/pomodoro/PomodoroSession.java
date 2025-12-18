@@ -1,4 +1,4 @@
-package model;
+package models.pomodoro;
 
 import java.time.LocalDateTime;
 

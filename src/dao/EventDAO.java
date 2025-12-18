@@ -1,6 +1,6 @@
-package productivity.database;
+package dao;
 
-import productivity.event.Event;
+import models.event.Event;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
