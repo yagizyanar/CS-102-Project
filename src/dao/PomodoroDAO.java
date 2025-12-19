@@ -2,8 +2,8 @@ package dao;
 
 import java.sql.*;
 import java.util.ArrayList;
-import model.PomodoroSession;
-import utils.DatabaseConnection;
+import models.pomodoro.PomodoroSession;
+import dao.DatabaseConnection;
 
 public class PomodoroDAO {
 

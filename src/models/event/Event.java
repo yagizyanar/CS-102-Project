@@ -1,4 +1,4 @@
-package productivity.event;
+package models.event;
 /**
  * @author  Elshan Iskandarli
  */
@@ -26,11 +26,6 @@ public class Event {
         this.type = eventType;
         this.date = LocalDateTime.parse(eventDateStr);
         this.notes = notes;
-    }
-
-    public static Event createEvent( String title, String type, LocalDateTime date, String notes) {
-        String dateStr = date.toString();
-        return new Event(title, type, date, notes);
     }
 
     public boolean isUpcoming() {

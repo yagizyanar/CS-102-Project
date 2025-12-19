@@ -2,31 +2,41 @@ package dao;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 
-import model.Notification;
-import utils.DatabaseConnection;
+import models.user.Notification; 
+import dao.DatabaseConnection; // Assuming DatabaseConnection moved to dao package
 
 public class NotificationDAO {
 
-    public boolean createNotification(int userId, String text) {
-        String sql = "INSERT INTO notifications (userId, text, isRead) VALUES (?, ?, false)";
+    /**
+     * Creates a new notification in the database.
+     */
+    public boolean createNotification(int userId, Notification.NotificationType type, String title, String message) {
+        String sql = "INSERT INTO notifications (userId, type, title, message, isRead, createdAt) VALUES (?, ?, ?, ?, false, ?)";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, userId);
-            preparedStatement.setString(2, text);
+            preparedStatement.setString(2, type.name()); 
+            preparedStatement.setString(3, title);
+            preparedStatement.setString(4, message);
+            preparedStatement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+            
             return preparedStatement.executeUpdate() > 0;
-
-        } 
-        catch (SQLException e) {
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
 
+    /**
+     * Retrieves unread notifications for a specific user.
+     */
     public ArrayList<Notification> getUnreadNotifications(int userId) {
         ArrayList<Notification> notifications = new ArrayList<>();
-        String sql = " SELECT * FROM notifications WHERE userId = ? AND isRead = false ORDER BY createdAt DESC ";
+        String sql = "SELECT * FROM notifications WHERE userId = ? AND isRead = false ORDER BY createdAt DESC";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -37,37 +47,41 @@ public class NotificationDAO {
             while (resultSet.next()) {
                 notifications.add(mapResultSetToNotification(resultSet));
             }
-
-        } 
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return notifications;
     }
 
+    /**
+     * Updates the status of a notification to 'read'.
+     */
     public boolean markAsRead(int notificationId) {
-        String sql = "UPDATE notifications SET isRead = true WHERE id = ?";
+        String sql = "UPDATE notifications SET isRead = true, readAt = ? WHERE id = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, notificationId);
+            preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+            preparedStatement.setInt(2, notificationId);
             return preparedStatement.executeUpdate() > 0;
-
-        } 
-        catch (SQLException e) {
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
 
-    private Notification mapResultSetToNotification(ResultSet resultSet) throws SQLException {
-        Notification notification = new Notification();
-        notification.setId(resultSet.getInt("id"));
-        notification.setUserId(resultSet.getInt("userId"));
-        notification.setText(resultSet.getString("text"));
-        notification.setRead(resultSet.getBoolean("isRead"));
-        notification.setCreatedAt(resultSet.getTimestamp("createdAt").toLocalDateTime());
-        return notification;
+    private Notification mapResultSetToNotification(ResultSet rs) throws SQLException {
+        return new Notification(
+            rs.getInt("id"),
+            rs.getInt("userId"),
+            Notification.NotificationType.valueOf(rs.getString("type")),
+            rs.getString("title"),
+            rs.getString("message"),
+            rs.getBoolean("isRead"),
+            rs.getTimestamp("createdAt").toLocalDateTime(),
+            rs.getTimestamp("readAt") != null ? rs.getTimestamp("readAt").toLocalDateTime() : null,
+            (Integer) rs.getObject("relatedEntityId")
+        );
     }
 }

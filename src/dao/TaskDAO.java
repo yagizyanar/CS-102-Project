@@ -1,6 +1,7 @@
 package dao;
 
 import models.task.Task;
+import models.task.Goal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

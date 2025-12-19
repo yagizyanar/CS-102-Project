@@ -6,8 +6,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
-import model.ForumPost;
-import utils.DatabaseConnection;
+import models.courses.ForumPost;
+import dao.DatabaseConnection;
 
 public class ForumDAO {
     public boolean createPost(ForumPost post, File fileToSend) {

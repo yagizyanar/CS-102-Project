@@ -1,4 +1,4 @@
-package models.pomodorointerface;
+package models.pomodoro;
 
 public interface TimerListener {
     void onTick(String formattedTime);

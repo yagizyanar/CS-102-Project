@@ -1,6 +1,6 @@
 package models.manager;
 
-
+import dao.TaskDAO;
 import models.tracking.ProductivityTracker;
 import models.task.Goal;
 import models.task.Task;
@@ -23,7 +23,7 @@ public class TaskManager {
     /**
      * createTask() creates a new general task, saves it to the database, and adds it to the databbase.
      */
-    public static void createTask(String title, String description, LocalDateTime deadline) {
+    public static void createTask(String title, String description, String deadline) {
         Task task = new Task(title, description, deadline);
         TaskDAO.saveTaskToDatabase(task);
         tasks.add(task);
