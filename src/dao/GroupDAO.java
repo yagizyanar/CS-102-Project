@@ -2,10 +2,7 @@ package dao;
 
 import java.sql.*;
 import java.util.ArrayList;
-
-import model.StudyGroup;
-import model.User;
-import utils.DatabaseConnection;
+import models.user.User;
 
 public class GroupDAO {
 
@@ -25,9 +22,7 @@ public class GroupDAO {
                 addMember(groupId, creatorId);
                 return groupId;
             }
-
-        } 
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return -1;
@@ -69,32 +64,27 @@ public class GroupDAO {
 
     public ArrayList<User> getGroupMembers(int groupId) {
         ArrayList<User> members = new ArrayList<>();
-
-        String sql =
-            "SELECT users.id, users.username " +
-            "FROM users " +
-            "INNER JOIN groupMembers " +
-            "ON users.id = groupMembers.userId " +
-            "WHERE groupMembers.groupId = ?";
+        String sql = "SELECT users.id, users.username, users.email, users.password " +
+                     "FROM users INNER JOIN groupMembers ON users.id = groupMembers.userId " +
+                     "WHERE groupMembers.groupId = ?";
 
         try (Connection connection = DatabaseConnection.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, groupId);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                User user = new User();
-                user.setId(resultSet.getInt("id"));
-                user.setUsername(resultSet.getString("username"));
-                members.add(user);
+            while (rs.next()) {
+                members.add(new User(
+                    rs.getInt("id"),
+                    rs.getString("username"),
+                    rs.getString("email"),
+                    rs.getString("password")
+                ));
             }
-
-        } 
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return members;
     }
 

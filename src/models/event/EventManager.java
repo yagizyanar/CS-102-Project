@@ -13,7 +13,7 @@ public class EventManager {
         EventDAO.loadFromDatabase();
     }
 
-    public void addEvent(String title, String type, LocalDateTime date, String notes) {
+    public void addEvent(String title, String type, String date, String notes) {
         Event event = new Event(title, type, date, notes);
         events.add(event);
         EventDAO.saveEventToDatabase(event);

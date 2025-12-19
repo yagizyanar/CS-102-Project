@@ -41,7 +41,7 @@ public class ProductivityTracker{
      * @param session session to be recorded
      */
     public void recordStdSession(PomodoroSession session) {
-        int mins = session.calculateStdTime();
+        int mins = session.getDurationMinutes();
         totalMin += mins;
         LocalDate today = LocalDate.now();
         dailyStdMins.merge(today, mins, Integer::sum);
@@ -54,18 +54,7 @@ public class ProductivityTracker{
         System.out.println("Total study time: " + totalMin);
     }
 
-    /**
-     * Checks the last study date: if it is before yesterday sets the 
-     * streak to 0
-     */
-    public static void missedDayCheck() {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-
-        if(lastStudyDate.isBefore(yesterday) && lastStudyDate != null) {
-            streak = 0;
-        }
-    }
-
+    
     public static void setLastStudyDate() {
         lastStudyDate = LocalDate.now();
     }
