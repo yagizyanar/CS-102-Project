@@ -1,11 +1,11 @@
-package project;
+package controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import project.user.Badge;
+import models.user.Badge;
 
 import java.io.InputStream;
 import java.util.List;
