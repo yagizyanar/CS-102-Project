@@ -1,6 +1,6 @@
-package productivity.event;
+package models.event;
 
-import src.productivity.database.EventDAO;
+import dao.EventDAO;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

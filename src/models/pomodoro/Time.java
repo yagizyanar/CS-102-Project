@@ -1,4 +1,4 @@
-package pomodoro; 
+package models.pomodoro; 
 
 public class Time {
     private int hours;
