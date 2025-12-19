@@ -1,8 +1,8 @@
 package dao;
 
 import java.sql.*;
-import model.User;
-import utils.DatabaseConnection;
+import models.user.User;
+import dao.DatabaseConnection;
 
 public class UserDAO {
 
@@ -121,17 +121,18 @@ public class UserDAO {
     }
 
     private User mapResultSetToUser(ResultSet resultSet) throws SQLException {
-        User user = new User();
-        user.setId(resultSet.getInt("id"));
+        User user;
+        user.setUserId(resultSet.getInt("id"));
         user.setUsername(resultSet.getString("username"));
         user.setEmail(resultSet.getString("email"));
         user.setPassword(resultSet.getString("password"));
-        user.setBio(resultSet.getString("bio"));
+                
+        /*user.setBio(resultSet.getString("bio"));
         user.setUniversity(resultSet.getString("university"));
         user.setMajor(resultSet.getString("major"));
         user.setProfileImagePath(resultSet.getString("profileImagePath"));
         user.setXp(resultSet.getInt("xp"));
-        user.setLevel(resultSet.getInt("level"));
+        user.setLevel(resultSet.getInt("level"));*/
         return user;
     }
 }
