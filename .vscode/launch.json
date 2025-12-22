@@ -3,9 +3,9 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Main",
+            "name": "Launcher",
             "request": "launch",
-            "mainClass": "com.edutrack/com.edutrack.Main",
+            "mainClass": "com.edutrack/com.edutrack.Launcher",
             "projectName": "EduTrack"
         },
         {
@@ -14,14 +14,7 @@
             "request": "launch",
             "mainClass": "com.edutrack.Launcher",
             "projectName": "EduTrack",
-            "vmArgs": "--module-path \"${env:PATH_TO_FX}\" --add-modules javafx.controls,javafx.fxml"
-        },
-        {
-            "type": "java",
-            "name": "Run via Maven (Recommended)",
-            "request": "launch",
-            "mainClass": "com.edutrack.Main",
-            "projectName": "EduTrack"
         }
     ]
+
 }
