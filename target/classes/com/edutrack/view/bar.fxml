@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane xmlns="http://javafx.com/javafx/25"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.edutrack.controller.BarController">
+
+    <children>
+
+        <ImageView fitHeight="126.0" fitWidth="1920.0" preserveRatio="false">
+            <image><Image url="@rectangle.png"/></image>
+        </ImageView>
+
+        <HBox prefHeight="126.0" prefWidth="1920.0" spacing="800.0">
+
+            <children>
+
+                <!-- LEFT ICONS -->
+                <HBox alignment="CENTER" spacing="40.0">
+                    <padding><Insets left="80.0"/></padding>
+
+                    <children>
+
+                        <Button mnemonicParsing="false"
+                                onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
+                                onAction="#goTasks"
+                                style="-fx-background-color: transparent;">
+                            <graphic>
+                                <ImageView fitHeight="64" fitWidth="64">
+                                    <image><Image url="@task.png"/></image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+
+                        <Button mnemonicParsing="false"
+                                onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
+                                onAction="#goFriends"
+                                style="-fx-background-color: transparent;">
+                            <graphic>
+                                <ImageView fitHeight="64" fitWidth="64">
+                                    <image><Image url="@friends.png"/></image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+
+                        <Button mnemonicParsing="false"
+                                onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
+                                onAction="#goPomodoro"
+                                style="-fx-background-color: transparent;">
+                            <graphic>
+                                <ImageView fitHeight="64" fitWidth="64">
+                                    <image><Image url="@pomodoro.png"/></image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+
+                        <!-- ✅ DASHBOARD -->
+                        <Button mnemonicParsing="false"
+                                onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
+                                onAction="#goDashboard"
+                                style="-fx-background-color: transparent;">
+                            <graphic>
+                                <ImageView fitHeight="64" fitWidth="64">
+                                    <image><Image url="@dashboard.png"/></image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+
+                        <!-- ✅ FORUM -->
+                        <Button mnemonicParsing="false"
+                                onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
+                                onAction="#goForums"
+                                style="-fx-background-color: transparent;">
+                            <graphic>
+                                <ImageView fitHeight="64" fitWidth="64">
+                                    <image><Image url="@comment.png"/></image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+
+                    </children>
+                </HBox>
+
+                <!-- RIGHT ICONS -->
+                <HBox alignment="CENTER" spacing="40.0">
+                    <children>
+
+                        <Button mnemonicParsing="false"
+                                onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
+                                onAction="#goProfile"
+                                style="-fx-background-color: transparent;">
+                            <graphic>
+                                <ImageView fitHeight="64" fitWidth="64">
+                                    <image><Image url="@profile.png"/></image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+
+                        <Button mnemonicParsing="false"
+                                onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
+                                onAction="#goNotifications"
+                                style="-fx-background-color: transparent;">
+                            <graphic>
+                                <ImageView fitHeight="64" fitWidth="64">
+                                    <image><Image url="@notification.png"/></image>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+
+                    </children>
+                </HBox>
+
+            </children>
+        </HBox>
+    </children>
+</StackPane>
