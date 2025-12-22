@@ -1,8 +1,5 @@
 package com.edutrack.dao;
 
-import com.edutrack.model.User;
-import com.edutrack.util.DatabaseManager;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,10 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.edutrack.model.User;
+import com.edutrack.util.DatabaseManager;
+
 public class UserDAO {
 
     public boolean registerUser(User user) {
-        // Enforce Unique Password Policy
         if (isPasswordTaken(user.getPassword())) {
             System.out.println("Registration Failed: Password matches an existing user (Identity Policy).");
             return false;
@@ -52,14 +51,12 @@ public class UserDAO {
                         rs.getString("password"),
                         rs.getString("email"),
                         rs.getString("major"));
-                // Load additional profile fields
                 try {
                     user.setUniversity(rs.getString("university"));
                     user.setBio(rs.getString("bio"));
                     user.setNotes(rs.getString("notes"));
                     user.setProfilePicture(rs.getString("profile_picture"));
                 } catch (SQLException e) {
-                    // Columns might not exist yet
                 }
                 return user;
             }
@@ -106,7 +103,6 @@ public class UserDAO {
                     user.setUniversity(rs.getString("university"));
                     user.setProfilePicture(rs.getString("profile_picture"));
                 } catch (SQLException e) {
-                    // Columns might not exist yet
                 }
                 users.add(user);
             }
@@ -134,7 +130,6 @@ public class UserDAO {
                     user.setUniversity(rs.getString("university"));
                     user.setProfilePicture(rs.getString("profile_picture"));
                 } catch (SQLException e) {
-                    // Columns might not exist yet
                 }
                 return user;
             }
@@ -150,10 +145,10 @@ public class UserDAO {
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, password);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // Returns true if a record exists
+            return rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false; // Fail safe
+            return false; 
         }
     }
 }

@@ -1,5 +1,17 @@
 package com.edutrack.controller;
 
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
 import com.edutrack.dao.ForumDAO;
 import com.edutrack.model.ForumPost;
 import com.edutrack.util.SessionManager;
@@ -12,21 +24,23 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 public class ForumController implements Initializable {
 
-    // ====== Scaling wrapper (from FXML) ======
     @FXML
     private StackPane viewport;
     @FXML
@@ -35,7 +49,6 @@ public class ForumController implements Initializable {
     private static final double DESIGN_W = 1920.0;
     private static final double DESIGN_H = 1080.0;
 
-    // ====== UI (from FXML) ======
     @FXML
     private Label lblTitle;
     @FXML
@@ -59,28 +72,23 @@ public class ForumController implements Initializable {
     @FXML
     private TextArea txtMessage;
 
-    // ====== Data: each course has its own threads/messages ======
     private final Map<String, LinkedHashMap<String, List<Message>>> data = new LinkedHashMap<>();
     private final ObservableList<String> visibleThreads = FXCollections.observableArrayList();
 
     private String currentCourse;
     private String currentThread;
 
-    // Prevent recursion when rebuilding list
     private boolean isUpdatingThreadList = false;
 
-    // Database access
     private final ForumDAO forumDAO = new ForumDAO();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // ---- Course list (edit to your real list if needed) ----
         cmbClasses.setItems(FXCollections.observableArrayList(
                 "CS 101", "CS 102", "CS 103", "CS 201", "CS 202", "CS 203", "CS 204", "CS 205"));
 
         listThreads.setItems(visibleThreads);
 
-        // Click thread opens it (no Open button)
         listThreads.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
             if (isUpdatingThreadList)
                 return;
@@ -88,17 +96,14 @@ public class ForumController implements Initializable {
                 openThread(newV);
         });
 
-        // Select first course by default
         if (!cmbClasses.getItems().isEmpty()) {
             cmbClasses.getSelectionModel().selectFirst();
             onClassChanged();
         }
 
-        // Bind scaling after layout is ready
         Platform.runLater(this::bindScale);
     }
 
-    // ==================== SCALE (keeps design identical) ====================
 
     private void bindScale() {
         if (viewport == null || rootGroup == null)
@@ -126,7 +131,6 @@ public class ForumController implements Initializable {
         rootGroup.setTranslateY((h - DESIGN_H * scale) / 2.0);
     }
 
-    // ==================== UI HANDLERS ====================
 
     @FXML
     private void onClassChanged() {
@@ -140,7 +144,6 @@ public class ForumController implements Initializable {
 
         LinkedHashMap<String, List<Message>> threads = data.get(currentCourse);
 
-        // Default threads per course (only if empty)
         if (threads.isEmpty()) {
             threads.put("#General Comment", new ArrayList<>());
             threads.put("#Homework Help", new ArrayList<>());
@@ -245,11 +248,9 @@ public class ForumController implements Initializable {
 
         String username = safeUsername();
 
-        // Save to local display
         data.get(currentCourse).get(currentThread)
                 .add(new Message(username, msg, LocalDateTime.now()));
 
-        // Save to database
         String fullCourseThread = currentCourse + "::" + currentThread;
         ForumPost post = new ForumPost(fullCourseThread, username, msg);
         forumDAO.addPost(post);
@@ -259,7 +260,6 @@ public class ForumController implements Initializable {
         updateStats();
     }
 
-    // ==================== INTERNAL HELPERS ====================
 
     private void openThread(String thread) {
         if (currentCourse == null)
@@ -271,7 +271,6 @@ public class ForumController implements Initializable {
         currentThread = thread;
         lblThreadTitle.setText(thread);
 
-        // Load posts from database
         loadPostsFromDB();
 
         refreshThreadListPreserveSelection();
@@ -286,7 +285,6 @@ public class ForumController implements Initializable {
         String fullCourseThread = currentCourse + "::" + currentThread;
         List<ForumPost> dbPosts = forumDAO.getPostsByCourse(fullCourseThread);
 
-        // Clear existing local messages for this thread and reload from DB
         List<Message> messages = data.get(currentCourse).get(currentThread);
         messages.clear();
 
@@ -298,11 +296,10 @@ public class ForumController implements Initializable {
                     time = LocalDateTime.parse(post.getTimestamp(), formatter);
                 }
             } catch (Exception e) {
-                // Use current time if parsing fails
+                //
             }
             messages.add(new Message(post.getUsername(), post.getContent(), time));
         }
-        // Reverse to show oldest first (DB returns DESC order)
         java.util.Collections.reverse(messages);
     }
 
@@ -367,7 +364,6 @@ public class ForumController implements Initializable {
             header.setStyle("-fx-font-size: 10px; -fx-opacity: 0.85; -fx-text-fill: white;");
             body.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
         } else {
-            // Generate a random pastel color based on sender name for consistency
             String userColor = getColorForUser(m.sender);
             bubble.setStyle("-fx-background-color: " + userColor + "; -fx-background-radius: 14;");
         }
@@ -386,7 +382,6 @@ public class ForumController implements Initializable {
         return container;
     }
 
-    // Map to store consistent colors for each user
     private final Map<String, String> userColors = new HashMap<>();
     private final String[] PASTEL_COLORS = {
             "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF",
@@ -396,7 +391,6 @@ public class ForumController implements Initializable {
 
     private String getColorForUser(String username) {
         if (!userColors.containsKey(username)) {
-            // Use hash of username to get consistent color
             int index = Math.abs(username.hashCode()) % PASTEL_COLORS.length;
             userColors.put(username, PASTEL_COLORS[index]);
         }
@@ -434,7 +428,6 @@ public class ForumController implements Initializable {
         return "You";
     }
 
-    // ==================== MODEL ====================
 
     private static class Message {
         final String sender;

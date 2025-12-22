@@ -126,8 +126,6 @@ public class DatabaseManager {
                 return;
             }
             try (Statement stmt = conn.createStatement()) {
-                // Execute each table creation separately to prevent one failure from blocking
-                // others
                 try {
                     stmt.execute(userTable);
                 } catch (Exception e) {
@@ -163,10 +161,6 @@ public class DatabaseManager {
                 } catch (Exception e) {
                     System.out.println("Error creating events: " + e.getMessage());
                 }
-
-                // --- COMPREHENSIVE SCHEMA MIGRATION ---
-                // We attempt to add ALL non-primary key columns.
-                // If they exist, it throws an exception which we safely ignore.
 
                 // USERS Table
                 try {
@@ -223,8 +217,6 @@ public class DatabaseManager {
                     stmt.execute("ALTER TABLE friendships ADD COLUMN status VARCHAR(20) DEFAULT 'PENDING'");
                 } catch (Exception e) {
                 }
-                // timestamp/created_at might be tricky on MySQL 5.x vs 8.x, skipping for now
-                // unless reported.
 
                 System.out.println("Schema migration attempts completed.");
 

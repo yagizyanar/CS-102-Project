@@ -1,15 +1,16 @@
 package com.edutrack.controller;
 
+import java.io.IOException;
+import java.util.Random;
+
 import com.edutrack.Main;
 import com.edutrack.dao.UserDAO;
 import com.edutrack.model.User;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-
-import java.io.IOException;
-import java.util.Random;
 
 public class RegisterController {
 
@@ -47,7 +48,6 @@ public class RegisterController {
             return;
         }
 
-        // Assign random avatar (avatar1.png to avatar12.png)
         int avatarNum = random.nextInt(12) + 1;
         String avatarPath = "com/edutrack/view/avatar" + avatarNum + ".png";
 
@@ -55,7 +55,6 @@ public class RegisterController {
         newUser.setProfilePicture(avatarPath);
 
         if (userDAO.registerUser(newUser)) {
-            // Send Welcome Email (Async to avoid UI freeze)
             new Thread(() -> {
                 com.edutrack.util.EmailService.sendWelcomeEmail(email, username);
             }).start();

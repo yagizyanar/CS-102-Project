@@ -77,7 +77,6 @@ public class User {
         this.major = major;
     }
 
-    // --- New Features (XP/Streak) ---
     public int getXpAmount() {
         return xpAmount;
     }
@@ -86,7 +85,6 @@ public class User {
         this.xpAmount = xpAmount;
     }
 
-    // Alias for compatibility with ProfileController
     public int getXp() {
         return xpAmount;
     }

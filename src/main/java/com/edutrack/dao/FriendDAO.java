@@ -1,15 +1,17 @@
 package com.edutrack.dao;
 
-import com.edutrack.model.UserRequest;
-import com.edutrack.util.DatabaseManager;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.edutrack.model.UserRequest;
+import com.edutrack.util.DatabaseManager;
+
 public class FriendDAO {
 
-    // Send a Friend Request
     public boolean sendRequest(int requesterId, int addresseeId) {
         String sql = "INSERT INTO friendships (requester_id, addressee_id, status) VALUES (?, ?, 'PENDING')";
         try (Connection conn = DatabaseManager.connect();
@@ -19,7 +21,6 @@ public class FriendDAO {
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
-            // If it's a duplicate entry, we can consider it "already sent"
             if (e.getMessage().contains("Duplicate")) {
                 System.out.println("Friend request already exists.");
             } else {
@@ -29,7 +30,6 @@ public class FriendDAO {
         }
     }
 
-    // Accept a Friend Request
     public void acceptRequest(int requesterId, int addresseeId) {
         String sql = "UPDATE friendships SET status = 'ACCEPTED' WHERE requester_id = ? AND addressee_id = ?";
         try (Connection conn = DatabaseManager.connect();
@@ -42,7 +42,6 @@ public class FriendDAO {
         }
     }
 
-    // Reject/Cancel Request
     public void deleteFriendship(int requesterId, int addresseeId) {
         String sql = "DELETE FROM friendships WHERE (requester_id = ? AND addressee_id = ?) OR (requester_id = ? AND addressee_id = ?)";
         try (Connection conn = DatabaseManager.connect();
@@ -57,11 +56,9 @@ public class FriendDAO {
         }
     }
 
-    // Search Users by Prefix (Bidirectional Check)
     public List<UserRequest> searchUsers(String query, int currentUserId) {
         List<UserRequest> users = new ArrayList<>();
 
-        // Find users and join with friendships to see if ANY relationship exists
         String sql = "SELECT u.id, u.username, " +
                 "f.status, f.requester_id " +
                 "FROM users u " +
@@ -107,7 +104,6 @@ public class FriendDAO {
         return users;
     }
 
-    // Get Pending Incoming Requests
     public List<UserRequest> getPendingRequests(int userId) {
         List<UserRequest> requests = new ArrayList<>();
         String sql = "SELECT u.id, u.username, 'PENDING' as status " +
@@ -132,11 +128,8 @@ public class FriendDAO {
         return requests;
     }
 
-    // Get Accepted Friends
     public List<UserRequest> getFriends(int userId) {
         List<UserRequest> friends = new ArrayList<>();
-        // Complex query: A friend is someone I added (ACCEPTED) OR someone who added me
-        // (ACCEPTED)
         String sql = "SELECT u.id, u.username, 'ACCEPTED' as status " +
                 "FROM friendships f " +
                 "JOIN users u ON (f.requester_id = u.id OR f.addressee_id = u.id) " +

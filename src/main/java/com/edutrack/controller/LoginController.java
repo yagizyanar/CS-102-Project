@@ -1,16 +1,17 @@
 package com.edutrack.controller;
 
+import java.io.IOException;
+
 import com.edutrack.Main;
 import com.edutrack.dao.UserDAO;
 import com.edutrack.model.User;
 import com.edutrack.util.SessionManager;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-
-import java.io.IOException;
 
 public class LoginController {
 
@@ -39,7 +40,6 @@ public class LoginController {
             SessionManager.setCurrentUser(user);
             System.out.println("Login successful for: " + user.getUsername());
             try {
-                // Navigate to the main layout with persistent nav bar
                 Main.showMainLayout("Dashboard");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -55,7 +55,6 @@ public class LoginController {
             statusLabel.setText(msg);
     }
 
-    // Navigation Methods from User's Demo
     @FXML
     private void goToSignUp(ActionEvent event) throws IOException {
         Main.setRoot("signup");

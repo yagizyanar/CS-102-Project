@@ -8,7 +8,7 @@ public class ConnectivityTest {
     public static void main(String[] args) {
         String url = "jdbc:mysql://20497/bovmfyrxqnhunkngnlkb";
         String user = "uia9z2gxkded5h1h";
-        // Attempting to hide password in logs, but using provided one
+        
         String pass = "qfhfxDdMBUPViOcFrSE";
 
         System.out.println("Testing connectivity to: " + url);

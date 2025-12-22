@@ -1,5 +1,10 @@
 package com.edutrack.controller;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
@@ -9,11 +14,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class EditInfoController {
 
@@ -88,7 +88,6 @@ public class EditInfoController {
             cmbClasses.getItems().addAll("CS102", "CS202", "MATH102");
         }
 
-        // collect avatars safely
         addAvatar(avatar1, "com/edutrack/view/images/avatar1.png");
         addAvatar(avatar2, "com/edutrack/view/images/avatar2.png");
         addAvatar(avatar3, "com/edutrack/view/images/avatar3.png");
@@ -108,29 +107,22 @@ public class EditInfoController {
             return;
         avatarViews.add(iv);
 
-        // ✅ click on avatar selects it
         iv.setOnMouseClicked(e -> selectAvatar(resourcePath));
     }
 
-    // Called by mouse click or by FXML onAction if you use buttons
     private void selectAvatar(String resourcePath) {
         selectedAvatarResource = resourcePath;
 
-        // simple selection highlight (optional)
         for (ImageView v : avatarViews) {
             if (v != null)
                 v.setStyle("");
         }
-        // try to highlight the clicked one (best effort)
         for (ImageView v : avatarViews) {
             if (v == null)
                 continue;
-            // can't reliably match resource, so just highlight all selected via border on
-            // the one user clicked visually
         }
     }
 
-    // Optional: if your FXML uses onMouseClicked="#avatarClicked"
     @FXML
     private void avatarClicked(MouseEvent e) {
         Object src = e.getSource();
@@ -175,7 +167,6 @@ public class EditInfoController {
             txtUniversity.setText(university == null ? "" : university);
         if (txtMajor != null)
             txtMajor.setText(major == null ? "" : major);
-        // classesText is for display; your UI uses ComboBox, so we won't parse it here
     }
 
     @FXML
@@ -196,7 +187,6 @@ public class EditInfoController {
 
     @FXML
     private void save() {
-        // ✅ empty fields => null => parent keeps old values
         String u = cleanOrNull(txtUsername);
         String uni = cleanOrNull(txtUniversity);
         String maj = cleanOrNull(txtMajor);
@@ -207,7 +197,7 @@ public class EditInfoController {
             onSave.accept(new InfoUpdate(u, uni, maj, selectedClass, selectedAvatarResource, selectedUploadFile));
         }
 
-        close(); // ✅ always close after save
+        close(); 
     }
 
     private String cleanOrNull(TextField tf) {
@@ -222,7 +212,6 @@ public class EditInfoController {
 
     @FXML
     private void close() {
-        // ✅ Always closes even if callbacks were not set
         if (onClose != null)
             onClose.run();
         else if (root != null)

@@ -1,7 +1,11 @@
 package com.edutrack.controller;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.edutrack.Main;
 import com.edutrack.dao.SessionDAO;
+
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -9,9 +13,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-
-import java.io.IOException;
-import java.util.List;
 
 public class LeaderboardController {
 

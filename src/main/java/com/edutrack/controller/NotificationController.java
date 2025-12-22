@@ -1,9 +1,16 @@
 package com.edutrack.controller;
 
-import com.edutrack.dao.TaskDAO;
-import com.edutrack.dao.GoalDAO;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.edutrack.dao.EventDAO;
 import com.edutrack.dao.FriendDAO;
+import com.edutrack.dao.GoalDAO;
+import com.edutrack.dao.TaskDAO;
 import com.edutrack.model.Task;
 import com.edutrack.model.User;
 import com.edutrack.model.UserRequest;
@@ -16,16 +23,15 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class NotificationController {
 
@@ -60,7 +66,6 @@ public class NotificationController {
         int userId = user.getId();
         System.out.println("NotificationController: Loading notifications for user " + userId);
 
-        // Load pending friend requests
         List<UserRequest> pendingRequests = friendDAO.getPendingRequests(userId);
         System.out.println("NotificationController: Found " + pendingRequests.size() + " pending friend requests");
         for (UserRequest req : pendingRequests) {
@@ -68,7 +73,6 @@ public class NotificationController {
                     req.getUsername() + " sent you a friend request.", LocalDateTime.now(), true));
         }
 
-        // Load ALL upcoming tasks (non-completed, not overdue)
         List<Task> tasks = taskDAO.getTasksByUserId(userId);
         System.out.println("NotificationController: Found " + tasks.size() + " total tasks");
         for (Task t : tasks) {
@@ -80,7 +84,6 @@ public class NotificationController {
             }
         }
 
-        // Load ALL upcoming goals (non-completed, not overdue)
         List<GoalDAO.GoalRecord> goals = goalDAO.getGoalsByUserId(userId);
         System.out.println("NotificationController: Found " + goals.size() + " total goals");
         for (GoalDAO.GoalRecord g : goals) {
@@ -92,7 +95,6 @@ public class NotificationController {
             }
         }
 
-        // Load ALL upcoming events (not overdue)
         List<EventDAO.EventRecord> events = eventDAO.getEventsByUserId(userId);
         System.out.println("NotificationController: Found " + events.size() + " total events");
         for (EventDAO.EventRecord ev : events) {
@@ -106,7 +108,6 @@ public class NotificationController {
 
         System.out.println("NotificationController: Total notifications loaded: " + notifications.size());
 
-        // If no notifications, add a placeholder
         if (notifications.isEmpty()) {
             notifications.add(new AppNotification("✅ All caught up!",
                     "No new notifications.", LocalDateTime.now(), false));
@@ -133,7 +134,6 @@ public class NotificationController {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fmt);
                 return LocalDate.parse(dateStr, formatter);
             } catch (DateTimeParseException e) {
-                // Try next format
             }
         }
         try {
@@ -149,7 +149,6 @@ public class NotificationController {
         try {
             LocalDate dueDate = null;
 
-            // Try various date formats
             String[] formats = { "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "M/d/yyyy", "d/M/yyyy" };
             for (String fmt : formats) {
                 try {
@@ -157,11 +156,9 @@ public class NotificationController {
                     dueDate = LocalDate.parse(dateStr, formatter);
                     break;
                 } catch (DateTimeParseException e) {
-                    // Try next format
                 }
             }
 
-            // If still null, try ISO format as fallback
             if (dueDate == null) {
                 dueDate = LocalDate.parse(dateStr);
             }
@@ -169,7 +166,6 @@ public class NotificationController {
             LocalDate now = LocalDate.now();
             LocalDate twoDaysFromNow = now.plusDays(2);
 
-            // Due within 2 days means: today <= dueDate <= today+2
             return !dueDate.isBefore(now) && !dueDate.isAfter(twoDaysFromNow);
         } catch (DateTimeParseException e) {
             return false;
@@ -184,7 +180,6 @@ public class NotificationController {
             return;
         }
 
-        // Fallback: just hide if parent removal failed (Main.goBack unavailable)
         if (panelRoot != null)
             panelRoot.setVisible(false);
     }
@@ -233,7 +228,6 @@ public class NotificationController {
                 "-fx-border-color: rgba(0,0,0,0.08);" +
                 "-fx-border-width: 1;");
 
-        // ✅ unread dot disappears when mouse enters the notification card
         row.setOnMouseEntered(e -> {
             if (n.unread) {
                 n.unread = false;
@@ -244,7 +238,6 @@ public class NotificationController {
         return row;
     }
 
-    /** OPTIONAL popup overlay open (top-right) */
     public static void showOverlay(StackPane overlayRoot) {
         try {
             Parent existing = (Parent) overlayRoot.lookup("#notificationPanel");

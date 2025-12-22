@@ -1,19 +1,19 @@
 package com.edutrack.controller;
 
+import java.io.IOException;
+import java.time.LocalDate;
+
 import com.edutrack.Main;
 import com.edutrack.dao.TaskDAO;
 import com.edutrack.model.Task;
 import com.edutrack.util.SessionManager;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
 
 public class ToDoController {
 
@@ -36,7 +36,6 @@ public class ToDoController {
         tasks = FXCollections.observableArrayList(taskDAO.getTasksByUserId(userId));
         taskListView.setItems(tasks);
 
-        // Custom Cell Factory to show Overdue/Completed Status
         taskListView.setCellFactory(param -> new javafx.scene.control.ListCell<>() {
             @Override
             protected void updateItem(Task item, boolean empty) {
@@ -78,9 +77,7 @@ public class ToDoController {
                                 }
                             }
                         } catch (Exception e) {
-                            // Ignore parse errors
                             setStyle("");
-                            // System.out.println("Parse error: " + e.getMessage());
                         }
                     }
                     setText(displayText);
@@ -102,7 +99,6 @@ public class ToDoController {
         String finalDueDate = date.toString();
         if (time != null && !time.trim().isEmpty()) {
             finalDueDate += " " + time.trim();
-            // Basic validation could involve check regex like \d{2}:\d{2}
         }
 
         Task newTask = new Task(SessionManager.getCurrentUser().getId(), title, "", finalDueDate, course);
@@ -120,7 +116,7 @@ public class ToDoController {
     private void handleMarkCompleted() {
         Task selected = taskListView.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            System.out.println("Marking task as completed: " + selected.getId()); // Debug
+            System.out.println("Marking task as completed: " + selected.getId());
             taskDAO.updateTaskStatus(selected.getId(), "COMPLETED");
             initialize();
         } else {
@@ -135,6 +131,7 @@ public class ToDoController {
             taskDAO.deleteTask(selected.getId());
             initialize();
         }
+
     }
 
     @FXML

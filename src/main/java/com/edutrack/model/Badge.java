@@ -39,11 +39,8 @@ public class Badge {
             case XP:
                 return checkXPCriteria(user);
             case SOCIAL:
-                // return checkSocialCriteria(user); // Commented out until FriendIds fixed
                 return false;
             case COURSE:
-                // return checkCourseCriteria(user); // Commented out until EnrolledCourseIds
-                // fixed
                 return false;
             default:
                 return false;
@@ -73,21 +70,10 @@ public class Badge {
 
         user.addBadge(this);
 
-        // Notification logic commented out for migration safety
-        /*
-         * Notification.createNotification(
-         * user.getUserId(),
-         * Notification.NotificationType.BADGE_EARNED,
-         * "Badge Earned!",
-         * "Congratulations! You've earned the '" + this.name + "' badge!",
-         * this.badgeId
-         * );
-         */
         System.out.println("Badge '" + this.name + "' awarded to user " + user.getUsername());
         return true;
     }
 
-    // Factories
     public static Badge createStreakBadge(String name, String description, int streakDays) {
         int badgeId = generateBadgeId();
         return new Badge(badgeId, name, description,

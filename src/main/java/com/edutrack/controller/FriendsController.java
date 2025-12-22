@@ -1,5 +1,16 @@
 package com.edutrack.controller;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import com.edutrack.dao.FriendDAO;
+import com.edutrack.dao.UserDAO;
+import com.edutrack.model.UserRequest;
+import com.edutrack.util.SessionManager;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,7 +19,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -19,17 +34,6 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
-import com.edutrack.dao.FriendDAO;
-import com.edutrack.dao.UserDAO;
-import com.edutrack.model.UserRequest;
-import com.edutrack.util.SessionManager;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
 
 public class FriendsController {
 
@@ -47,7 +51,6 @@ public class FriendsController {
     private Label groupNameLabel;
     private Button leaveGroupButton;
 
-    // ========== DATA STORAGE (static - simulates database) ==========
 
     private static HashMap<String, User> allUsers = new HashMap<>();
 
@@ -179,12 +182,10 @@ public class FriendsController {
         List<UserRequest> dbFriends = friendDAO.getFriends(sessionUser.getId());
 
         for (UserRequest fr : dbFriends) {
-            // Check if already in local list
             User existingUser = findUserByUsername(fr.getUsername());
             if (existingUser != null && !friends.contains(existingUser)) {
                 friends.add(existingUser);
             } else if (existingUser == null) {
-                // Fetch actual user info from database to get profile picture
                 com.edutrack.model.User dbUser = userDAO.getUserByUsername(fr.getUsername());
                 String profilePic = "/com/edutrack/view/avatar1.png"; // default
                 int level = 1;
@@ -224,7 +225,6 @@ public class FriendsController {
                     if (targetUser != null) {
                         FriendDAO friendDAO = new FriendDAO();
                         friendDAO.sendRequest(sessionUser.getId(), targetUser.getId());
-                        // Auto-accept for now (instant friendship)
                         friendDAO.acceptRequest(sessionUser.getId(), targetUser.getId());
                     }
                 }
@@ -266,7 +266,6 @@ public class FriendsController {
 
         if (user.profileImage != null && !user.profileImage.isEmpty()) {
             try {
-                // Ensure path starts with / for getResourceAsStream
                 String imagePath = user.profileImage;
                 if (!imagePath.startsWith("/")) {
                     imagePath = "/" + imagePath;
@@ -444,7 +443,6 @@ public class FriendsController {
 
         if (user.profileImage != null && !user.profileImage.isEmpty()) {
             try {
-                // Ensure path starts with / for getResourceAsStream
                 String imagePath = user.profileImage;
                 if (!imagePath.startsWith("/")) {
                     imagePath = "/" + imagePath;
@@ -470,7 +468,6 @@ public class FriendsController {
 
         row.getChildren().addAll(profileCircle, infoBox);
 
-        // Owner badge
         if (currentGroup != null && currentGroup.owner == user) {
             Label ownerBadge = new Label("👑");
             ownerBadge.setStyle("-fx-font-size: 16;");
@@ -480,49 +477,29 @@ public class FriendsController {
         return row;
     }
 
-    // ========== DATABASE HELPER METHODS ==========
-
-    /**
-     * DATABASE ENTEGRASYONU: Bu metod database'den kullanıcı arayacak
-     */
     private User findUserByUsername(String username) {
         return allUsers.get(username);
     }
 
-    /**
-     * DATABASE ENTEGRASYONU: Bu metod database'den grup arayacak
-     */
     private Group findGroupByName(String groupName) {
         return allGroups.get(groupName);
     }
 
-    /**
-     * DATABASE ENTEGRASYONU: Arkadaş listesini database'den yükle
-     */
     public static void loadFriendsFromDatabase() {
         // TODO: Database'den arkadaş listesini çek
         // friends = database.getFriends(currentUser.username);
     }
 
-    /**
-     * DATABASE ENTEGRASYONU: Arkadaşı database'e kaydet
-     */
     public static void saveFriendToDatabase(User friend) {
         // TODO: Database'e arkadaş ekle
         // database.addFriend(currentUser.username, friend.username);
     }
 
-    /**
-     * DATABASE ENTEGRASYONU: Grubu database'den yükle
-     */
     public static void loadGroupFromDatabase() {
         // TODO: Kullanıcının grubunu database'den çek
         // currentGroup = database.getUserGroup(currentUser.username);
     }
 
-    /**
-     * DATABASE ENTEGRASYONU: Grubu database'e kaydet
-     */
     public static void saveGroupToDatabase(Group group) {
         // TODO: Group database
         // database.saveGroup(group);

@@ -1,7 +1,12 @@
 package com.edutrack.controller;
 
+import java.io.File;
+import java.io.InputStream;
+
 import com.edutrack.dao.UserDAO;
+import com.edutrack.model.User;
 import com.edutrack.util.SessionManager;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -11,10 +16,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import com.edutrack.model.User;
-
-import java.io.File;
-import java.io.InputStream;
 
 public class ProfileController {
 
@@ -79,7 +80,6 @@ public class ProfileController {
         refresh();
     }
 
-    // ===================== Refresh UI =====================
 
     @FXML
     private void refresh() {
@@ -143,13 +143,11 @@ public class ProfileController {
         if (path == null || path.isBlank())
             return;
 
-        // Ensure proper path format for resource stream
         String resourcePath = path;
         if (!resourcePath.startsWith("/")) {
             resourcePath = "/" + resourcePath;
         }
 
-        // resource avatar
         InputStream is = getClass().getResourceAsStream(resourcePath);
         if (is != null) {
             imgProfile.setImage(new Image(is));
@@ -162,14 +160,13 @@ public class ProfileController {
             imgProfile.setImage(new Image(f.toURI().toString()));
     }
 
-    // ===================== Edit Info Overlay =====================
 
     @FXML
 
     private void openEditInfo() {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/project/fxml/profileEditInfo.fxml") // <-- your edit info fxml name
+                    getClass().getResource("/project/fxml/profileEditInfo.fxml") 
             );
 
             Pane pane = loader.load();
@@ -177,18 +174,14 @@ public class ProfileController {
 
             User user = SessionManager.getCurrentUser();
 
-            // initial values
             c.setInitialValues(user.getUsername(), user.getUniversity(), user.getMajor(), user.getClassesText());
 
-            // ✅ CLOSE callback
             c.setOnClose(() -> {
-                // Hide overlay container or remove pane from it
                 editInfoOverlay.getChildren().clear();
                 editInfoOverlay.setVisible(false);
                 refresh();
             });
 
-            // ✅ SAVE callback (empty values keep old)
             c.setOnSave(update -> {
                 if (update.username != null)
                     user.setUsername(update.username);
@@ -197,23 +190,19 @@ public class ProfileController {
                 if (update.major != null)
                     user.setMajor(update.major);
 
-                // class (if you want multiple classes, call addClass)
                 if (update.selectedClass != null && !update.selectedClass.isBlank()) {
                     user.addClass(update.selectedClass);
                 }
 
-                // avatar
                 if (update.avatarResource != null && !update.avatarResource.isBlank()) {
                     user.setProfilePicture(update.avatarResource);
                 }
 
-                // upload file path
                 if (update.uploadFile != null) {
                     user.setProfilePicture(update.uploadFile.getAbsolutePath());
                 }
             });
 
-            // show inside overlay pane
             editInfoOverlay.getChildren().setAll(pane);
             editInfoOverlay.setVisible(true);
 
@@ -229,29 +218,20 @@ public class ProfileController {
         refresh();
     }
 
-    /**
-     * ✅ Tick button should call this (or call tickButton which calls this).
-     * ✅ Keeps old values if text fields are empty.
-     * ✅ Applies avatar if selected.
-     * ✅ Closes overlay (goes back to profile page).
-     */
     @FXML
     private void saveEditInfo() {
         User user = SessionManager.getCurrentUser();
         if (user == null)
             return;
 
-        // Only update if NOT blank (otherwise keep old)
         safeSetText(editUsernameField, user::setUsername);
         safeSetText(editUniversityField, user::setUniversity);
         safeSetText(editMajorField, user::setMajor);
 
-        // Apply avatar if selected
         if (selectedAvatarPath != null && !selectedAvatarPath.isBlank()) {
             user.setProfilePicture(selectedAvatarPath);
         }
 
-        // Close overlay and refresh profile UI
         closeEditInfo();
     }
 
@@ -262,10 +242,8 @@ public class ProfileController {
         if (v != null && !v.trim().isEmpty()) {
             setter.accept(v.trim());
         }
-        // else: do nothing -> keep old value
     }
 
-    // Aliases in case your FXML uses these names
     @FXML
     private void tickButton() {
         saveEditInfo();
@@ -281,8 +259,6 @@ public class ProfileController {
         closeEditInfo();
     }
 
-    // ===================== Edit Bio (because your FXML calls it)
-    // =====================
 
     @FXML
     private void openEditBio() {
@@ -298,7 +274,6 @@ public class ProfileController {
                 controller.setInitialText(user.getBio());
             }
 
-            // Set close callback
             controller.setOnClose(() -> {
                 if (editBioOverlay != null) {
                     editBioOverlay.getChildren().clear();
@@ -307,7 +282,6 @@ public class ProfileController {
                 refresh();
             });
 
-            // Set save callback - save to user and database
             controller.setOnSave(bioText -> {
                 if (user != null) {
                     user.setBio(bioText);
@@ -315,7 +289,6 @@ public class ProfileController {
                 }
             });
 
-            // Show in overlay
             if (editBioOverlay != null) {
                 editBioOverlay.getChildren().setAll(pane);
                 editBioOverlay.setVisible(true);
@@ -335,7 +308,6 @@ public class ProfileController {
         refresh();
     }
 
-    // ===================== Badges (optional) =====================
 
     @FXML
     private void openBadges() {
@@ -349,7 +321,6 @@ public class ProfileController {
             badgesOverlay.setVisible(false);
     }
 
-    // ===================== Multi-class (optional) =====================
 
     @FXML
     private void addClassToUser() {
@@ -382,15 +353,10 @@ public class ProfileController {
         refresh();
     }
 
-    // ===================== 12 avatar handlers =====================
-    // IMPORTANT:
-    // - These set selectedAvatarPath (so tick applies it)
-    // - They ALSO preview immediately by updating the ImageView
 
     private void selectAvatar(String resourcePath) {
         selectedAvatarPath = resourcePath;
 
-        // preview instantly
         updateProfileImage(resourcePath);
     }
 
