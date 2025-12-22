@@ -1,7 +1,12 @@
 package com.edutrack.controller;
 
-import com.edutrack.dao.TaskDAO;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+
 import com.edutrack.dao.GoalDAO;
+import com.edutrack.dao.TaskDAO;
 import com.edutrack.model.Task;
 import com.edutrack.model.User;
 
@@ -12,11 +17,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.TilePane;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.List;
 
 public class DashboardController {
 
@@ -73,7 +73,6 @@ public class DashboardController {
         lblLevelRange.setText("LVL " + level + " → LVL " + (level + 1));
         lvlSlider.setValue((xp % XP_PER_LEVEL) * 100.0 / XP_PER_LEVEL);
 
-        // 🔥 SAME streak as bar
         int streak = user.calculateStreak();
         lblStreak.setText(String.valueOf(streak));
     }
@@ -95,7 +94,6 @@ public class DashboardController {
 
         int userId = user.getId();
 
-        // Load tasks from database - show non-completed, non-overdue
         List<Task> tasks = taskDAO.getTasksByUserId(userId);
         for (Task t : tasks) {
             if (!"COMPLETED".equals(t.getStatus()) && !isOverdue(t.getDueDate())) {
@@ -104,7 +102,6 @@ public class DashboardController {
             }
         }
 
-        // Load goals from database - show non-completed, non-overdue
         List<GoalDAO.GoalRecord> goals = goalDAO.getGoalsByUserId(userId);
         for (GoalDAO.GoalRecord g : goals) {
             if (!g.completed && !isOverdue(g.deadline)) {
@@ -112,7 +109,6 @@ public class DashboardController {
             }
         }
 
-        // If no items, show a placeholder
         if (todoList.getItems().isEmpty()) {
             todoList.getItems().add("No upcoming tasks or goals!");
         }
@@ -122,13 +118,11 @@ public class DashboardController {
         if (dateStr == null || dateStr.isEmpty())
             return false;
         try {
-            // Try MM/dd/yyyy format
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
             LocalDate dueDate = LocalDate.parse(dateStr, formatter);
             return dueDate.isBefore(LocalDate.now());
         } catch (DateTimeParseException e) {
             try {
-                // Try yyyy-MM-dd format
                 LocalDate dueDate = LocalDate.parse(dateStr);
                 return dueDate.isBefore(LocalDate.now());
             } catch (DateTimeParseException e2) {

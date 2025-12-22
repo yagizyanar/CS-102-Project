@@ -20,8 +20,6 @@
             prefHeight="700"
             style="-fx-background-color: linear-gradient(to bottom right, #22b8c7, #6c4bd9);">
 
-    <!-- XP Strip now serves as the dashboard header -->
-    <!-- ===================== XP STRIP (DASHBOARD ONLY) ===================== -->
     <HBox fx:id="xpStrip"
           AnchorPane.topAnchor="20"
           AnchorPane.leftAnchor="28"

@@ -60,7 +60,6 @@
                             </graphic>
                         </Button>
 
-                        <!-- ✅ DASHBOARD -->
                         <Button mnemonicParsing="false"
                                 onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
                                 onAction="#goDashboard"
@@ -72,7 +71,6 @@
                             </graphic>
                         </Button>
 
-                        <!-- ✅ FORUM -->
                         <Button mnemonicParsing="false"
                                 onMouseEntered="#hoverOn" onMouseExited="#hoverOff"
                                 onAction="#goForums"
@@ -87,7 +85,6 @@
                     </children>
                 </HBox>
 
-                <!-- RIGHT ICONS -->
                 <HBox alignment="CENTER" spacing="40.0">
                     <children>
 

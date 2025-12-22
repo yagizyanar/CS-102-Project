@@ -13,6 +13,7 @@ import com.edutrack.util.DatabaseManager;
 public class UserDAO {
 
     public boolean registerUser(User user) {
+        // Enforce Unique Password Policy
         if (isPasswordTaken(user.getPassword())) {
             System.out.println("Registration Failed: Password matches an existing user (Identity Policy).");
             return false;
@@ -51,12 +52,15 @@ public class UserDAO {
                         rs.getString("password"),
                         rs.getString("email"),
                         rs.getString("major"));
+                // Load additional profile fields
                 try {
                     user.setUniversity(rs.getString("university"));
                     user.setBio(rs.getString("bio"));
                     user.setNotes(rs.getString("notes"));
                     user.setProfilePicture(rs.getString("profile_picture"));
+                    user.setXpAmount(rs.getInt("points")); // Load points
                 } catch (SQLException e) {
+                    // Columns might not exist yet
                 }
                 return user;
             }
@@ -84,6 +88,21 @@ public class UserDAO {
         }
     }
 
+    // New method for gamification
+    public boolean addPoints(int userId, int points) {
+        String sql = "UPDATE users SET points = points + ? WHERE id = ?";
+        try (Connection conn = DatabaseManager.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, points);
+            pstmt.setInt(2, userId);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Error adding points: " + e.getMessage());
+            return false;
+        }
+    }
+
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users";
@@ -103,6 +122,7 @@ public class UserDAO {
                     user.setUniversity(rs.getString("university"));
                     user.setProfilePicture(rs.getString("profile_picture"));
                 } catch (SQLException e) {
+                    // Columns might not exist yet
                 }
                 users.add(user);
             }
@@ -130,6 +150,7 @@ public class UserDAO {
                     user.setUniversity(rs.getString("university"));
                     user.setProfilePicture(rs.getString("profile_picture"));
                 } catch (SQLException e) {
+                    // Columns might not exist yet
                 }
                 return user;
             }
@@ -145,10 +166,31 @@ public class UserDAO {
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, password);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+            return rs.next(); // Returns true if a record exists
         } catch (SQLException e) {
             e.printStackTrace();
-            return false; 
+            return false; // Fail safe
+        }
+    }
+
+    public boolean updatePassword(String email, String newPassword) {
+        // Enforce Unique Password Policy (if you want to keep it consistent with
+        // registration)
+        if (isPasswordTaken(newPassword)) {
+            System.out.println("Password Update Failed: Password matches an existing user (Identity Policy).");
+            return false;
+        }
+
+        String sql = "UPDATE users SET password = ? WHERE email = ?";
+        try (Connection conn = DatabaseManager.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newPassword);
+            pstmt.setString(2, email);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error updating password: " + e.getMessage());
+            return false;
         }
     }
 }
