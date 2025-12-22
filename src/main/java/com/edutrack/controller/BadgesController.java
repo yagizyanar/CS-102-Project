@@ -55,4 +55,5 @@ public class BadgesController {
     private void close() {
         if (onClose != null) onClose.run();
     }
+
 }
