@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.edutrack.controller.ForumController">
+
+    <children>
+
+        <!-- Center layer: background + main content -->
+        <StackPane alignment="TOP_CENTER"
+                   AnchorPane.topAnchor="0.0"
+                   AnchorPane.rightAnchor="0.0"
+                   AnchorPane.bottomAnchor="0.0"
+                   AnchorPane.leftAnchor="0.0">
+
+            <children>
+
+                <!-- Background -->
+                <ImageView fitHeight="1080.0" fitWidth="1920.0"
+                           mouseTransparent="true"
+                           preserveRatio="false">
+                    <image>
+                        <Image url="@background.png"/>
+                    </image>
+                </ImageView>
+
+                <!-- Main card -->
+                <VBox alignment="TOP_CENTER" maxHeight="700"
+                      style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
+                    <StackPane.margin>
+                        <!-- Content now at top since bar is persistent layout -->
+                        <Insets top="5" bottom="5"/>
+                    </StackPane.margin>
+
+                    <children>
+
+                        <!-- Header -->
+                        <HBox alignment="CENTER_LEFT" spacing="14.0" prefWidth="1765.0">
+                            <padding>
+                                <Insets top="20" right="40" bottom="0" left="40"/>
+                            </padding>
+
+                            <children>
+                                <Label fx:id="lblTitle" text="CS202 FORUM" textFill="#2aa2d8">
+                                    <font>
+                                        <Font name="System Bold" size="18.0"/>
+                                    </font>
+                                </Label>
+
+                                <Region HBox.hgrow="ALWAYS"/>
+
+                                <VBox alignment="TOP_RIGHT" spacing="6.0">
+                                    <children>
+                                        <Label text="COURSES"
+                                               style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-opacity: 0.7;"/>
+                                        <ComboBox fx:id="cmbClasses" prefWidth="190.0" onAction="#onClassChanged"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Body -->
+                        <HBox spacing="20.0" prefWidth="1765.0" VBox.vgrow="ALWAYS">
+                            <padding>
+                                <Insets top="10" right="40" bottom="20" left="40"/>
+                            </padding>
+
+                            <children>
+
+                                <!-- Chat -->
+                                <BorderPane HBox.hgrow="ALWAYS"
+                                            style="-fx-background-color: white; -fx-background-radius: 14; -fx-border-radius: 14; -fx-border-color: #2aa2d8; -fx-border-width: 2;">
+                                    <padding>
+                                        <Insets top="18" right="18" bottom="18" left="18"/>
+                                    </padding>
+
+                                    <top>
+                                        <Label fx:id="lblThreadTitle" text="#General Comment"
+                                               style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-opacity: 0.75;">
+                                            <BorderPane.margin>
+                                                <Insets bottom="10" left="0" right="0" top="0"/>
+                                            </BorderPane.margin>
+                                        </Label>
+                                    </top>
+
+                                    <center>
+                                        <ScrollPane fx:id="scrollMessages"
+                                                    fitToWidth="true"
+                                                    fitToHeight="true"
+                                                    style="-fx-background: transparent; -fx-background-color: transparent;">
+                                            <content>
+                                                <VBox fx:id="messagesBox" spacing="12.0">
+                                                    <padding>
+                                                        <Insets top="10" right="10" bottom="10" left="10"/>
+                                                    </padding>
+                                                </VBox>
+                                            </content>
+                                        </ScrollPane>
+                                    </center>
+
+                                    <bottom>
+                                        <HBox spacing="10.0" alignment="CENTER_LEFT"
+                                              style="-fx-background-color: #eeeeee; -fx-background-radius: 12;">
+                                            <padding>
+                                                <Insets top="10" right="10" bottom="10" left="10"/>
+                                            </padding>
+
+                                            <TextArea fx:id="txtMessage"
+                                                      promptText="Type something..."
+                                                      wrapText="true"
+                                                      prefRowCount="1"
+                                                      minHeight="34.0"
+                                                      maxHeight="70.0"
+                                                      HBox.hgrow="ALWAYS"
+                                                      style="-fx-background-radius: 10;"/>
+
+                                            <Button text="Clear" onAction="#clearMessage"
+                                                    style="-fx-background-color: #cfd8dc; -fx-background-radius: 10;"/>
+
+                                            <Button text="Send" onAction="#sendMessage"
+                                                    style="-fx-background-color: #59B5E0; -fx-text-fill: white; -fx-background-radius: 10;"/>
+                                        </HBox>
+                                    </bottom>
+                                </BorderPane>
+
+                                <!-- Right panel -->
+                                <VBox spacing="12.0" prefWidth="420.0">
+
+                                    <TextField fx:id="txtSearch" promptText="Search"
+                                               onKeyReleased="#searchThreads"
+                                               style="-fx-background-radius: 10;"/>
+
+                                    <ListView fx:id="listThreads" VBox.vgrow="ALWAYS"
+                                              style="-fx-background-radius: 12; -fx-border-radius: 12;"/>
+
+                                    <HBox spacing="10.0">
+                                        <Button text="New Thread" onAction="#newThread" HBox.hgrow="ALWAYS"
+                                                style="-fx-background-color: #59B5E0; -fx-text-fill: white;"/>
+                                    </HBox>
+
+                                    <HBox spacing="10.0">
+                                        <Button text="Delete" onAction="#deleteSelectedThread" HBox.hgrow="ALWAYS"
+                                                style="-fx-background-color: #ffe5e5;"/>
+                                        <Button text="Refresh" onAction="#refreshThread" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+
+                                    <Label fx:id="lblStats" text="Threads: 0 | Messages: 0"
+                                           style="-fx-font-size: 11px; -fx-opacity: 0.75;"/>
+                                </VBox>
+
+                            </children>
+                        </HBox>
+
+                    </children>
+                </VBox>
+
+            </children>
+        </StackPane>
+
+    </children>
+</AnchorPane>
