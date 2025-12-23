@@ -14,7 +14,7 @@ import com.edutrack.util.DatabaseManager;
 public class GroupDAO {
 
     public boolean createGroup(String name, int ownerId) {
-        String sql = "INSERT INTO groups(name, owner_id) VALUES(?, ?)";
+        String sql = "INSERT INTO study_groups(name, owner_id) VALUES(?, ?)";
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
@@ -69,7 +69,7 @@ public class GroupDAO {
 
     public void deleteGroup(int groupId) {
         String sqlMembers = "DELETE FROM group_members WHERE group_id = ?";
-        String sqlGroup = "DELETE FROM groups WHERE id = ?";
+        String sqlGroup = "DELETE FROM study_groups WHERE id = ?";
         try (Connection conn = DatabaseManager.connect()) {
             try (PreparedStatement pstmt = conn.prepareStatement(sqlMembers)) {
                 pstmt.setInt(1, groupId);
@@ -85,7 +85,7 @@ public class GroupDAO {
     }
 
     public GroupRecord getGroupByName(String name) {
-        String sql = "SELECT * FROM groups WHERE name = ?";
+        String sql = "SELECT * FROM study_groups WHERE name = ?";
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
@@ -103,7 +103,7 @@ public class GroupDAO {
     }
 
     public GroupRecord getGroupById(int id) {
-        String sql = "SELECT * FROM groups WHERE id = ?";
+        String sql = "SELECT * FROM study_groups WHERE id = ?";
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
@@ -122,7 +122,7 @@ public class GroupDAO {
 
     public GroupRecord getUserGroup(int userId) {
         // Find which group the user belongs to
-        String sql = "SELECT g.* FROM groups g JOIN group_members gm ON g.id = gm.group_id WHERE gm.user_id = ?";
+        String sql = "SELECT g.* FROM study_groups g JOIN group_members gm ON g.id = gm.group_id WHERE gm.user_id = ?";
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
