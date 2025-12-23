@@ -323,8 +323,21 @@ public class FriendsController {
         Button removeBtn = new Button("✕");
         removeBtn.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-background-radius: 15;");
         removeBtn.setOnAction(e -> {
+            // Delete from database
+            com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+            if (sessionUser != null) {
+                com.edutrack.model.User targetUser = new UserDAO().getUserByUsername(user.username);
+                if (targetUser != null) {
+                    FriendDAO friendDAO = new FriendDAO();
+                    // This will delete the friendship for both users
+                    friendDAO.deleteFriendship(sessionUser.getId(), targetUser.getId());
+                    System.out.println("FriendsController: Removed friendship between " + sessionUser.getUsername() + " and " + user.username);
+                }
+            }
+            // Remove from local list
             friends.remove(user);
             refreshFriendsList();
+            showInfo("Unfriended", "You are no longer friends with " + user.username);
         });
 
         row.getChildren().addAll(profileCircle, infoBox, spacer, removeBtn);
