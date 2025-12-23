@@ -9,50 +9,53 @@
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.edutrack.controller.NotificationController"
-            prefWidth="360" prefHeight="420"
-            maxWidth="360" maxHeight="420"
-            style="-fx-background-color: white;
-                   -fx-background-radius: 16;
-                   -fx-border-radius: 16;
-                   -fx-border-color: rgba(0,0,0,0.15);
-                   -fx-border-width: 1;
-                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0.15, 0, 6);">
+            style="-fx-background-color: #f5f5f5;">
 
     <children>
-        <VBox spacing="10"
+        <VBox spacing="0"
               AnchorPane.topAnchor="0.0"
               AnchorPane.rightAnchor="0.0"
               AnchorPane.bottomAnchor="0.0"
               AnchorPane.leftAnchor="0.0">
-            <padding>
-                <Insets top="14" right="14" bottom="14" left="14"/>
-            </padding>
 
-            <!-- Header -->
-            <HBox alignment="CENTER_LEFT" spacing="10">
+            <HBox alignment="CENTER_LEFT" spacing="20"
+                  style="-fx-background-color: white;
+                         -fx-padding: 20;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
                 <children>
                     <Label text="Notifications" textFill="#2aa2d8">
                         <font>
-                            <Font name="System Bold" size="16"/>
+                            <Font name="System Bold" size="24"/>
                         </font>
                     </Label>
 
                     <Region HBox.hgrow="ALWAYS"/>
 
-                    <Button fx:id="btnClose" text="X" onAction="#closePanel"
-                            style="-fx-background-color: #f1f1f1; -fx-background-radius: 10;"/>
+                    <Button fx:id="btnClose" text="✕" onAction="#closePanel"
+                            style="-fx-background-color: #f1f1f1; 
+                                   -fx-background-radius: 10;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: bold;
+                                   -fx-cursor: hand;
+                                   -fx-padding: 10 15;"/>
                 </children>
             </HBox>
 
-            <Separator/>
-
-            <ScrollPane fitToWidth="true"
-                        style="-fx-background: transparent; -fx-background-color: transparent;">
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background: transparent; 
+                               -fx-background-color: transparent;">
                 <content>
-                    <VBox fx:id="listBox" spacing="10">
+                    <VBox spacing="0" alignment="TOP_CENTER">
                         <padding>
-                            <Insets top="4" right="4" bottom="4" left="4"/>
+                            <Insets top="40" right="40" bottom="40" left="40"/>
                         </padding>
+
+                        <VBox fx:id="listBox" spacing="15" maxWidth="800" 
+                              style="-fx-background-color: white;
+                                     -fx-background-radius: 16;
+                                     -fx-padding: 20;
+                                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
+                        </VBox>
                     </VBox>
                 </content>
             </ScrollPane>
