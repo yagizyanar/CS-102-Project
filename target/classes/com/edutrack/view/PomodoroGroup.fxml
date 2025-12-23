@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
@@ -10,52 +11,92 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane alignment="BOTTOM_CENTER" prefHeight="322.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.PomodoroController">
+<StackPane alignment="CENTER" prefHeight="900.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.PomodoroController">
    <children>
-      <ImageView fitHeight="1015.0" fitWidth="1920.0">
+      <ImageView fitHeight="1080.0" fitWidth="1920.0" preserveRatio="false">
          <image>
             <Image url="@background.png" />
          </image>
-         <StackPane.margin>
-            <Insets />
-         </StackPane.margin>
       </ImageView>
-      <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="818.0" prefWidth="1765.0" spacing="200.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
+      
+      <VBox alignment="TOP_CENTER" maxWidth="1200.0" prefHeight="750.0" prefWidth="1200.0" 
+            style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
+         <StackPane.margin>
+            <Insets bottom="30.0" top="30.0" />
+         </StackPane.margin>
+         <padding>
+            <Insets top="40.0" left="50.0" right="50.0" bottom="40.0"/>
+         </padding>
+         
          <children>
-            <Label alignment="CENTER" prefHeight="73.0" prefWidth="234.0" text="00.00">
+            <!-- Title -->
+            <Label text="Group Study Session" style="-fx-text-fill: #59B5E0;">
                <font>
-                  <Font name="Segoe UI" size="35.0" />
+                  <Font name="System Bold" size="32.0" />
                </font>
             </Label>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="200.0">
+            
+            <!-- Timer Display -->
+            <Label fx:id="timerLabel" text="25:00" style="-fx-text-fill: #333;">
+               <font>
+                  <Font size="72.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="30.0" bottom="10.0"/>
+               </VBox.margin>
+            </Label>
+            
+            <!-- Phase Label -->
+            <Label fx:id="phaseLabel" text="Study Time" style="-fx-text-fill: #666; -fx-font-size: 18;"/>
+            
+            <!-- Ready Count -->
+            <Label fx:id="readyCountLabel" text="0/0 Ready" style="-fx-text-fill: #59B5E0; -fx-font-size: 16; -fx-font-weight: bold;">
+               <VBox.margin>
+                  <Insets top="20.0"/>
+               </VBox.margin>
+            </Label>
+            
+            <!-- Group Status -->
+            <Label fx:id="groupStatusLabel" text="Waiting for members to be ready..." style="-fx-text-fill: #888; -fx-font-size: 14;">
+               <VBox.margin>
+                  <Insets top="5.0" bottom="20.0"/>
+               </VBox.margin>
+            </Label>
+            
+            <!-- Members List -->
+            <Label text="Group Members" style="-fx-font-weight: bold; -fx-font-size: 16;">
+               <VBox.margin>
+                  <Insets top="10.0"/>
+               </VBox.margin>
+            </Label>
+            
+            <ScrollPane fitToWidth="true" prefHeight="200.0" style="-fx-background: transparent; -fx-background-color: transparent;">
+               <content>
+                  <VBox fx:id="membersListBox" spacing="8.0" style="-fx-padding: 10;">
+                  </VBox>
+               </content>
+               <VBox.margin>
+                  <Insets top="10.0"/>
+               </VBox.margin>
+            </ScrollPane>
+            
+            <!-- Buttons -->
+            <HBox alignment="CENTER" spacing="30.0">
+               <VBox.margin>
+                  <Insets top="30.0"/>
+               </VBox.margin>
                <children>
-                  <Button mnemonicParsing="false" onAction="#goToMembers" style="-fx-background-color: #59B5E0;" text="Group Members" textFill="WHITE" />
-                  <Button mnemonicParsing="false" onAction="#openSettingsFromGroup" style="-fx-background-color: #59B5E0;" text="Timer Settings" textFill="WHITE" />
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="550.0" spacing="40.0">
-                     <children>
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" style="-fx-background-color: #59B5E0;" text="Ready" textFill="WHITE" />
-                        <Label prefHeight="84.0" prefWidth="376.0" text="(When all group members are ready it will start automatically) ">
-                           <font>
-                              <Font name="Segoe UI" size="12.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
+                  <Button fx:id="readyButton" text="Ready" onAction="#toggleReady"
+                          style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"/>
+                  
+                  <Button text="Timer Settings" onAction="#openSettingsFromGroup"
+                          style="-fx-background-color: #59B5E0; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 25;"/>
+                  
+                  <Button text="Back" onAction="#backToStartPomodoro"
+                          style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 25;"/>
                </children>
-               <padding>
-                  <Insets left="460.0" />
-               </padding>
             </HBox>
          </children>
-         <padding>
-            <Insets top="200.0" />
-         </padding>
-         <StackPane.margin>
-            <Insets bottom="50.0" />
-         </StackPane.margin>
       </VBox>
    </children>
-   <opaqueInsets>
-      <Insets />
-   </opaqueInsets>
 </StackPane>
