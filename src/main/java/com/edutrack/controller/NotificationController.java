@@ -38,9 +38,15 @@ public class NotificationController {
     @FXML
     private AnchorPane panelRoot;
     @FXML
+    private AnchorPane popupRoot;
+    @FXML
     private VBox listBox;
     @FXML
     private Button btnClose;
+    @FXML
+    private Button btnExpand;
+
+    private boolean isPopupMode = false;
 
     private final List<AppNotification> notifications = new ArrayList<>();
     private final TaskDAO taskDAO = new TaskDAO();
@@ -50,9 +56,16 @@ public class NotificationController {
 
     @FXML
     private void initialize() {
+      
+        isPopupMode = (popupRoot != null);
+        
         notifications.clear();
         loadNotifications();
         render();
+    }
+    
+    public void setPopupMode(boolean popupMode) {
+        this.isPopupMode = popupMode;
     }
 
     private void loadNotifications() {
@@ -110,7 +123,7 @@ public class NotificationController {
 
         if (notifications.isEmpty()) {
             notifications.add(new AppNotification("✅ All caught up!",
-                    "No new notifications.", LocalDateTime.now(), false));
+                    "No notifications at this time.", LocalDateTime.now(), false));
         }
     }
 
@@ -174,13 +187,38 @@ public class NotificationController {
 
     @FXML
     private void closePanel() {
-        if (panelRoot != null && panelRoot.getParent() instanceof Pane parent) {
-            parent.getChildren().remove(panelRoot);
+        AnchorPane root = panelRoot != null ? panelRoot : popupRoot;
+        if (root != null && root.getParent() instanceof Pane parent) {
+            parent.getChildren().remove(root);
         }
-        
-        // Navigate to Dashboard
+
+        if (!isPopupMode) {
+            try {
+                com.edutrack.Main.setContent("Dashboard");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    @FXML
+    private void closePopup() {
+        AnchorPane root = popupRoot != null ? popupRoot : panelRoot;
+        if (root != null && root.getParent() instanceof Pane parent) {
+            parent.getChildren().remove(root);
+        }
+    }
+    
+    @FXML
+    private void expandToFullPage() {
+    
+        AnchorPane root = popupRoot != null ? popupRoot : panelRoot;
+        if (root != null && root.getParent() instanceof Pane parent) {
+            parent.getChildren().remove(root);
+        }
+
         try {
-            com.edutrack.Main.setContent("Dashboard");
+            com.edutrack.Main.setContent("notification");
         } catch (Exception e) {
             e.printStackTrace();
         }
