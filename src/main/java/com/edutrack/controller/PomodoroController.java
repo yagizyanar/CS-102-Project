@@ -122,6 +122,9 @@ public class PomodoroController {
         if (readyCountLabel != null) {
             updateReadyCount();
         }
+
+        // Show/hide start/stop timer buttons based on owner status
+        updateOwnerButtonVisibility();
     }
 
     private void updateMembersList() {

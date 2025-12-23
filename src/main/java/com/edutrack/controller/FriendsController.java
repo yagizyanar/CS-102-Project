@@ -56,6 +56,7 @@ public class FriendsController {
     private static Group currentGroup = null;
     private static User currentUser = null;
     private static final int GROUP_CAPACITY = 10;
+    private static boolean allUsersLoaded = false; // Cache flag to prevent repeated loading
 
     // Inner class for User
     public static class User {
@@ -177,7 +178,12 @@ public class FriendsController {
     }
 
     private static void initializeSampleData() {
-        // No longer needed for groups, maybe for users cache lookup
+        // Only load users cache once per session
+        if (allUsersLoaded) {
+            return;
+        }
+        allUsersLoaded = true;
+
         List<com.edutrack.model.User> dbUsers = new UserDAO().getAllUsers();
         for (com.edutrack.model.User dbUser : dbUsers) {
             String avatar = dbUser.getProfilePicture();
@@ -217,36 +223,41 @@ public class FriendsController {
 
         com.edutrack.dao.GroupDAO.GroupRecord record = groupDAO.getUserGroup(sessionUser.getId());
         if (record != null) {
-            // Fetch owner
-            com.edutrack.dao.UserDAO userDAO = new UserDAO();
-            // We need owner info.
-            // Let's assume we can get it from allUsers wrapper or fetch it.
-            // Since we don't have owner username easily from ID without query, let's fetch
-            // members first.
-
             List<User> members = groupDAO.getGroupMembers(record.id);
-            User owner = null;
-            // Identify owner
-            // Wait, getGroupMembers doesn't return IDs. The model User doesn't have ID.
-            // We need to map back.
-            // To simplify, let's fetch owner user separately or find within members if
-            // possible.
-            // Actually, we can just find the owner by ID if we had a method.
-            // For now, let's just make the first member or match by username if we could.
-            // Correction: GroupRecord has ownerId.
-            // We need to find which member matches ownerId.
 
-            // Quick fix: Fetch owner user from DB
-            com.edutrack.model.User dbOwner = new UserDAO().getAllUsers().stream()
-                    .filter(u -> u.getId() == record.ownerId).findFirst().orElse(null);
-            if (dbOwner != null) {
-                String av = dbOwner.getProfilePicture();
-                if (av == null)
-                    av = "/com/edutrack/view/avatar1.png";
-                owner = new User(dbOwner.getUsername(), av, dbOwner.getLevel());
+            // Find owner from the already fetched members list by checking allUsers cache
+            // or by finding the member whose username matches the owner from the database
+            User owner = null;
+
+            // Use the allUsers cache which was already populated
+            for (User member : members) {
+                // We need to check if this member is the owner
+                // Unfortunately we need to look up owner by ID - use a lightweight query
+                com.edutrack.model.User dbOwner = new UserDAO().getUserByUsername(member.getUsername());
+                if (dbOwner != null && dbOwner.getId() == record.ownerId) {
+                    owner = member;
+                    break;
+                }
+            }
+
+            // If owner not found in members (shouldn't happen normally), try cache
+            if (owner == null) {
+                for (String uname : allUsers.keySet()) {
+                    User cached = allUsers.get(uname);
+                    com.edutrack.model.User dbUser = new UserDAO().getUserByUsername(uname);
+                    if (dbUser != null && dbUser.getId() == record.ownerId) {
+                        owner = cached;
+                        break;
+                    }
+                }
             }
 
             if (owner != null) {
+                currentGroup = new Group(record.id, record.name, owner);
+                currentGroup.members = new ArrayList<>(members);
+            } else if (!members.isEmpty()) {
+                // Fallback: use first member as owner if can't determine
+                owner = members.get(0);
                 currentGroup = new Group(record.id, record.name, owner);
                 currentGroup.members = new ArrayList<>(members);
             }
