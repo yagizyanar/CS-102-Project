@@ -35,6 +35,7 @@ public class LoginController {
         }
 
         User user = userDAO.loginUser(username, password);
+        User user2 = userDAO.loginUserByEmail(username,password);
 
         if (user != null) {
             SessionManager.setCurrentUser(user);
@@ -46,7 +47,19 @@ public class LoginController {
                 e.printStackTrace();
                 setStatus("Error loading dashboard.");
             }
-        } else {
+        }
+        else if(user2 != null){
+            SessionManager.setCurrentUser(user2);
+            System.out.println("Login successful for: " + user2.getUsername());
+            try {
+                // Navigate to the main layout with persistent nav bar
+                Main.showMainLayout("Dashboard");
+            } catch (IOException e) {
+                e.printStackTrace();
+                setStatus("Error loading dashboard.");
+            }
+        } 
+        else {
             setStatus("Invalid credentials.");
         }
     }

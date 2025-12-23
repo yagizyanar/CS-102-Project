@@ -70,6 +70,42 @@ public class UserDAO {
         return null;
     }
 
+    public User loginUserByEmail(String email, String password) {
+        String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+
+        try (Connection conn = DatabaseManager.connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, email);
+            pstmt.setString(2, password);
+            
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                User user = new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("major"));
+                
+                try {
+                    user.setUniversity(rs.getString("university"));
+                    user.setBio(rs.getString("bio"));
+                    user.setNotes(rs.getString("notes"));
+                    user.setProfilePicture(rs.getString("profile_picture"));
+                    user.setXpAmount(rs.getInt("points")); 
+                } catch (SQLException e) {
+                    
+                }
+                return user;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
     public boolean updateProfile(User user) {
         String sql = "UPDATE users SET university = ?, bio = ?, notes = ?, profile_picture = ? WHERE id = ?";
 
