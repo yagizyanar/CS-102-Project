@@ -56,7 +56,7 @@ public class NotificationController {
 
     @FXML
     private void initialize() {
-      
+        // Determine if we're in popup mode
         isPopupMode = (popupRoot != null);
         
         notifications.clear();
@@ -191,7 +191,8 @@ public class NotificationController {
         if (root != null && root.getParent() instanceof Pane parent) {
             parent.getChildren().remove(root);
         }
-
+        
+        // Only navigate if we're in full page mode
         if (!isPopupMode) {
             try {
                 com.edutrack.Main.setContent("Dashboard");
@@ -211,12 +212,13 @@ public class NotificationController {
     
     @FXML
     private void expandToFullPage() {
-    
+        // Close the popup first
         AnchorPane root = popupRoot != null ? popupRoot : panelRoot;
         if (root != null && root.getParent() instanceof Pane parent) {
             parent.getChildren().remove(root);
         }
-
+        
+        // Navigate to full notification page
         try {
             com.edutrack.Main.setContent("notification");
         } catch (Exception e) {
@@ -239,12 +241,10 @@ public class NotificationController {
         dot.setVisible(n.unread);
 
         Label title = new Label(n.title);
-        title.setStyle("-fx-font-weight: bold; -fx-font-size: 12px;");
-        title.setTextFill(Color.BLACK);
+        title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #333333;");
 
         Label time = new Label(n.timeText());
-        time.setStyle("-fx-font-size: 10px; -fx-opacity: 0.65;");
-        time.setTextFill(Color.BLACK);
+        time.setStyle("-fx-font-size: 11px; -fx-text-fill: #888888;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -254,25 +254,38 @@ public class NotificationController {
 
         Label body = new Label(n.body);
         body.setWrapText(true);
-        body.setStyle("-fx-font-size: 11px;");
-        body.setTextFill(Color.BLACK);
+        body.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
 
-        VBox textBox = new VBox(4, header, body);
+        VBox textBox = new VBox(6, header, body);
 
-        HBox row = new HBox(10, dot, textBox);
-        row.setPadding(new Insets(10));
+        HBox row = new HBox(12, dot, textBox);
+        row.setPadding(new Insets(15));
         row.setAlignment(Pos.TOP_LEFT);
-        row.setStyle("-fx-background-color: white;" +
+        row.setStyle("-fx-background-color: #f8f9fa;" +
                 "-fx-background-radius: 12;" +
                 "-fx-border-radius: 12;" +
-                "-fx-border-color: rgba(0,0,0,0.08);" +
+                "-fx-border-color: #e0e0e0;" +
                 "-fx-border-width: 1;");
 
         row.setOnMouseEntered(e -> {
+            row.setStyle("-fx-background-color: #e8f4f8;" +
+                    "-fx-background-radius: 12;" +
+                    "-fx-border-radius: 12;" +
+                    "-fx-border-color: #2aa2d8;" +
+                    "-fx-border-width: 1;" +
+                    "-fx-cursor: hand;");
             if (n.unread) {
                 n.unread = false;
                 dot.setVisible(false);
             }
+        });
+        
+        row.setOnMouseExited(e -> {
+            row.setStyle("-fx-background-color: #f8f9fa;" +
+                    "-fx-background-radius: 12;" +
+                    "-fx-border-radius: 12;" +
+                    "-fx-border-color: #e0e0e0;" +
+                    "-fx-border-width: 1;");
         });
 
         return row;
