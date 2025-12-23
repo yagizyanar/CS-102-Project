@@ -59,6 +59,12 @@ public class UserDAO {
                     user.setNotes(rs.getString("notes"));
                     user.setProfilePicture(rs.getString("profile_picture"));
                     user.setXpAmount(rs.getInt("points")); // Load points
+                    String classesStr = rs.getString("classes");
+                    if (classesStr != null && !classesStr.isBlank()) {
+                        for (String c : classesStr.split(",")) {
+                            user.addClass(c.trim());
+                        }
+                    }
                 } catch (SQLException e) {
                     // Columns might not exist yet
                 }
@@ -74,11 +80,11 @@ public class UserDAO {
         String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 
         try (Connection conn = DatabaseManager.connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, email);
             pstmt.setString(2, password);
-            
+
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
@@ -88,15 +94,21 @@ public class UserDAO {
                         rs.getString("password"),
                         rs.getString("email"),
                         rs.getString("major"));
-                
+
                 try {
                     user.setUniversity(rs.getString("university"));
                     user.setBio(rs.getString("bio"));
                     user.setNotes(rs.getString("notes"));
                     user.setProfilePicture(rs.getString("profile_picture"));
-                    user.setXpAmount(rs.getInt("points")); 
+                    user.setXpAmount(rs.getInt("points"));
+                    String classesStr = rs.getString("classes");
+                    if (classesStr != null && !classesStr.isBlank()) {
+                        for (String c : classesStr.split(",")) {
+                            user.addClass(c.trim());
+                        }
+                    }
                 } catch (SQLException e) {
-                    
+
                 }
                 return user;
             }
@@ -107,7 +119,7 @@ public class UserDAO {
     }
 
     public boolean updateProfile(User user) {
-        String sql = "UPDATE users SET university = ?, bio = ?, notes = ?, profile_picture = ? WHERE id = ?";
+        String sql = "UPDATE users SET university = ?, bio = ?, notes = ?, profile_picture = ?, major = ?, classes = ? WHERE id = ?";
 
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -115,7 +127,9 @@ public class UserDAO {
             pstmt.setString(2, user.getBio());
             pstmt.setString(3, user.getNotes());
             pstmt.setString(4, user.getProfilePicture());
-            pstmt.setInt(5, user.getId());
+            pstmt.setString(5, user.getMajor());
+            pstmt.setString(6, user.getClassesText());
+            pstmt.setInt(7, user.getId());
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -157,6 +171,12 @@ public class UserDAO {
                 try {
                     user.setUniversity(rs.getString("university"));
                     user.setProfilePicture(rs.getString("profile_picture"));
+                    String classesStr = rs.getString("classes");
+                    if (classesStr != null && !classesStr.isBlank()) {
+                        for (String c : classesStr.split(",")) {
+                            user.addClass(c.trim());
+                        }
+                    }
                 } catch (SQLException e) {
                     // Columns might not exist yet
                 }
@@ -185,6 +205,12 @@ public class UserDAO {
                 try {
                     user.setUniversity(rs.getString("university"));
                     user.setProfilePicture(rs.getString("profile_picture"));
+                    String classesStr = rs.getString("classes");
+                    if (classesStr != null && !classesStr.isBlank()) {
+                        for (String c : classesStr.split(",")) {
+                            user.addClass(c.trim());
+                        }
+                    }
                 } catch (SQLException e) {
                     // Columns might not exist yet
                 }
@@ -213,6 +239,12 @@ public class UserDAO {
                 try {
                     user.setUniversity(rs.getString("university"));
                     user.setProfilePicture(rs.getString("profile_picture"));
+                    String classesStr = rs.getString("classes");
+                    if (classesStr != null && !classesStr.isBlank()) {
+                        for (String c : classesStr.split(",")) {
+                            user.addClass(c.trim());
+                        }
+                    }
                 } catch (SQLException e) {
                     // Columns might not exist yet
                 }

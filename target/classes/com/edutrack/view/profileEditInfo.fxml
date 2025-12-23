@@ -53,16 +53,16 @@
                             <GridPane hgap="10" vgap="10">
                                 <children>
 
-                                    <Label style="-fx-font-weight: bold;" text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #333333;" text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                     <TextField fx:id="txtUsername" promptText="Enter username" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <Label style="-fx-font-weight: bold;" text="University:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #333333;" text="University:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <TextField fx:id="txtUniversity" promptText="Enter university" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                    <Label style="-fx-font-weight: bold;" text="Major:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #333333;" text="Major:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                                     <TextField fx:id="txtMajor" promptText="Enter major" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                    <Label style="-fx-font-weight: bold;" text="Classes:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #333333;" text="Classes:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                                     <ComboBox fx:id="cmbClasses" prefWidth="200" promptText="Select class" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                                 </children>

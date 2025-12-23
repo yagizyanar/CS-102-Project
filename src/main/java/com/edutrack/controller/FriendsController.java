@@ -31,12 +31,18 @@ import javafx.scene.text.Font;
 
 public class FriendsController {
 
-    @FXML private VBox friendsContainer;
-    @FXML private VBox groupContainer;
-    @FXML private Button addFriendButton;
-    @FXML private HBox groupButtonsBox;
-    @FXML private Button createGroupBtn;
-    @FXML private Button joinGroupBtn;
+    @FXML
+    private VBox friendsContainer;
+    @FXML
+    private VBox groupContainer;
+    @FXML
+    private Button addFriendButton;
+    @FXML
+    private HBox groupButtonsBox;
+    @FXML
+    private Button createGroupBtn;
+    @FXML
+    private Button joinGroupBtn;
 
     private VBox groupMembersContainer;
     private Label capacityLabel;
@@ -63,11 +69,25 @@ public class FriendsController {
             this.level = level;
         }
 
-        public String getUsername() { return username; }
-        public String getProfileImage() { return profileImage; }
-        public int getLevel() { return level; }
-        public boolean isReady() { return isReady; }
-        public void setReady(boolean ready) { this.isReady = ready; }
+        public String getUsername() {
+            return username;
+        }
+
+        public String getProfileImage() {
+            return profileImage;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public boolean isReady() {
+            return isReady;
+        }
+
+        public void setReady(boolean ready) {
+            this.isReady = ready;
+        }
     }
 
     // Inner class for Group
@@ -84,7 +104,8 @@ public class FriendsController {
         }
 
         public boolean addMember(User user) {
-            if (members.size() >= GROUP_CAPACITY) return false;
+            if (members.size() >= GROUP_CAPACITY)
+                return false;
             if (!members.contains(user)) {
                 members.add(user);
                 return true;
@@ -92,21 +113,39 @@ public class FriendsController {
             return false;
         }
 
-        public void removeMember(User user) { members.remove(user); }
-        public int getMemberCount() { return members.size(); }
-        public String getCapacityText() { return members.size() + "/" + GROUP_CAPACITY; }
-        public String getGroupName() { return groupName; }
-        public ArrayList<User> getMembers() { return members; }
-        public User getOwner() { return owner; }
-        
+        public void removeMember(User user) {
+            members.remove(user);
+        }
+
+        public int getMemberCount() {
+            return members.size();
+        }
+
+        public String getCapacityText() {
+            return members.size() + "/" + GROUP_CAPACITY;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public ArrayList<User> getMembers() {
+            return members;
+        }
+
+        public User getOwner() {
+            return owner;
+        }
+
         public int getReadyCount() {
             int count = 0;
             for (User u : members) {
-                if (u.isReady) count++;
+                if (u.isReady)
+                    count++;
             }
             return count;
         }
-        
+
         public boolean isHalfReady() {
             return getReadyCount() >= Math.ceil(members.size() / 2.0);
         }
@@ -153,7 +192,8 @@ public class FriendsController {
 
     private void loadFriendsFromDB() {
         com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
-        if (sessionUser == null) return;
+        if (sessionUser == null)
+            return;
 
         FriendDAO friendDAO = new FriendDAO();
         UserDAO userDAO = new UserDAO();
@@ -179,8 +219,9 @@ public class FriendsController {
     }
 
     private void refreshFriendsList() {
-        if (friendsContainer == null) return;
-        
+        if (friendsContainer == null)
+            return;
+
         // Keep only the existing children that aren't friend rows
         friendsContainer.getChildren().clear();
 
@@ -208,6 +249,7 @@ public class FriendsController {
         VBox infoBox = new VBox(2);
         Label nameLabel = new Label(user.username);
         nameLabel.setFont(Font.font("System Bold", 14));
+        nameLabel.setStyle("-fx-text-fill: #333333;");
         Label levelLabel = new Label("Level " + user.level);
         levelLabel.setStyle("-fx-text-fill: #888888; -fx-font-size: 11;");
         infoBox.getChildren().addAll(nameLabel, levelLabel);
@@ -227,14 +269,16 @@ public class FriendsController {
     }
 
     private void loadProfileImage(Circle circle, String imagePath) {
-        if (imagePath == null || imagePath.isEmpty()) return;
+        if (imagePath == null || imagePath.isEmpty())
+            return;
         try {
             String path = imagePath.startsWith("/") ? imagePath : "/" + imagePath;
             java.io.InputStream is = getClass().getResourceAsStream(path);
             if (is != null) {
                 circle.setFill(new ImagePattern(new Image(is)));
             }
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
     }
 
     @FXML
@@ -335,7 +379,8 @@ public class FriendsController {
     }
 
     private void leaveGroup(ActionEvent e) {
-        if (currentGroup == null) return;
+        if (currentGroup == null)
+            return;
 
         if (currentGroup.owner == currentUser) {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -357,12 +402,12 @@ public class FriendsController {
     }
 
     private void refreshGroupView() {
-        if (groupContainer == null) return;
+        if (groupContainer == null)
+            return;
 
         // Remove dynamic elements
-        groupContainer.getChildren().removeIf(node -> 
-            node == groupMembersContainer || node == capacityLabel || 
-            node == groupNameLabel || node == leaveGroupButton);
+        groupContainer.getChildren().removeIf(node -> node == groupMembersContainer || node == capacityLabel ||
+                node == groupNameLabel || node == leaveGroupButton);
 
         if (currentGroup == null) {
             // Show create/join buttons
@@ -396,7 +441,8 @@ public class FriendsController {
             }
 
             leaveGroupButton = new Button("Leave Group");
-            leaveGroupButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 20;");
+            leaveGroupButton.setStyle(
+                    "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 20;");
             leaveGroupButton.setOnAction(this::leaveGroup);
             VBox.setMargin(leaveGroupButton, new Insets(20, 0, 0, 0));
 
@@ -420,6 +466,7 @@ public class FriendsController {
         VBox infoBox = new VBox(2);
         Label nameLabel = new Label(user.username);
         nameLabel.setFont(Font.font("System Bold", 13));
+        nameLabel.setStyle("-fx-text-fill: #333333;");
         Label levelLabel = new Label("Level " + user.level);
         levelLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 10;");
         infoBox.getChildren().addAll(nameLabel, levelLabel);

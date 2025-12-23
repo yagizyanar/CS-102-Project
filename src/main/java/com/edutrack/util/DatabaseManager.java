@@ -193,6 +193,10 @@ public class DatabaseManager {
                     stmt.execute("ALTER TABLE users ADD COLUMN points INTEGER DEFAULT 0");
                 } catch (Exception e) {
                 }
+                try {
+                    stmt.execute("ALTER TABLE users ADD COLUMN classes TEXT");
+                } catch (Exception e) {
+                }
 
                 // TASKS Table
                 try {
@@ -273,10 +277,10 @@ public class DatabaseManager {
 
                 System.out.println("Database initialized (" + dbType + ").");
             }
-            
+
             // Initialize badge system
             BadgeService.initialize();
-            
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

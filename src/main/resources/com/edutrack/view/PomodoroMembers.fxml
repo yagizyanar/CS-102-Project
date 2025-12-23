@@ -28,12 +28,12 @@
          <children>
             <HBox alignment="BOTTOM_CENTER" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="95.0" prefWidth="1765.0" spacing="1400.0">
                <children>
-                  <Label text="Group Members">
+                  <Label text="Group Members" style="-fx-text-fill: #333333;">
                      <font>
                         <Font name="System Bold" size="18.0" />
                      </font>
                   </Label>
-                  <Label text="Label">
+                  <Label text="Label" style="-fx-text-fill: #333333;">
                      <font>
                         <Font name="System Bold" size="18.0" />
                      </font>

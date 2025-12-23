@@ -24,12 +24,12 @@
       <children>
             <VBox alignment="CENTER" prefHeight="290.0" prefWidth="1765.0" spacing="200.0">
                <children>
-                  <Label text="Study Time">
+                  <Label text="Study Time" style="-fx-text-fill: #333333;">
                      <font>
                         <Font name="System Bold" size="36.0" />
                      </font>
                   </Label>
-              <Label fx:id="timerLabel" alignment="CENTER" prefHeight="73.0" prefWidth="234.0" text="00.00">
+              <Label fx:id="timerLabel" alignment="CENTER" prefHeight="73.0" prefWidth="234.0" text="00.00" style="-fx-text-fill: #333333;">
                 <font>
                   <Font name="Segoe UI" size="35.0" />
                 </font>

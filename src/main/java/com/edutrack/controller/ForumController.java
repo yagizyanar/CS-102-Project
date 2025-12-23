@@ -104,7 +104,6 @@ public class ForumController implements Initializable {
         Platform.runLater(this::bindScale);
     }
 
-
     private void bindScale() {
         if (viewport == null || rootGroup == null)
             return;
@@ -130,7 +129,6 @@ public class ForumController implements Initializable {
         rootGroup.setTranslateX((w - DESIGN_W * scale) / 2.0);
         rootGroup.setTranslateY((h - DESIGN_H * scale) / 2.0);
     }
-
 
     @FXML
     private void onClassChanged() {
@@ -201,7 +199,7 @@ public class ForumController implements Initializable {
             return;
         }
 
-        if ("#General Comment".equals(selected) || "#Homework Help".equals(selected) 
+        if ("#General Comment".equals(selected) || "#Homework Help".equals(selected)
                 || "#Announcements".equals(selected) || "#Exams".equals(selected)) {
             info("Can't delete", "You can't delete default threads.");
             return;
@@ -260,7 +258,6 @@ public class ForumController implements Initializable {
         renderMessages();
         updateStats();
     }
-
 
     private void openThread(String thread) {
         if (currentCourse == null)
@@ -350,11 +347,11 @@ public class ForumController implements Initializable {
         boolean isMe = m.sender.equalsIgnoreCase(safeUsername());
 
         Label header = new Label(m.sender + " • " + m.timeFormatted());
-        header.setStyle("-fx-font-size: 10px; -fx-opacity: 0.70;");
+        header.setStyle("-fx-font-size: 10px; -fx-opacity: 0.70; -fx-text-fill: #333333;");
 
         Label body = new Label(m.text);
         body.setWrapText(true);
-        body.setStyle("-fx-font-size: 12px;");
+        body.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333;");
 
         VBox bubble = new VBox(4, header, body);
         bubble.setPadding(new Insets(10));
@@ -428,7 +425,6 @@ public class ForumController implements Initializable {
         }
         return "You";
     }
-
 
     private static class Message {
         final String sender;

@@ -16,3 +16,7 @@
 2025-12-23T18:52:54.497109: mail.properties loaded successfully.
 2025-12-23T18:52:54.497109: Preparing to send welcome email to: muhammedserhatmutlu@gmail.com
 2025-12-23T18:52:54.533103200: Failed to send email to muhammedserhatmutlu@gmail.com. Error: Illegal address
+2025-12-23T19:17:49.766182600: Initializing EmailService...
+2025-12-23T19:17:49.768207: mail.properties loaded successfully.
+2025-12-23T19:17:49.768207: Preparing to send welcome email to: yagizyanar@hotmail.com
+2025-12-23T19:17:49.790941800: Failed to send email to yagizyanar@hotmail.com. Error: Illegal address

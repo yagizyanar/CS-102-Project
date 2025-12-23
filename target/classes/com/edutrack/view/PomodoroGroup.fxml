@@ -64,7 +64,7 @@
             </Label>
             
             <!-- Members List -->
-            <Label text="Group Members" style="-fx-font-weight: bold; -fx-font-size: 16;">
+            <Label text="Group Members" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-text-fill: #333333;">
                <VBox.margin>
                   <Insets top="10.0"/>
                </VBox.margin>

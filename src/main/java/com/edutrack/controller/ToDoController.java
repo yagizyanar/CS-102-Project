@@ -63,7 +63,7 @@ public class ToDoController {
                                         displayText += " [OVERDUE]";
                                         setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
                                     } else {
-                                        setStyle("");
+                                        setStyle("-fx-text-fill: #333333;");
                                     }
                                 } else {
                                     // Only Date
@@ -72,12 +72,12 @@ public class ToDoController {
                                         displayText += " [OVERDUE]";
                                         setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
                                     } else {
-                                        setStyle("");
+                                        setStyle("-fx-text-fill: #333333;");
                                     }
                                 }
                             }
                         } catch (Exception e) {
-                            setStyle("");
+                            setStyle("-fx-text-fill: #333333;");
                         }
                     }
                     setText(displayText);

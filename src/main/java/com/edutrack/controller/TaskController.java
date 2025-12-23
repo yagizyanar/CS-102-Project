@@ -145,6 +145,23 @@ public class TaskController {
         }
     }
 
+    private boolean isValidDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty())
+            return false;
+        String[] formats = { "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd" };
+        for (String fmt : formats) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fmt);
+                LocalDate.parse(dateStr, formatter);
+                return true;
+            } catch (DateTimeParseException e) {
+                // strict parsers might fail if not fully matching pattern
+                // ignore
+            }
+        }
+        return false;
+    }
+
     @FXML
     private void initialize() {
         loadFromDatabase();
@@ -237,6 +254,24 @@ public class TaskController {
             return null;
         });
 
+        // Add validation prevention
+        final Button btOk = (Button) dialog.getDialogPane().lookupButton(addButton);
+        btOk.addEventFilter(ActionEvent.ACTION, event -> {
+            boolean valid = true;
+            String date = deadlineField.getText().trim();
+            if (!date.isEmpty() && !isValidDate(date)) {
+                showAlert("Invalid Date", "Please enter a valid date (mm/dd/yyyy).");
+                valid = false;
+            }
+            if (taskNameField.getText().trim().isEmpty()) {
+                valid = false;
+            }
+
+            if (!valid) {
+                event.consume();
+            }
+        });
+
         Optional<TaskItem> result = dialog.showAndWait();
         result.ifPresent(task -> {
             User user = SessionManager.getCurrentUser();
@@ -302,6 +337,24 @@ public class TaskController {
                 }
             }
             return null;
+        });
+
+        // Add validation prevention
+        final Button btOk = (Button) dialog.getDialogPane().lookupButton(addButton);
+        btOk.addEventFilter(ActionEvent.ACTION, event -> {
+            boolean valid = true;
+            String date = deadlineField.getText().trim();
+            if (!date.isEmpty() && !isValidDate(date)) {
+                showAlert("Invalid Date", "Please enter a valid date (mm/dd/yyyy).");
+                valid = false;
+            }
+            if (goalNameField.getText().trim().isEmpty()) {
+                valid = false;
+            }
+
+            if (!valid) {
+                event.consume();
+            }
         });
 
         Optional<GoalItem> result = dialog.showAndWait();
@@ -389,6 +442,24 @@ public class TaskController {
                 }
             }
             return null;
+        });
+
+        // Add validation prevention
+        final Button btOk = (Button) dialog.getDialogPane().lookupButton(addButton);
+        btOk.addEventFilter(ActionEvent.ACTION, event -> {
+            boolean valid = true;
+            String date = dateField.getText().trim();
+            if (!date.isEmpty() && !isValidDate(date)) {
+                showAlert("Invalid Date", "Please enter a valid date (mm/dd/yyyy).");
+                valid = false;
+            }
+            if (eventNameField.getText().trim().isEmpty()) {
+                valid = false;
+            }
+
+            if (!valid) {
+                event.consume();
+            }
         });
 
         Optional<EventItem> result = dialog.showAndWait();
@@ -486,7 +557,7 @@ public class TaskController {
                             alert.setContentText("Congratulations! You've reached Level " + newLevel + "!");
                             alert.showAndWait();
                         }
-                        
+
                         // Check for new badges
                         com.edutrack.util.BadgeService.checkAndAwardBadges(user);
                     }
@@ -498,6 +569,8 @@ public class TaskController {
         nameLabel.setFont(new Font(14));
         if (overdue) {
             nameLabel.setStyle("-fx-text-fill: #c6131b; -fx-font-weight: bold;");
+        } else {
+            nameLabel.setStyle("-fx-text-fill: #333333;");
         }
 
         Label overdueLabel = new Label(overdue ? " [OVERDUE]" : "");
@@ -542,12 +615,17 @@ public class TaskController {
 
         CheckBox checkBox = new CheckBox();
         checkBox.setSelected(goal.completed);
-        checkBox.setOnAction(e -> goal.completed = checkBox.isSelected());
+        checkBox.setOnAction(e -> {
+            goal.completed = checkBox.isSelected();
+            goalDAO.updateGoalCompleted(goal.id, goal.completed);
+        });
 
         Label nameLabel = new Label(goal.name);
         nameLabel.setFont(new Font(14));
         if (overdue) {
             nameLabel.setStyle("-fx-text-fill: #c6131b; -fx-font-weight: bold;");
+        } else {
+            nameLabel.setStyle("-fx-text-fill: #333333;");
         }
 
         Label overdueLabel = new Label(overdue ? " [OVERDUE]" : "");
@@ -595,7 +673,8 @@ public class TaskController {
         HBox typeRow = new HBox(5);
         Label typeLabel = new Label(event.type);
         typeLabel.setFont(new Font(18));
-        typeLabel.setStyle(overdue ? "-fx-font-weight: bold; -fx-text-fill: #c6131b;" : "-fx-font-weight: bold;");
+        typeLabel.setStyle(overdue ? "-fx-font-weight: bold; -fx-text-fill: #c6131b;"
+                : "-fx-font-weight: bold; -fx-text-fill: #333333;");
 
         Label overdueLabel = new Label(overdue ? " [OVERDUE]" : "");
         overdueLabel.setFont(new Font(14));
@@ -610,6 +689,8 @@ public class TaskController {
         nameLabel.setFont(new Font(12));
         if (overdue) {
             nameLabel.setStyle("-fx-text-fill: #c6131b;");
+        } else {
+            nameLabel.setStyle("-fx-text-fill: #333333;");
         }
 
         infoBox.getChildren().addAll(typeRow, dateLabel, nameLabel);

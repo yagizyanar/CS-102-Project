@@ -33,19 +33,32 @@ import javafx.scene.shape.Circle;
 
 public class DashboardController {
 
-    @FXML private Label lblGreeting;
-    @FXML private Label lblUsername;
-    @FXML private Label lblStreak;
-    @FXML private Label lblLevel;
-    @FXML private Label lblXpProgress;
-    @FXML private ProgressBar xpProgressBar;
-    @FXML private Label lblTasksCompleted;
-    @FXML private Label lblStudyHours;
-    @FXML private Label lblGoalsReached;
-    @FXML private ListView<Task> taskListView;
-    @FXML private VBox eventsBox;
-    @FXML private VBox activityBox;
-    @FXML private PieChart taskPieChart;
+    @FXML
+    private Label lblGreeting;
+    @FXML
+    private Label lblUsername;
+    @FXML
+    private Label lblStreak;
+    @FXML
+    private Label lblLevel;
+    @FXML
+    private Label lblXpProgress;
+    @FXML
+    private ProgressBar xpProgressBar;
+    @FXML
+    private Label lblTasksCompleted;
+    @FXML
+    private Label lblStudyHours;
+    @FXML
+    private Label lblGoalsReached;
+    @FXML
+    private ListView<Task> taskListView;
+    @FXML
+    private VBox eventsBox;
+    @FXML
+    private VBox activityBox;
+    @FXML
+    private PieChart taskPieChart;
 
     private final TaskDAO taskDAO = new TaskDAO();
     private final GoalDAO goalDAO = new GoalDAO();
@@ -62,7 +75,8 @@ public class DashboardController {
 
     private void loadUserInfo() {
         User user = SessionManager.getCurrentUser();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         // Greeting based on time
         LocalTime now = LocalTime.now();
@@ -74,42 +88,50 @@ public class DashboardController {
         } else {
             greeting = "Good Evening!";
         }
-        
-        if (lblGreeting != null) lblGreeting.setText(greeting);
-        if (lblUsername != null) lblUsername.setText("Welcome back, " + user.getUsername());
-        if (lblStreak != null) lblStreak.setText(String.valueOf(user.calculateStreak()));
-        if (lblLevel != null) lblLevel.setText("Level " + user.getLevel());
-        
+
+        if (lblGreeting != null)
+            lblGreeting.setText(greeting);
+        if (lblUsername != null)
+            lblUsername.setText("Welcome back, " + user.getUsername());
+        if (lblStreak != null)
+            lblStreak.setText(String.valueOf(user.calculateStreak()));
+        if (lblLevel != null)
+            lblLevel.setText("Level " + user.getLevel());
+
         int xp = user.getXp();
         int nextLevelXp = user.getNextLevelXp();
         int currentLevelXp = (user.getLevel() - 1) * 100;
         int progressXp = xp - currentLevelXp;
         int neededXp = nextLevelXp - currentLevelXp;
-        
-        if (lblXpProgress != null) lblXpProgress.setText(progressXp + "/" + neededXp + " XP");
-        if (xpProgressBar != null) xpProgressBar.setProgress(neededXp > 0 ? (double) progressXp / neededXp : 0);
+
+        if (lblXpProgress != null)
+            lblXpProgress.setText(progressXp + "/" + neededXp + " XP");
+        if (xpProgressBar != null)
+            xpProgressBar.setProgress(neededXp > 0 ? (double) progressXp / neededXp : 0);
     }
 
     private void loadTasks() {
         User user = SessionManager.getCurrentUser();
-        if (user == null || taskListView == null) return;
+        if (user == null || taskListView == null)
+            return;
 
         List<Task> allTasks = taskDAO.getTasksByUserId(user.getId());
-        
+
         // Filter today's tasks and pending tasks
         ObservableList<Task> todayTasks = FXCollections.observableArrayList();
         LocalDate today = LocalDate.now();
-        
+
         for (Task task : allTasks) {
             if (!"COMPLETED".equals(task.getStatus())) {
                 todayTasks.add(task);
-                if (todayTasks.size() >= 5) break; // Show max 5 tasks
+                if (todayTasks.size() >= 5)
+                    break; // Show max 5 tasks
             }
         }
 
         taskListView.setItems(todayTasks);
         taskListView.setCellFactory(lv -> new TaskListCell());
-        
+
         // Update pie chart
         if (taskPieChart != null) {
             int completed = 0, pending = 0, overdue = 0;
@@ -122,16 +144,19 @@ public class DashboardController {
                     pending++;
                 }
             }
-            
+
             ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
-            if (completed > 0) pieData.add(new PieChart.Data("Completed (" + completed + ")", completed));
-            if (pending > 0) pieData.add(new PieChart.Data("Pending (" + pending + ")", pending));
-            if (overdue > 0) pieData.add(new PieChart.Data("Overdue (" + overdue + ")", overdue));
-            
+            if (completed > 0)
+                pieData.add(new PieChart.Data("Completed (" + completed + ")", completed));
+            if (pending > 0)
+                pieData.add(new PieChart.Data("Pending (" + pending + ")", pending));
+            if (overdue > 0)
+                pieData.add(new PieChart.Data("Overdue (" + overdue + ")", overdue));
+
             if (pieData.isEmpty()) {
                 pieData.add(new PieChart.Data("No Tasks", 1));
             }
-            
+
             taskPieChart.setData(pieData);
             taskPieChart.setLabelsVisible(false);
         }
@@ -139,21 +164,22 @@ public class DashboardController {
 
     private void loadEvents() {
         User user = SessionManager.getCurrentUser();
-        if (user == null || eventsBox == null) return;
+        if (user == null || eventsBox == null)
+            return;
 
         eventsBox.getChildren().clear();
-        
+
         List<EventDAO.EventRecord> events = eventDAO.getEventsByUserId(user.getId());
         LocalDate today = LocalDate.now();
         int count = 0;
-        
+
         for (EventDAO.EventRecord event : events) {
             if (!isOverdue(event.eventDate) && count < 3) {
                 eventsBox.getChildren().add(createEventRow(event));
                 count++;
             }
         }
-        
+
         if (count == 0) {
             Label noEvents = new Label("No upcoming events");
             noEvents.setStyle("-fx-text-fill: #888; -fx-font-size: 13;");
@@ -172,7 +198,7 @@ public class DashboardController {
 
         VBox info = new VBox(2);
         Label name = new Label(event.name);
-        name.setStyle("-fx-font-weight: bold; -fx-font-size: 13;");
+        name.setStyle("-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: #333333;");
         Label date = new Label(event.eventDate != null ? event.eventDate : "No date");
         date.setStyle("-fx-text-fill: #888; -fx-font-size: 11;");
         info.getChildren().addAll(name, date);
@@ -183,28 +209,35 @@ public class DashboardController {
 
     private void loadStatistics() {
         User user = SessionManager.getCurrentUser();
-        if (user == null) return;
+        if (user == null)
+            return;
 
         List<Task> tasks = taskDAO.getTasksByUserId(user.getId());
         List<GoalDAO.GoalRecord> goals = goalDAO.getGoalsByUserId(user.getId());
 
         int completedTasks = 0;
         for (Task t : tasks) {
-            if ("COMPLETED".equals(t.getStatus())) completedTasks++;
+            if ("COMPLETED".equals(t.getStatus()))
+                completedTasks++;
         }
 
         int completedGoals = 0;
         for (GoalDAO.GoalRecord g : goals) {
-            if (g.completed) completedGoals++;
+            if (g.completed)
+                completedGoals++;
         }
 
-        if (lblTasksCompleted != null) lblTasksCompleted.setText(String.valueOf(completedTasks));
-        if (lblGoalsReached != null) lblGoalsReached.setText(String.valueOf(completedGoals));
-        if (lblStudyHours != null) lblStudyHours.setText("0h"); // TODO: Track actual study time from Pomodoro
+        if (lblTasksCompleted != null)
+            lblTasksCompleted.setText(String.valueOf(completedTasks));
+        if (lblGoalsReached != null)
+            lblGoalsReached.setText(String.valueOf(completedGoals));
+        if (lblStudyHours != null)
+            lblStudyHours.setText("0h"); // TODO: Track actual study time from Pomodoro
     }
 
     private void loadRecentActivity() {
-        if (activityBox == null) return;
+        if (activityBox == null)
+            return;
         activityBox.getChildren().clear();
 
         User user = SessionManager.getCurrentUser();
@@ -218,14 +251,14 @@ public class DashboardController {
         // Get recent completed tasks
         List<Task> tasks = taskDAO.getTasksByUserId(user.getId());
         int count = 0;
-        
+
         for (Task task : tasks) {
             if ("COMPLETED".equals(task.getStatus()) && count < 3) {
                 activityBox.getChildren().add(createActivityRow("✓ Completed: " + task.getTitle(), "Task"));
                 count++;
             }
         }
-        
+
         if (count == 0) {
             Label noActivity = new Label("No recent activity");
             noActivity.setStyle("-fx-text-fill: #888; -fx-font-size: 13;");
@@ -240,7 +273,7 @@ public class DashboardController {
         row.setStyle("-fx-background-color: #f0f7ff; -fx-background-radius: 8;");
 
         Label label = new Label(text);
-        label.setStyle("-fx-font-size: 12;");
+        label.setStyle("-fx-font-size: 12; -fx-text-fill: #333333;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -253,15 +286,17 @@ public class DashboardController {
     }
 
     private boolean isOverdue(String dateStr) {
-        if (dateStr == null || dateStr.isEmpty()) return false;
+        if (dateStr == null || dateStr.isEmpty())
+            return false;
         try {
-            String[] formats = {"MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "M/d/yyyy"};
+            String[] formats = { "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "M/d/yyyy" };
             for (String fmt : formats) {
                 try {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fmt);
                     LocalDate dueDate = LocalDate.parse(dateStr, formatter);
                     return dueDate.isBefore(LocalDate.now());
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
             return false;
         } catch (Exception e) {
@@ -320,7 +355,7 @@ public class DashboardController {
 
                 VBox info = new VBox(2);
                 Label title = new Label(task.getTitle());
-                title.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
+                title.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #333333;");
                 Label due = new Label(task.getDueDate() != null ? "Due: " + task.getDueDate() : "No due date");
                 due.setStyle("-fx-text-fill: #888; -fx-font-size: 10;");
                 info.getChildren().addAll(title, due);
@@ -328,15 +363,19 @@ public class DashboardController {
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                /*Label priority = new Label(task.getPriority() != null ? task.getPriority() : "");
-                String priorityColor = "#888";
-                if ("HIGH".equals(task.getPriority())) priorityColor = "#dc3545";
-                else if ("MEDIUM".equals(task.getPriority())) priorityColor = "#ffc107";
-                else if ("LOW".equals(task.getPriority())) priorityColor = "#28a745";
-                priority.setStyle("-fx-font-size: 10; -fx-text-fill: " + priorityColor + ";");
-
-                row.getChildren().addAll(statusDot, info, spacer, priority);
-                setGraphic(row);*/
+                /*
+                 * Label priority = new Label(task.getPriority() != null ? task.getPriority() :
+                 * "");
+                 * String priorityColor = "#888";
+                 * if ("HIGH".equals(task.getPriority())) priorityColor = "#dc3545";
+                 * else if ("MEDIUM".equals(task.getPriority())) priorityColor = "#ffc107";
+                 * else if ("LOW".equals(task.getPriority())) priorityColor = "#28a745";
+                 * priority.setStyle("-fx-font-size: 10; -fx-text-fill: " + priorityColor +
+                 * ";");
+                 * 
+                 * row.getChildren().addAll(statusDot, info, spacer, priority);
+                 * setGraphic(row);
+                 */
             }
         }
     }
