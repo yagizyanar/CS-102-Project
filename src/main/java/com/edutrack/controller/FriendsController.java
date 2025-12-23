@@ -345,6 +345,40 @@ public class FriendsController {
     }
 
     @FXML
+    private void showAddFriendDialog(ActionEvent e) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Add a Friend");
+        dialog.setHeaderText("Enter username to add as friend");
+        dialog.setContentText("Username:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(username -> {
+            User user = findUserByUsername(username);
+
+            if (user == null) {
+                showError("User Not Found", "No user found with username: " + username);
+            } else if (friends.contains(user)) {
+                showError("Already Friends", "You are already friends with " + username);
+            } else if (currentUser != null && username.equals(currentUser.username)) {
+                showError("Error", "You cannot add yourself as a friend.");
+            } else {
+                com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+                if (sessionUser != null) {
+                    com.edutrack.model.User targetUser = new UserDAO().getUserByUsername(username);
+                    if (targetUser != null) {
+                        FriendDAO friendDAO = new FriendDAO();
+                        friendDAO.sendRequest(sessionUser.getId(), targetUser.getId());
+                        friendDAO.acceptRequest(sessionUser.getId(), targetUser.getId());
+                    }
+                }
+                friends.add(user);
+                refreshFriendsList();
+                showInfo("Success", "You are now friends with " + username + "!");
+            }
+        });
+    }
+
+    @FXML
     private void showCreateGroupDialog(ActionEvent e) {
         if (currentGroup != null) {
             showError("Already in Group", "You must leave your current group first.");

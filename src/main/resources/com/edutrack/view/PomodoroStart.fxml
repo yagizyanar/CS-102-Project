@@ -10,15 +10,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane alignment="BOTTOM_CENTER" prefHeight="322.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.PomodoroController">
+<StackPane alignment="CENTER" prefHeight="900.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.PomodoroController">
   <children>
     <ImageView fitHeight="1080.0" fitWidth="1920.0" mouseTransparent="true">
       <image>
         <Image url="@background.png" />
       </image>
-      <StackPane.margin>
-        <Insets />
-      </StackPane.margin>
     </ImageView>
     <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="818.0" prefWidth="1765.0" spacing="200.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
       <children>
@@ -46,15 +43,9 @@
           </children>
         </HBox>
       </children>
-      <StackPane.margin>
-        <Insets bottom="50.0" />
-      </StackPane.margin>
          <padding>
             <Insets top="80.0" />
          </padding>
     </VBox>
   </children>
-  <opaqueInsets>
-    <Insets />
-  </opaqueInsets>
 </StackPane>

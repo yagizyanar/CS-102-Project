@@ -357,25 +357,14 @@ public class DashboardController {
                 Label title = new Label(task.getTitle());
                 title.setStyle("-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #333333;");
                 Label due = new Label(task.getDueDate() != null ? "Due: " + task.getDueDate() : "No due date");
-                due.setStyle("-fx-text-fill: #888; -fx-font-size: 10;");
+                due.setStyle("-fx-text-fill: #666666; -fx-font-size: 10;");
                 info.getChildren().addAll(title, due);
 
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                /*
-                 * Label priority = new Label(task.getPriority() != null ? task.getPriority() :
-                 * "");
-                 * String priorityColor = "#888";
-                 * if ("HIGH".equals(task.getPriority())) priorityColor = "#dc3545";
-                 * else if ("MEDIUM".equals(task.getPriority())) priorityColor = "#ffc107";
-                 * else if ("LOW".equals(task.getPriority())) priorityColor = "#28a745";
-                 * priority.setStyle("-fx-font-size: 10; -fx-text-fill: " + priorityColor +
-                 * ";");
-                 * 
-                 * row.getChildren().addAll(statusDot, info, spacer, priority);
-                 * setGraphic(row);
-                 */
+                row.getChildren().addAll(statusDot, info, spacer);
+                setGraphic(row);
             }
         }
     }
