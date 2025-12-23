@@ -8,6 +8,7 @@ public class Task {
     private String dueDate;
     private String status; // PENDING, COMPLETED, OVERDUE
     private String courseTag;
+    private String priority; // HIGH, MEDIUM, LOW
 
     public Task(int id, int userId, String title, String description, String dueDate, String status, String courseTag) {
         this.id = id;
@@ -59,6 +60,10 @@ public class Task {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPriority() {
+        return priority;
     }
 
     @Override
