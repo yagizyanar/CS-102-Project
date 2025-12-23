@@ -12,3 +12,7 @@
 2025-12-23T06:06:06.580989600: mail.properties loaded successfully.
 2025-12-23T06:06:06.581540100: Preparing to send password reminder to: projetest1cs@gmail.com
 2025-12-23T06:06:08.456744100: Email sent successfully to projetest1cs@gmail.com
+2025-12-23T18:52:54.495108200: Initializing EmailService...
+2025-12-23T18:52:54.497109: mail.properties loaded successfully.
+2025-12-23T18:52:54.497109: Preparing to send welcome email to: muhammedserhatmutlu@gmail.com
+2025-12-23T18:52:54.533103200: Failed to send email to muhammedserhatmutlu@gmail.com. Error: Illegal address
