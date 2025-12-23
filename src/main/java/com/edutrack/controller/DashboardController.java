@@ -2,7 +2,6 @@ package com.edutrack.controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -329,7 +328,7 @@ public class DashboardController {
                 Region spacer = new Region();
                 HBox.setHgrow(spacer, Priority.ALWAYS);
 
-                Label priority = new Label(task.getPriority() != null ? task.getPriority() : "");
+                /*Label priority = new Label(task.getPriority() != null ? task.getPriority() : "");
                 String priorityColor = "#888";
                 if ("HIGH".equals(task.getPriority())) priorityColor = "#dc3545";
                 else if ("MEDIUM".equals(task.getPriority())) priorityColor = "#ffc107";
@@ -337,7 +336,7 @@ public class DashboardController {
                 priority.setStyle("-fx-font-size: 10; -fx-text-fill: " + priorityColor + ";");
 
                 row.getChildren().addAll(statusDot, info, spacer, priority);
-                setGraphic(row);
+                setGraphic(row);*/
             }
         }
     }
