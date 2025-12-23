@@ -52,6 +52,10 @@ public class PomodoroController {
     @FXML
     private Button readyButton;
     @FXML
+    private Button startTimerButton;
+    @FXML
+    private Button stopTimerButton;
+    @FXML
     private VBox membersListBox;
 
     private static Timeline timeline;
@@ -150,6 +154,18 @@ public class PomodoroController {
 
             row.getChildren().addAll(dot, nameLabel, spacer, statusLabel);
             membersListBox.getChildren().add(row);
+        }
+    }
+
+    private void updateOwnerButtonVisibility() {
+        boolean isOwner = isCurrentUserOwner();
+        if (startTimerButton != null) {
+            startTimerButton.setVisible(isOwner);
+            startTimerButton.setManaged(isOwner);
+        }
+        if (stopTimerButton != null) {
+            stopTimerButton.setVisible(isOwner);
+            stopTimerButton.setManaged(isOwner);
         }
     }
 
@@ -320,6 +336,47 @@ public class PomodoroController {
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
         isRunning = true;
+    }
+
+    private boolean isCurrentUserOwner() {
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        FriendsController.User currentUser = FriendsController.getCurrentUser();
+        if (group == null || currentUser == null || group.getOwner() == null) {
+            return false;
+        }
+        return currentUser.getUsername().equals(group.getOwner().getUsername());
+    }
+
+    @FXML
+    private void startGroupTimerAsOwner(ActionEvent e) {
+        if (!isCurrentUserOwner()) {
+            showAlert("Not Allowed", "Only the group owner can start the timer.");
+            return;
+        }
+        // Set all members as ready when owner starts
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group != null) {
+            for (FriendsController.User member : group.getMembers()) {
+                member.setReady(true);
+            }
+        }
+        updateMembersList();
+        startGroupTimer();
+    }
+
+    @FXML
+    private void stopGroupTimerAsOwner(ActionEvent e) {
+        if (!isCurrentUserOwner()) {
+            showAlert("Not Allowed", "Only the group owner can stop the timer.");
+            return;
+        }
+        if (timeline != null) {
+            timeline.stop();
+            isRunning = false;
+            if (groupStatusLabel != null) {
+                groupStatusLabel.setText("Timer stopped by owner.");
+            }
+        }
     }
 
     private void startGroupTimer() {

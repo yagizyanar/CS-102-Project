@@ -86,6 +86,12 @@
                   <Insets top="30.0"/>
                </VBox.margin>
                <children>
+                  <Button fx:id="startTimerButton" text="Start Timer" onAction="#startGroupTimerAsOwner"
+                          style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"/>
+                  
+                  <Button fx:id="stopTimerButton" text="Stop Timer" onAction="#stopGroupTimerAsOwner"
+                          style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"/>
+                  
                   <Button fx:id="readyButton" text="Ready" onAction="#toggleReady"
                           style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"/>
                   

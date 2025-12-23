@@ -11,6 +11,7 @@ import java.util.Properties;
 public class DatabaseManager {
     private static Properties props = new Properties();
     private static String dbType = "mysql"; // Default to MySQL
+    private static boolean initialized = false; // Track if already initialized
 
     // Hardcoded MySQL settings for remote database
     private static final String MYSQL_URL = "jdbc:mysql://bovmfyrxqnhunkngnlkb-mysql.services.clever-cloud.com:20497/bovmfyrxqnhunkngnlkb";
@@ -26,7 +27,6 @@ public class DatabaseManager {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        System.out.println("Database type: " + dbType + " (Remote MySQL)");
     }
 
     public static Connection connect() {
@@ -46,6 +46,12 @@ public class DatabaseManager {
     }
 
     public static void initialize() {
+        // Skip if already initialized this session
+        if (initialized) {
+            return;
+        }
+        initialized = true;
+
         // SQL Dialect differences
         boolean isMySQL = "mysql".equalsIgnoreCase(dbType);
         String autoIncrement = isMySQL ? "AUTO_INCREMENT" : "AUTOINCREMENT";
@@ -189,15 +195,11 @@ public class DatabaseManager {
                 }
                 try {
                     stmt.execute(groupsTable);
-                    System.out.println("SUCCESS: study_groups table created/verified");
                 } catch (Exception e) {
-                    System.out.println("Error creating study_groups: " + e.getMessage());
                 }
                 try {
                     stmt.execute(groupMembersTable);
-                    System.out.println("SUCCESS: group_members table created/verified");
                 } catch (Exception e) {
-                    System.out.println("Error creating group_members: " + e.getMessage());
                 }
 
                 // --- COMPREHENSIVE SCHEMA MIGRATION ---
@@ -308,10 +310,6 @@ public class DatabaseManager {
                 }
                 // timestamp/created_at might be tricky on MySQL 5.x vs 8.x, skipping for now
                 // unless reported.
-
-                System.out.println("Schema migration attempts completed.");
-
-                System.out.println("Database initialized (" + dbType + ").");
             }
 
             // Initialize badge system
