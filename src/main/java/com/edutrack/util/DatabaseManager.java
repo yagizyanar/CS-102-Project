@@ -120,14 +120,34 @@ public class DatabaseManager {
                 + "note TEXT,"
                 + "FOREIGN KEY(user_id) REFERENCES users(id)"
                 + ");";
+
+        // Groups Table
+        String groupsTable = "CREATE TABLE IF NOT EXISTS groups ("
+                + "id INTEGER PRIMARY KEY " + autoIncrement + ","
+                + "name VARCHAR(255) NOT NULL UNIQUE,"
+                + "owner_id INTEGER NOT NULL,"
+                + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(owner_id) REFERENCES users(id)"
+                + ");";
+
+        // Group Members Table
+        String groupMembersTable = "CREATE TABLE IF NOT EXISTS group_members ("
+                + "group_id INTEGER NOT NULL,"
+                + "user_id INTEGER NOT NULL,"
+                + "is_ready BOOLEAN DEFAULT FALSE,"
+                + "joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+                + "PRIMARY KEY(group_id, user_id),"
+                + "FOREIGN KEY(group_id) REFERENCES groups(id),"
+                + "FOREIGN KEY(user_id) REFERENCES users(id)"
+                + ");";
+
         try (Connection conn = connect()) {
             if (conn == null) {
                 System.out.println("CRITICAL ERROR: Could not connect to database. Check db.properties.");
                 return;
             }
             try (Statement stmt = conn.createStatement()) {
-                // Execute each table creation separately to prevent one failure from blocking
-                // others
+                // Execute each table creation separately
                 try {
                     stmt.execute(userTable);
                 } catch (Exception e) {
@@ -162,6 +182,16 @@ public class DatabaseManager {
                     stmt.execute(eventsTable);
                 } catch (Exception e) {
                     System.out.println("Error creating events: " + e.getMessage());
+                }
+                try {
+                    stmt.execute(groupsTable);
+                } catch (Exception e) {
+                    System.out.println("Error creating groups: " + e.getMessage());
+                }
+                try {
+                    stmt.execute(groupMembersTable);
+                } catch (Exception e) {
+                    System.out.println("Error creating group_members: " + e.getMessage());
                 }
 
                 // --- COMPREHENSIVE SCHEMA MIGRATION ---

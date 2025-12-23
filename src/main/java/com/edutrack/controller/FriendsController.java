@@ -49,9 +49,10 @@ public class FriendsController {
     private Label groupNameLabel;
     private Button leaveGroupButton;
 
-    private static HashMap<String, User> allUsers = new HashMap<>();
+    private final com.edutrack.dao.GroupDAO groupDAO = new com.edutrack.dao.GroupDAO();
+    private static HashMap<String, User> allUsers = new HashMap<>(); // Cache for valid users check
     private static ArrayList<User> friends = new ArrayList<>();
-    private static HashMap<String, Group> allGroups = new HashMap<>();
+    // private static HashMap<String, Group> allGroups = new HashMap<>(); // Removed
     private static Group currentGroup = null;
     private static User currentUser = null;
     private static final int GROUP_CAPACITY = 10;
@@ -88,15 +89,27 @@ public class FriendsController {
         public void setReady(boolean ready) {
             this.isReady = ready;
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null || getClass() != obj.getClass())
+                return false;
+            User other = (User) obj;
+            return username != null && username.equals(other.username);
+        }
     }
 
     // Inner class for Group
     public static class Group {
+        int id; // added id
         String groupName;
         ArrayList<User> members;
         User owner;
 
-        public Group(String groupName, User owner) {
+        public Group(int id, String groupName, User owner) {
+            this.id = id;
             this.groupName = groupName;
             this.owner = owner;
             this.members = new ArrayList<>();
@@ -133,6 +146,10 @@ public class FriendsController {
             return members;
         }
 
+        public int getId() {
+            return id;
+        }
+
         public User getOwner() {
             return owner;
         }
@@ -160,6 +177,7 @@ public class FriendsController {
     }
 
     private static void initializeSampleData() {
+        // No longer needed for groups, maybe for users cache lookup
         List<com.edutrack.model.User> dbUsers = new UserDAO().getAllUsers();
         for (com.edutrack.model.User dbUser : dbUsers) {
             String avatar = dbUser.getProfilePicture();
@@ -181,13 +199,58 @@ public class FriendsController {
             currentUser = new User(sessionUser.getUsername(), avatar, sessionUser.getLevel());
         }
 
-        if (allUsers.isEmpty()) {
-            initializeSampleData();
-        }
+        initializeSampleData(); // Populate allUsers for local lookups
 
         loadFriendsFromDB();
         refreshFriendsList();
+
+        // Load current group from DB
+        loadGroupFromDB();
         refreshGroupView();
+    }
+
+    private void loadGroupFromDB() {
+        currentGroup = null;
+        com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+        if (sessionUser == null)
+            return;
+
+        com.edutrack.dao.GroupDAO.GroupRecord record = groupDAO.getUserGroup(sessionUser.getId());
+        if (record != null) {
+            // Fetch owner
+            com.edutrack.dao.UserDAO userDAO = new UserDAO();
+            // We need owner info.
+            // Let's assume we can get it from allUsers wrapper or fetch it.
+            // Since we don't have owner username easily from ID without query, let's fetch
+            // members first.
+
+            List<User> members = groupDAO.getGroupMembers(record.id);
+            User owner = null;
+            // Identify owner
+            // Wait, getGroupMembers doesn't return IDs. The model User doesn't have ID.
+            // We need to map back.
+            // To simplify, let's fetch owner user separately or find within members if
+            // possible.
+            // Actually, we can just find the owner by ID if we had a method.
+            // For now, let's just make the first member or match by username if we could.
+            // Correction: GroupRecord has ownerId.
+            // We need to find which member matches ownerId.
+
+            // Quick fix: Fetch owner user from DB
+            com.edutrack.model.User dbOwner = new UserDAO().getAllUsers().stream()
+                    .filter(u -> u.getId() == record.ownerId).findFirst().orElse(null);
+            if (dbOwner != null) {
+                String av = dbOwner.getProfilePicture();
+                if (av == null)
+                    av = "/com/edutrack/view/avatar1.png";
+                owner = new User(dbOwner.getUsername(), av, dbOwner.getLevel());
+            }
+
+            if (owner != null) {
+                currentGroup = new Group(record.id, record.name, owner);
+                currentGroup.members = new ArrayList<>(members);
+            }
+        }
     }
 
     private void loadFriendsFromDB() {
@@ -282,40 +345,6 @@ public class FriendsController {
     }
 
     @FXML
-    private void showAddFriendDialog(ActionEvent e) {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Add a Friend");
-        dialog.setHeaderText("Enter username to add as friend");
-        dialog.setContentText("Username:");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(username -> {
-            User user = findUserByUsername(username);
-
-            if (user == null) {
-                showError("User Not Found", "No user found with username: " + username);
-            } else if (friends.contains(user)) {
-                showError("Already Friends", "You are already friends with " + username);
-            } else if (currentUser != null && username.equals(currentUser.username)) {
-                showError("Error", "You cannot add yourself as a friend.");
-            } else {
-                com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
-                if (sessionUser != null) {
-                    com.edutrack.model.User targetUser = new UserDAO().getUserByUsername(username);
-                    if (targetUser != null) {
-                        FriendDAO friendDAO = new FriendDAO();
-                        friendDAO.sendRequest(sessionUser.getId(), targetUser.getId());
-                        friendDAO.acceptRequest(sessionUser.getId(), targetUser.getId());
-                    }
-                }
-                friends.add(user);
-                refreshFriendsList();
-                showInfo("Success", "You are now friends with " + username + "!");
-            }
-        });
-    }
-
-    @FXML
     private void showCreateGroupDialog(ActionEvent e) {
         if (currentGroup != null) {
             showError("Already in Group", "You must leave your current group first.");
@@ -334,14 +363,22 @@ public class FriendsController {
                 return;
             }
 
-            if (allGroups.containsKey(groupName)) {
+            com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+            if (sessionUser == null)
+                return;
+
+            // DB Create
+            if (groupDAO.getGroupByName(groupName) != null) {
                 showError("Group Exists", "A group with this name already exists.");
             } else {
-                Group newGroup = new Group(groupName, currentUser);
-                allGroups.put(groupName, newGroup);
-                currentGroup = newGroup;
-                refreshGroupView();
-                showInfo("Success", "Group '" + groupName + "' created successfully!");
+                boolean success = groupDAO.createGroup(groupName, sessionUser.getId());
+                if (success) {
+                    loadGroupFromDB();
+                    refreshGroupView();
+                    showInfo("Success", "Group '" + groupName + "' created successfully!");
+                } else {
+                    showError("Error", "Failed to create group.");
+                }
             }
         });
     }
@@ -360,19 +397,27 @@ public class FriendsController {
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(groupName -> {
-            Group group = allGroups.get(groupName);
+            com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+            if (sessionUser == null)
+                return;
 
-            if (group == null) {
+            com.edutrack.dao.GroupDAO.GroupRecord record = groupDAO.getGroupByName(groupName);
+
+            if (record == null) {
                 showError("Group Not Found", "No group found with name: " + groupName);
-            } else if (group.getMemberCount() >= GROUP_CAPACITY) {
-                showError("Group Full", "This group is full (" + group.getCapacityText() + ")");
             } else {
-                if (group.addMember(currentUser)) {
-                    currentGroup = group;
-                    refreshGroupView();
-                    showInfo("Success", "You joined the group '" + groupName + "'!");
+                int count = groupDAO.getMemberCount(record.id);
+                if (count >= GROUP_CAPACITY) {
+                    showError("Group Full", "This group is full (" + count + "/" + GROUP_CAPACITY + ")");
                 } else {
-                    showError("Error", "Could not join the group.");
+                    boolean success = groupDAO.joinGroup(record.id, sessionUser.getId());
+                    if (success) {
+                        loadGroupFromDB();
+                        refreshGroupView();
+                        showInfo("Success", "You joined the group '" + groupName + "'!");
+                    } else {
+                        showError("Error", "Could not join the group (maybe already joined?).");
+                    }
                 }
             }
         });
@@ -382,7 +427,11 @@ public class FriendsController {
         if (currentGroup == null)
             return;
 
-        if (currentGroup.owner == currentUser) {
+        com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+        if (sessionUser == null)
+            return;
+
+        if (currentGroup.owner != null && currentGroup.owner.username.equals(currentUser.username)) {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Leave Group");
             confirm.setHeaderText("You are the owner of this group");
@@ -390,12 +439,12 @@ public class FriendsController {
 
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                allGroups.remove(currentGroup.groupName);
+                groupDAO.deleteGroup(currentGroup.id);
                 currentGroup = null;
                 refreshGroupView();
             }
         } else {
-            currentGroup.removeMember(currentUser);
+            groupDAO.leaveGroup(currentGroup.id, sessionUser.getId());
             currentGroup = null;
             refreshGroupView();
         }
