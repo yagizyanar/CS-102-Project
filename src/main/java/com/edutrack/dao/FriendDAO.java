@@ -19,6 +19,7 @@ public class FriendDAO {
             pstmt.setInt(1, requesterId);
             pstmt.setInt(2, addresseeId);
             pstmt.executeUpdate();
+            System.out.println("FriendDAO: Friend request sent from user " + requesterId + " to user " + addresseeId);
             return true;
         } catch (SQLException e) {
             if (e.getMessage().contains("Duplicate")) {
@@ -113,6 +114,7 @@ public class FriendDAO {
 
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            System.out.println("FriendDAO.getPendingRequests: Checking for user ID = " + userId);
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
 
