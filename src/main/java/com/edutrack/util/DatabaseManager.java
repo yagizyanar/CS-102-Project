@@ -273,6 +273,10 @@ public class DatabaseManager {
 
                 System.out.println("Database initialized (" + dbType + ").");
             }
+            
+            // Initialize badge system
+            BadgeService.initialize();
+            
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

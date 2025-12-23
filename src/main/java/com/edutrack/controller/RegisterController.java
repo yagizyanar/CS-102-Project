@@ -43,6 +43,12 @@ public class RegisterController {
             return;
         }
 
+        // Email format validation
+        if (!isValidEmail(email)) {
+            statusLabel.setText("Please enter a valid email address.");
+            return;
+        }
+
         if (!password.equals(confirmPassword)) {
             statusLabel.setText("Passwords do not match.");
             return;
@@ -75,5 +81,11 @@ public class RegisterController {
     @FXML
     private void goToLogin() throws IOException {
         Main.setRoot("mainLogin");
+    }
+
+    private boolean isValidEmail(String email) {
+        if (email == null || email.isEmpty()) return false;
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        return email.matches(emailRegex);
     }
 }

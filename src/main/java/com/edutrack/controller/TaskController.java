@@ -486,6 +486,9 @@ public class TaskController {
                             alert.setContentText("Congratulations! You've reached Level " + newLevel + "!");
                             alert.showAndWait();
                         }
+                        
+                        // Check for new badges
+                        com.edutrack.util.BadgeService.checkAndAwardBadges(user);
                     }
                 }
             }

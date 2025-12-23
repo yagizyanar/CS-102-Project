@@ -201,8 +201,9 @@ public class ForumController implements Initializable {
             return;
         }
 
-        if ("#General Comment".equals(selected)) {
-            info("Can't delete", "You can't delete the default thread.");
+        if ("#General Comment".equals(selected) || "#Homework Help".equals(selected) 
+                || "#Announcements".equals(selected) || "#Exams".equals(selected)) {
+            info("Can't delete", "You can't delete default threads.");
             return;
         }
 

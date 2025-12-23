@@ -42,6 +42,12 @@ public class ResetPasswordController {
             return;
         }
 
+        // Email format validation
+        if (!isValidEmail(email)) {
+            setStatus("Please enter a valid email address.");
+            return;
+        }
+
         User user = userDAO.getUserByEmail(email);
         if (user == null) {
             setStatus("Email not found.");
@@ -53,11 +59,29 @@ public class ResetPasswordController {
             EmailService.sendPasswordReminder(email, user.getUsername(), user.getPassword());
         }).start();
 
-        setStatus("Password sent to your email! Please check inbox.");
+        setStatus("Password sent to your email!");
+        
+        // Redirect to login after a short delay
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                javafx.application.Platform.runLater(() -> {
+                    try {
+                        Main.setRoot("mainLogin");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
-        // No need to navigate to code entry screen logic.
-        // Optionally, could redirect to login after a delay, but let's stay here so
-        // they read the message.
+    private boolean isValidEmail(String email) {
+        if (email == null || email.isEmpty()) return false;
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+        return email.matches(emailRegex);
     }
 
     // Step 2: Reset Password (reset2.fxml)

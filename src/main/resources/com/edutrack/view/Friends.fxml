@@ -11,81 +11,90 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane alignment="BOTTOM_CENTER" prefHeight="322.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.FriendsController">
+<StackPane alignment="CENTER" prefHeight="900.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.FriendsController">
   <children>
-    <ImageView fitHeight="1080.0" fitWidth="1920.0" mouseTransparent="true">
+    <ImageView fitHeight="1080.0" fitWidth="1920.0" mouseTransparent="true" preserveRatio="false">
       <image>
         <Image url="@background.png" />
       </image>
-      <StackPane.margin>
-        <Insets />
-      </StackPane.margin>
     </ImageView>
-    <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="818.0" prefWidth="1765.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
+    
+    <VBox alignment="TOP_CENTER" maxWidth="1765.0" prefHeight="750.0" prefWidth="1765.0" 
+          style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
       <StackPane.margin>
-        <Insets bottom="50.0" />
+        <Insets bottom="30.0" top="30.0" />
       </StackPane.margin>
-         <children>
-            <HBox prefHeight="818.0" prefWidth="1765.0">
-               <children>
-                  <ScrollPane prefHeight="818.0">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                     <content>
-                        <VBox fx:id="friendsContainer" prefWidth="882.0">
-                           <children>
-                              <Label text="Friends">
-                                 <font>
-                                    <Font name="System Bold" size="24.0" />
-                                 </font>
-                              </Label>
-                              <Button fx:id="addFriendButton" mnemonicParsing="false" onAction="#showAddFriendDialog" style="-fx-background-color: #59B5E0;" text="Add a Friend" textFill="WHITE">
-                                 <VBox.margin>
-                                    <Insets left="600.0" top="20.0" />
-                                 </VBox.margin>
-                              </Button>
-                           </children>
-                           <padding>
-                              <Insets left="80.0" top="100.0" />
-                           </padding>
-                        </VBox>
-                     </content>
-                  </ScrollPane>
-                  <VBox fx:id="groupContainer" prefHeight="818.0" minHeight="818.0" maxHeight="818.0" prefWidth="882.0">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                     <padding>
-                        <Insets left="80.0" top="100.0" />
-                     </padding>
-                     <children>
-                        <Label text="Group">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="50.0">
-                           <children>
-                              <Button mnemonicParsing="false" onAction="#showCreateGroupDialog" style="-fx-background-color: #59B5E0;" text="Create a Group" textFill="WHITE" />
-                              <Button mnemonicParsing="false" onAction="#showJoinGroupDialog" style="-fx-background-color: #59B5E0;" text="Join a Group" textFill="WHITE">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                              </Button>
-                           </children>
-                           <VBox.margin>
-                              <Insets left="500.0" top="580.0" />
-                           </VBox.margin>
-                        </HBox>
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-         </children>
+      <padding>
+        <Insets top="30.0" left="40.0" right="40.0" bottom="30.0"/>
+      </padding>
+      
+      <children>
+        <HBox spacing="40.0" VBox.vgrow="ALWAYS">
+          <children>
+            <!-- Friends Section -->
+            <VBox prefWidth="800.0" spacing="15.0" HBox.hgrow="ALWAYS">
+              <children>
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                  <children>
+                    <Label text="Friends" style="-fx-text-fill: #59B5E0;">
+                      <font>
+                        <Font name="System Bold" size="28.0" />
+                      </font>
+                    </Label>
+                    <Button fx:id="addFriendButton" mnemonicParsing="false" onAction="#showAddFriendDialog" 
+                            style="-fx-background-color: #59B5E0; -fx-background-radius: 20;" text="+ Add Friend" textFill="WHITE">
+                      <font>
+                        <Font size="12.0" />
+                      </font>
+                    </Button>
+                  </children>
+                </HBox>
+                
+                <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                  <content>
+                    <VBox fx:id="friendsContainer" spacing="10.0" style="-fx-padding: 10;">
+                    </VBox>
+                  </content>
+                </ScrollPane>
+              </children>
+            </VBox>
+            
+            <!-- Group Section -->
+            <VBox fx:id="groupContainer" prefWidth="800.0" spacing="15.0" HBox.hgrow="ALWAYS">
+              <children>
+                <Label text="Group" style="-fx-text-fill: #59B5E0;">
+                  <font>
+                    <Font name="System Bold" size="28.0" />
+                  </font>
+                </Label>
+                
+                <!-- Group Buttons - shown when no group -->
+                <HBox fx:id="groupButtonsBox" alignment="CENTER" spacing="30.0">
+                  <VBox.margin>
+                    <Insets top="20.0" />
+                  </VBox.margin>
+                  <children>
+                    <Button fx:id="createGroupBtn" mnemonicParsing="false" onAction="#showCreateGroupDialog" 
+                            style="-fx-background-color: #59B5E0; -fx-background-radius: 20;" text="Create a Group" textFill="WHITE">
+                      <font>
+                        <Font size="13.0" />
+                      </font>
+                    </Button>
+                    <Button fx:id="joinGroupBtn" mnemonicParsing="false" onAction="#showJoinGroupDialog" 
+                            style="-fx-background-color: #59B5E0; -fx-background-radius: 20;" text="Join a Group" textFill="WHITE">
+                      <font>
+                        <Font size="13.0" />
+                      </font>
+                    </Button>
+                  </children>
+                </HBox>
+                
+                <!-- Group Info - shown when in group (dynamically added) -->
+              </children>
+            </VBox>
+          </children>
+        </HBox>
+      </children>
     </VBox>
   </children>
-  <opaqueInsets>
-    <Insets />
-  </opaqueInsets>
 </StackPane>

@@ -2,9 +2,12 @@ package com.edutrack.controller;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 
 import com.edutrack.dao.UserDAO;
+import com.edutrack.model.Badge;
 import com.edutrack.model.User;
+import com.edutrack.util.BadgeService;
 import com.edutrack.util.SessionManager;
 
 import javafx.fxml.FXML;
@@ -13,8 +16,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 
 public class ProfileController {
@@ -52,12 +57,12 @@ public class ProfileController {
     private Pane editBioOverlay;
     @FXML
     private Pane badgesOverlay;
-
-    // ----- Overlay Controllers -----
+    
+    // ----- Badge UI -----
     @FXML
-    private EditInfoController editInfoOverlayController;
+    private FlowPane badgesTop3Pane;
     @FXML
-    private BadgesController badgesOverlayController;
+    private Label lblMoreBadgesCount;
 
     // ----- Edit info fields (only injected if fx:id matches) -----
     @FXML
@@ -83,7 +88,81 @@ public class ProfileController {
             editBioOverlay.setVisible(false);
         if (badgesOverlay != null)
             badgesOverlay.setVisible(false);
+        
+        // Auto-save notes when text changes
+        if (txtNotes != null) {
+            txtNotes.focusedProperty().addListener((obs, oldVal, newVal) -> {
+                if (!newVal) { // Lost focus
+                    saveNotes();
+                }
+            });
+        }
+        
+        // Check and award badges
+        User user = SessionManager.getCurrentUser();
+        if (user != null) {
+            BadgeService.checkAndAwardBadges(user);
+        }
+        
         refresh();
+        loadBadges();
+    }
+
+    private void loadBadges() {
+        User user = SessionManager.getCurrentUser();
+        if (user == null) return;
+        
+        List<Badge> userBadges = BadgeService.getUserBadges(user.getId());
+        
+        // Show top 3 badges
+        if (badgesTop3Pane != null) {
+            badgesTop3Pane.getChildren().clear();
+            int count = 0;
+            for (Badge badge : userBadges) {
+                if (count >= 3) break;
+                ImageView iv = createBadgeIcon(badge);
+                badgesTop3Pane.getChildren().add(iv);
+                count++;
+            }
+            
+            if (count == 0) {
+                Label noBadges = new Label("No badges yet");
+                noBadges.setStyle("-fx-text-fill: #888; -fx-font-size: 12;");
+                badgesTop3Pane.getChildren().add(noBadges);
+            }
+        }
+        
+        // Update count label
+        if (lblMoreBadgesCount != null) {
+            int remaining = Math.max(0, userBadges.size() - 3);
+            lblMoreBadgesCount.setText("+" + remaining + " more");
+        }
+    }
+
+    private ImageView createBadgeIcon(Badge badge) {
+        ImageView iv = new ImageView();
+        iv.setFitWidth(48);
+        iv.setFitHeight(48);
+        iv.setPreserveRatio(true);
+        
+        String path = badge.getIconPath();
+        if (path != null) {
+            if (!path.startsWith("/")) path = "/" + path;
+            InputStream is = getClass().getResourceAsStream(path);
+            if (is != null) {
+                iv.setImage(new Image(is));
+            }
+        }
+        
+        Tooltip.install(iv, new Tooltip(badge.getName() + "\n" + badge.getDescription()));
+        return iv;
+    }
+
+    private void saveNotes() {
+        User user = SessionManager.getCurrentUser();
+        if (user == null || txtNotes == null) return;
+        user.setNotes(txtNotes.getText());
+        new UserDAO().updateProfile(user);
     }
 
 
@@ -169,57 +248,54 @@ public class ProfileController {
 
     @FXML
     private void openEditInfo() {
-        if (editInfoOverlay == null || editInfoOverlayController == null)
-            return;
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/com/edutrack/view/profileEditInfo.fxml") 
+            );
 
-        User user = SessionManager.getCurrentUser();
-        if (user == null)
-            return;
+            Pane pane = loader.load();
+            EditInfoController c = loader.getController();
 
-        // Set initial values
-        editInfoOverlayController.setInitialValues(
-            user.getUsername(), 
-            user.getUniversity(), 
-            user.getMajor(), 
-            user.getClassesText()
-        );
+            User user = SessionManager.getCurrentUser();
 
-        // Set up close callback
-        editInfoOverlayController.setOnClose(() -> {
-            editInfoOverlay.setVisible(false);
-            refresh();
-        });
+            c.setInitialValues(user.getUsername(), user.getUniversity(), user.getMajor(), user.getClassesText());
 
-        // Set up save callback
-        editInfoOverlayController.setOnSave(update -> {
-            if (update.username != null && !update.username.isBlank())
-                user.setUsername(update.username);
-            if (update.university != null && !update.university.isBlank())
-                user.setUniversity(update.university);
-            if (update.major != null && !update.major.isBlank())
-                user.setMajor(update.major);
+            c.setOnClose(() -> {
+                editInfoOverlay.getChildren().clear();
+                editInfoOverlay.setVisible(false);
+                refresh();
+            });
 
-            if (update.selectedClass != null && !update.selectedClass.isBlank()) {
-                user.addClass(update.selectedClass);
-            }
+            c.setOnSave(update -> {
+                if (update.username != null)
+                    user.setUsername(update.username);
+                if (update.university != null)
+                    user.setUniversity(update.university);
+                if (update.major != null)
+                    user.setMajor(update.major);
 
-            // Handle avatar selection
-            if (update.avatarResource != null && !update.avatarResource.isBlank()) {
-                user.setProfilePicture(update.avatarResource);
-            }
+                if (update.selectedClass != null && !update.selectedClass.isBlank()) {
+                    user.addClass(update.selectedClass);
+                }
 
-            // Handle file upload
-            if (update.uploadFile != null) {
-                user.setProfilePicture(update.uploadFile.getAbsolutePath());
-            }
+                if (update.avatarResource != null && !update.avatarResource.isBlank()) {
+                    user.setProfilePicture(update.avatarResource);
+                }
 
-            // Save to database
-            new UserDAO().updateProfile(user);
-            refresh();
-        });
+                if (update.uploadFile != null) {
+                    user.setProfilePicture(update.uploadFile.getAbsolutePath());
+                }
+                
+                // Save to database
+                new UserDAO().updateProfile(user);
+            });
 
-        // Show the overlay
-        editInfoOverlay.setVisible(true);
+            editInfoOverlay.getChildren().setAll(pane);
+            editInfoOverlay.setVisible(true);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -322,19 +398,8 @@ public class ProfileController {
 
     @FXML
     private void openBadges() {
-        if (badgesOverlay == null || badgesOverlayController == null)
-            return;
-
-        // Set up close callback
-        badgesOverlayController.setOnClose(() -> {
-            badgesOverlay.setVisible(false);
-        });
-
-        // You can set badges here if you have them
-        // For example: badgesOverlayController.setBadges(userBadgesList);
-
-        // Show the overlay
-        badgesOverlay.setVisible(true);
+        if (badgesOverlay != null)
+            badgesOverlay.setVisible(true);
     }
 
     @FXML
@@ -384,62 +449,62 @@ public class ProfileController {
 
     @FXML
     private void selectAvatar1() {
-        selectAvatar("project/fxml/avatar1.png");
+        selectAvatar("com/edutrack/view/avatar1.png");
     }
 
     @FXML
     private void selectAvatar2() {
-        selectAvatar("project/fxml/avatar2.png");
+        selectAvatar("com/edutrack/view/avatar2.png");
     }
 
     @FXML
     private void selectAvatar3() {
-        selectAvatar("project/fxml/avatar3.png");
+        selectAvatar("com/edutrack/view/avatar3.png");
     }
 
     @FXML
     private void selectAvatar4() {
-        selectAvatar("project/fxml/avatar4.png");
+        selectAvatar("com/edutrack/view/avatar4.png");
     }
 
     @FXML
     private void selectAvatar5() {
-        selectAvatar("project/fxml/avatar5.png");
+        selectAvatar("com/edutrack/view/avatar5.png");
     }
 
     @FXML
     private void selectAvatar6() {
-        selectAvatar("project/fxml/avatar6.png");
+        selectAvatar("com/edutrack/view/avatar6.png");
     }
 
     @FXML
     private void selectAvatar7() {
-        selectAvatar("project/fxml/avatar7.png");
+        selectAvatar("com/edutrack/view/avatar7.png");
     }
 
     @FXML
     private void selectAvatar8() {
-        selectAvatar("project/fxml/avatar8.png");
+        selectAvatar("com/edutrack/view/avatar8.png");
     }
 
     @FXML
     private void selectAvatar9() {
-        selectAvatar("project/fxml/avatar9.png");
+        selectAvatar("com/edutrack/view/avatar9.png");
     }
 
     @FXML
     private void selectAvatar10() {
-        selectAvatar("project/fxml/avatar10.png");
+        selectAvatar("com/edutrack/view/avatar10.png");
     }
 
     @FXML
     private void selectAvatar11() {
-        selectAvatar("project/fxml/avatar11.png");
+        selectAvatar("com/edutrack/view/avatar11.png");
     }
 
     @FXML
     private void selectAvatar12() {
-        selectAvatar("project/fxml/avatar12.png");
+        selectAvatar("com/edutrack/view/avatar12.png");
     }
 
 }

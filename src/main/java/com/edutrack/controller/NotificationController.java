@@ -174,14 +174,16 @@ public class NotificationController {
 
     @FXML
     private void closePanel() {
-
         if (panelRoot != null && panelRoot.getParent() instanceof Pane parent) {
             parent.getChildren().remove(panelRoot);
-            return;
         }
-
-        if (panelRoot != null)
-            panelRoot.setVisible(false);
+        
+        // Navigate to Dashboard
+        try {
+            com.edutrack.Main.setContent("Dashboard");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void render() {

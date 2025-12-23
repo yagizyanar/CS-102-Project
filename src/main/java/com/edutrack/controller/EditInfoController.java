@@ -1,67 +1,40 @@
 package com.edutrack.controller;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.edutrack.dao.UserDAO;
+import com.edutrack.model.User;
+import com.edutrack.util.SessionManager;
+
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
+import javafx.scene.layout.StackPane;
 
 public class EditInfoController {
 
-    @FXML
-    private Pane root;
+    @FXML private StackPane editInfoOverlayRoot;
+    @FXML private TextField txtUsername;
+    @FXML private TextField txtUniversity;
+    @FXML private TextField txtMajor;
+    @FXML private ComboBox<String> cmbClasses;
+    @FXML private ImageView imgPreview;
 
-    @FXML
-    private TextField txtUsername;
-    @FXML
-    private TextField txtUniversity;
-    @FXML
-    private TextField txtMajor;
-    @FXML
-    private ComboBox<String> cmbClasses;
-    @FXML
-    private TextArea txtInfoNotes;
-
-    @FXML
-    private ImageView avatar1;
-    @FXML
-    private ImageView avatar2;
-    @FXML
-    private ImageView avatar3;
-    @FXML
-    private ImageView avatar4;
-    @FXML
-    private ImageView avatar5;
-    @FXML
-    private ImageView avatar6;
-    @FXML
-    private ImageView avatar7;
-    @FXML
-    private ImageView avatar8;
-    @FXML
-    private ImageView avatar9;
-    @FXML
-    private ImageView avatar10;
-    @FXML
-    private ImageView avatar11;
-    @FXML
-    private ImageView avatar12;
+    @FXML private ImageView avatar1, avatar2, avatar3, avatar4, avatar5, avatar6;
+    @FXML private ImageView avatar7, avatar8, avatar9, avatar10, avatar11, avatar12;
 
     private final List<ImageView> avatarViews = new ArrayList<>();
     private Runnable onClose;
     private Consumer<InfoUpdate> onSave;
 
     private String selectedAvatarResource = null;
-    private File selectedUploadFile = null;
+    private ImageView selectedAvatarView = null;
 
     public static class InfoUpdate {
         public final String username;
@@ -85,90 +58,87 @@ public class EditInfoController {
     @FXML
     public void initialize() {
         if (cmbClasses != null && cmbClasses.getItems().isEmpty()) {
-            cmbClasses.getItems().addAll("CS102", "CS202", "MATH102");
+            cmbClasses.getItems().addAll("CS101", "CS102", "CS201", "CS202", "CS223", "MATH101", "MATH102", "PHYS101", "PHYS102");
         }
 
-        addAvatar(avatar1, "com/edutrack/view/avatar1.png");
-        addAvatar(avatar2, "com/edutrack/view/avatar2.png");
-        addAvatar(avatar3, "com/edutrack/view/avatar3.png");
-        addAvatar(avatar4, "com/edutrack/view/avatar4.png");
-        addAvatar(avatar5, "com/edutrack/view/avatar5.png");
-        addAvatar(avatar6, "com/edutrack/view/avatar6.png");
-        addAvatar(avatar7, "com/edutrack/view/avatar7.png");
-        addAvatar(avatar8, "com/edutrack/view/avatar8.png");
-        addAvatar(avatar9, "com/edutrack/view/avatar9.png");
-        addAvatar(avatar10, "com/edutrack/view/avatar10.png");
-        addAvatar(avatar11, "com/edutrack/view/avatar11.png");
-        addAvatar(avatar12, "com/edutrack/view/avatar12.png");
+        setupAvatar(avatar1, "com/edutrack/view/avatar1.png");
+        setupAvatar(avatar2, "com/edutrack/view/avatar2.png");
+        setupAvatar(avatar3, "com/edutrack/view/avatar3.png");
+        setupAvatar(avatar4, "com/edutrack/view/avatar4.png");
+        setupAvatar(avatar5, "com/edutrack/view/avatar5.png");
+        setupAvatar(avatar6, "com/edutrack/view/avatar6.png");
+        setupAvatar(avatar7, "com/edutrack/view/avatar7.png");
+        setupAvatar(avatar8, "com/edutrack/view/avatar8.png");
+        setupAvatar(avatar9, "com/edutrack/view/avatar9.png");
+        setupAvatar(avatar10, "com/edutrack/view/avatar10.png");
+        setupAvatar(avatar11, "com/edutrack/view/avatar11.png");
+        setupAvatar(avatar12, "com/edutrack/view/avatar12.png");
+
+        // Load current user's profile picture as preview
+        User user = SessionManager.getCurrentUser();
+        if (user != null && user.getProfilePicture() != null) {
+            loadPreviewImage(user.getProfilePicture());
+        }
     }
 
-    private void addAvatar(ImageView iv, String resourcePath) {
-        if (iv == null)
-            return;
+    private void setupAvatar(ImageView iv, String resourcePath) {
+        if (iv == null) return;
         avatarViews.add(iv);
         
-        // Set cursor style
         iv.setStyle("-fx-cursor: hand;");
-
-        iv.setOnMouseClicked(e -> selectAvatar(resourcePath));
+        iv.setOnMouseClicked(e -> selectAvatar(iv, resourcePath));
+        iv.setOnMouseEntered(e -> {
+            if (iv != selectedAvatarView) {
+                iv.setOpacity(0.7);
+            }
+        });
+        iv.setOnMouseExited(e -> {
+            if (iv != selectedAvatarView) {
+                iv.setOpacity(1.0);
+            }
+        });
     }
 
-    private void selectAvatar(String resourcePath) {
+    private void selectAvatar(ImageView clickedView, String resourcePath) {
         selectedAvatarResource = resourcePath;
-        selectedUploadFile = null; // Clear any uploaded file
-
-        // Visual feedback: remove highlight from all avatars
+        
+        // Reset all avatar styles
         for (ImageView v : avatarViews) {
             if (v != null) {
                 v.setStyle("-fx-cursor: hand;");
+                v.setOpacity(1.0);
+                v.setScaleX(1.0);
+                v.setScaleY(1.0);
             }
         }
         
-        // Find and highlight the selected avatar
-        for (ImageView v : avatarViews) {
-            if (v == null) continue;
-            
-            // Try to match the resource path
-            String imgUrl = getImageUrl(v);
-            if (imgUrl != null && imgUrl.contains(resourcePath.substring(resourcePath.lastIndexOf('/') + 1))) {
-                v.setStyle("-fx-effect: dropshadow(gaussian, #59B5E0, 10, 0.7, 0, 0); -fx-cursor: hand;");
-                break;
-            }
+        // Highlight selected avatar
+        selectedAvatarView = clickedView;
+        if (clickedView != null) {
+            clickedView.setStyle("-fx-cursor: hand; -fx-effect: dropshadow(gaussian, #59B5E0, 10, 0.8, 0, 0);");
+            clickedView.setScaleX(1.15);
+            clickedView.setScaleY(1.15);
         }
-    }
-    
-    private String getImageUrl(ImageView iv) {
-        if (iv.getImage() == null) return null;
-        return iv.getImage().getUrl();
+        
+        // Update preview image
+        loadPreviewImage(resourcePath);
     }
 
-    @FXML
-    private void avatarClicked(MouseEvent e) {
-        Object src = e.getSource();
-        if (src == avatar1)
-            selectAvatar("com/edutrack/view/avatar1.png");
-        else if (src == avatar2)
-            selectAvatar("com/edutrack/view/avatar2.png");
-        else if (src == avatar3)
-            selectAvatar("com/edutrack/view/avatar3.png");
-        else if (src == avatar4)
-            selectAvatar("com/edutrack/view/avatar4.png");
-        else if (src == avatar5)
-            selectAvatar("com/edutrack/view/avatar5.png");
-        else if (src == avatar6)
-            selectAvatar("com/edutrack/view/avatar6.png");
-        else if (src == avatar7)
-            selectAvatar("com/edutrack/view/avatar7.png");
-        else if (src == avatar8)
-            selectAvatar("com/edutrack/view/avatar8.png");
-        else if (src == avatar9)
-            selectAvatar("com/edutrack/view/avatar9.png");
-        else if (src == avatar10)
-            selectAvatar("com/edutrack/view/avatar10.png");
-        else if (src == avatar11)
-            selectAvatar("com/edutrack/view/avatar11.png");
-        else if (src == avatar12)
-            selectAvatar("com/edutrack/view/avatar12.png");
+    private void loadPreviewImage(String resourcePath) {
+        if (imgPreview == null) return;
+        
+        try {
+            String path = resourcePath;
+            if (!path.startsWith("/")) {
+                path = "/" + path;
+            }
+            InputStream is = getClass().getResourceAsStream(path);
+            if (is != null) {
+                imgPreview.setImage(new Image(is));
+            }
+        } catch (Exception e) {
+            System.out.println("Could not load preview: " + e.getMessage());
+        }
     }
 
     public void setOnClose(Runnable onClose) {
@@ -180,28 +150,9 @@ public class EditInfoController {
     }
 
     public void setInitialValues(String username, String university, String major, String classesText) {
-        if (txtUsername != null)
-            txtUsername.setText(username == null ? "" : username);
-        if (txtUniversity != null)
-            txtUniversity.setText(university == null ? "" : university);
-        if (txtMajor != null)
-            txtMajor.setText(major == null ? "" : major);
-    }
-
-    @FXML
-    private void upload() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Choose a profile picture");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
-
-        Node anyNode = txtUsername != null ? txtUsername : (root != null ? root : null);
-        if (anyNode == null || anyNode.getScene() == null)
-            return;
-
-        File file = chooser.showOpenDialog(anyNode.getScene().getWindow());
-        if (file != null)
-            selectedUploadFile = file;
+        if (txtUsername != null) txtUsername.setText(username == null ? "" : username);
+        if (txtUniversity != null) txtUniversity.setText(university == null ? "" : university);
+        if (txtMajor != null) txtMajor.setText(major == null ? "" : major);
     }
 
     @FXML
@@ -209,31 +160,47 @@ public class EditInfoController {
         String u = cleanOrNull(txtUsername);
         String uni = cleanOrNull(txtUniversity);
         String maj = cleanOrNull(txtMajor);
-
         String selectedClass = (cmbClasses != null) ? cmbClasses.getValue() : null;
 
-        if (onSave != null) {
-            onSave.accept(new InfoUpdate(u, uni, maj, selectedClass, selectedAvatarResource, selectedUploadFile));
+        // Update user in session and database
+        User user = SessionManager.getCurrentUser();
+        if (user != null) {
+            if (u != null) user.setUsername(u);
+            if (uni != null) user.setUniversity(uni);
+            if (maj != null) user.setMajor(maj);
+            if (selectedClass != null && !selectedClass.isEmpty()) {
+                user.addClass(selectedClass);
+            }
+            if (selectedAvatarResource != null) {
+                user.setProfilePicture(selectedAvatarResource);
+            }
+            
+            // Save to database
+            new UserDAO().updateProfile(user);
         }
 
-        close(); 
+        if (onSave != null) {
+            onSave.accept(new InfoUpdate(u, uni, maj, selectedClass, selectedAvatarResource, null));
+        }
+
+        close();
     }
 
     private String cleanOrNull(TextField tf) {
-        if (tf == null)
-            return null;
+        if (tf == null) return null;
         String t = tf.getText();
-        if (t == null)
-            return null;
+        if (t == null) return null;
         t = t.trim();
         return t.isEmpty() ? null : t;
     }
 
     @FXML
     private void close() {
-        if (onClose != null)
+        if (editInfoOverlayRoot != null) {
+            editInfoOverlayRoot.setVisible(false);
+        }
+        if (onClose != null) {
             onClose.run();
-        else if (root != null)
-            root.setVisible(false);
+        }
     }
 }

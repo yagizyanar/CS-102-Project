@@ -32,7 +32,7 @@
                 </ImageView>
 
                 <!-- Main card -->
-                <VBox alignment="TOP_CENTER" maxHeight="700"
+                <VBox alignment="TOP_CENTER" maxHeight="780" minHeight="700"
                       style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
                     <StackPane.margin>
                         <!-- Content now at top since bar is persistent layout -->
