@@ -73,7 +73,7 @@ public class NotificationController {
         if (user == null) {
             System.out.println("NotificationController: No user logged in");
             notifications.add(new AppNotification("⚠️ Not logged in",
-                    "Please log in to see notifications.", LocalDateTime.now(), false));
+                    "Please log in to see notifications.", LocalDateTime.now(), false, "INFO", 0));
             return;
         }
         int userId = user.getId();
@@ -82,8 +82,10 @@ public class NotificationController {
         List<UserRequest> pendingRequests = friendDAO.getPendingRequests(userId);
         System.out.println("NotificationController: Found " + pendingRequests.size() + " pending friend requests");
         for (UserRequest req : pendingRequests) {
+            System.out.println("  -> Friend request from: " + req.getUsername() + " (ID: " + req.getId() + ")");
             notifications.add(new AppNotification("👤 Friend request",
-                    req.getUsername() + " sent you a friend request.", LocalDateTime.now(), true));
+                    req.getUsername() + " sent you a friend request.", 
+                    LocalDateTime.now(), true, "FRIEND_REQUEST", req.getId()));
         }
 
         List<Task> tasks = taskDAO.getTasksByUserId(userId);
@@ -93,7 +95,7 @@ public class NotificationController {
                 String urgency = isDueWithin2Days(t.getDueDate()) ? "📋 Task due soon" : "📋 Upcoming task";
                 notifications.add(new AppNotification(urgency,
                         "\"" + t.getTitle() + "\" - Due: " + (t.getDueDate() != null ? t.getDueDate() : "No date"),
-                        LocalDateTime.now(), true));
+                        LocalDateTime.now(), true, "TASK", t.getId()));
             }
         }
 
@@ -104,7 +106,7 @@ public class NotificationController {
                 String urgency = isDueWithin2Days(g.deadline) ? "🎯 Goal due soon" : "🎯 Upcoming goal";
                 notifications.add(new AppNotification(urgency,
                         "\"" + g.name + "\" - Due: " + (g.deadline != null ? g.deadline : "No date"),
-                        LocalDateTime.now(), true));
+                        LocalDateTime.now(), true, "GOAL", g.id));
             }
         }
 
@@ -115,7 +117,7 @@ public class NotificationController {
                 String urgency = isDueWithin2Days(ev.eventDate) ? "📅 Event coming up" : "📅 Upcoming event";
                 notifications.add(new AppNotification(urgency,
                         "\"" + ev.name + "\" - Date: " + (ev.eventDate != null ? ev.eventDate : "No date"),
-                        LocalDateTime.now(), true));
+                        LocalDateTime.now(), true, "EVENT", ev.id));
             }
         }
 
@@ -123,7 +125,7 @@ public class NotificationController {
 
         if (notifications.isEmpty()) {
             notifications.add(new AppNotification("✅ All caught up!",
-                    "No notifications at this time.", LocalDateTime.now(), false));
+                    "No notifications at this time.", LocalDateTime.now(), false, "INFO", 0));
         }
     }
 
@@ -257,6 +259,49 @@ public class NotificationController {
         body.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
 
         VBox textBox = new VBox(6, header, body);
+        
+        // Add action buttons for friend requests
+        if ("FRIEND_REQUEST".equals(n.type)) {
+            HBox buttonBox = new HBox(10);
+            buttonBox.setAlignment(Pos.CENTER_LEFT);
+            
+            Button acceptBtn = new Button("Accept");
+            acceptBtn.setStyle("-fx-background-color: #2aa2d8; " +
+                              "-fx-text-fill: white; " +
+                              "-fx-background-radius: 8; " +
+                              "-fx-cursor: hand; " +
+                              "-fx-padding: 5 15;");
+            acceptBtn.setOnAction(e -> {
+                User currentUser = SessionManager.getCurrentUser();
+                if (currentUser != null) {
+                    friendDAO.acceptRequest(n.relatedId, currentUser.getId());
+                    // Reload notifications
+                    notifications.clear();
+                    loadNotifications();
+                    render();
+                }
+            });
+            
+            Button rejectBtn = new Button("Reject");
+            rejectBtn.setStyle("-fx-background-color: #f44336; " +
+                              "-fx-text-fill: white; " +
+                              "-fx-background-radius: 8; " +
+                              "-fx-cursor: hand; " +
+                              "-fx-padding: 5 15;");
+            rejectBtn.setOnAction(e -> {
+                User currentUser = SessionManager.getCurrentUser();
+                if (currentUser != null) {
+                    friendDAO.deleteFriendship(n.relatedId, currentUser.getId());
+                    // Reload notifications
+                    notifications.clear();
+                    loadNotifications();
+                    render();
+                }
+            });
+            
+            buttonBox.getChildren().addAll(acceptBtn, rejectBtn);
+            textBox.getChildren().add(buttonBox);
+        }
 
         HBox row = new HBox(12, dot, textBox);
         row.setPadding(new Insets(15));
@@ -317,13 +362,17 @@ public class NotificationController {
         final String title;
         final String body;
         final LocalDateTime time;
+        final String type;
+        final int relatedId;
         boolean unread;
 
-        AppNotification(String title, String body, LocalDateTime time, boolean unread) {
+        AppNotification(String title, String body, LocalDateTime time, boolean unread, String type, int relatedId) {
             this.title = title;
             this.body = body;
             this.time = time;
             this.unread = unread;
+            this.type = type;
+            this.relatedId = relatedId;
         }
 
         String timeText() {

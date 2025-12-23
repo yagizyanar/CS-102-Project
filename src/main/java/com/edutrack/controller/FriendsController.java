@@ -379,12 +379,10 @@ public class FriendsController {
                     if (targetUser != null) {
                         FriendDAO friendDAO = new FriendDAO();
                         friendDAO.sendRequest(sessionUser.getId(), targetUser.getId());
-                        friendDAO.acceptRequest(sessionUser.getId(), targetUser.getId());
                     }
                 }
-                friends.add(user);
                 refreshFriendsList();
-                showInfo("Success", "You are now friends with " + username + "!");
+                showInfo("Friend Request Sent", "Your friend request has been sent to " + username + ". Wait for them to accept!");
             }
         });
     }
