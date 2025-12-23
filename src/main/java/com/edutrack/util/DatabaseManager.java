@@ -10,32 +10,36 @@ import java.util.Properties;
 
 public class DatabaseManager {
     private static Properties props = new Properties();
-    private static String dbType = "sqlite";
+    private static String dbType = "mysql"; // Default to MySQL
+
+    // Hardcoded MySQL settings for remote database
+    private static final String MYSQL_URL = "jdbc:mysql://bovmfyrxqnhunkngnlkb-mysql.services.clever-cloud.com:20497/bovmfyrxqnhunkngnlkb";
+    private static final String MYSQL_USER = "uia9z2gxkded5h1h";
+    private static final String MYSQL_PASSWORD = "qfhfxDdMBUPViOcFrSE";
 
     static {
-        try (InputStream input = DatabaseManager.class.getClassLoader().getResourceAsStream("db.properties")) {
+        try (InputStream input = DatabaseManager.class.getClassLoader().getResourceAsStream("database.properties")) {
             if (input != null) {
                 props.load(input);
-                dbType = props.getProperty("db.type", "sqlite");
+                dbType = props.getProperty("db.type", "mysql");
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        System.out.println("Database type: " + dbType + " (Remote MySQL)");
     }
 
     public static Connection connect() {
         Connection conn = null;
         try {
-            if ("mysql".equalsIgnoreCase(dbType)) {
-                conn = DriverManager.getConnection(
-                        props.getProperty("mysql.url"),
-                        props.getProperty("mysql.user"),
-                        props.getProperty("mysql.password"));
-            } else {
-                conn = DriverManager.getConnection(props.getProperty("sqlite.url", "jdbc:sqlite:edutrack.db"));
-            }
+            // Always use MySQL remote database
+            String url = props.getProperty("mysql.url", MYSQL_URL);
+            String user = props.getProperty("mysql.user", MYSQL_USER);
+            String password = props.getProperty("mysql.password", MYSQL_PASSWORD);
+
+            conn = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
-            System.out.println("Connection Failed! Check output console");
+            System.out.println("MySQL Connection Failed!");
             e.printStackTrace();
         }
         return conn;
@@ -185,11 +189,13 @@ public class DatabaseManager {
                 }
                 try {
                     stmt.execute(groupsTable);
+                    System.out.println("SUCCESS: study_groups table created/verified");
                 } catch (Exception e) {
-                    System.out.println("Error creating groups: " + e.getMessage());
+                    System.out.println("Error creating study_groups: " + e.getMessage());
                 }
                 try {
                     stmt.execute(groupMembersTable);
+                    System.out.println("SUCCESS: group_members table created/verified");
                 } catch (Exception e) {
                     System.out.println("Error creating group_members: " + e.getMessage());
                 }
