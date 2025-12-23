@@ -13,10 +13,13 @@ public class DatabaseManager {
     private static String dbType = "sqlite";
 
     static {
-        try (InputStream input = DatabaseManager.class.getClassLoader().getResourceAsStream("db.properties")) {
+        try (InputStream input = DatabaseManager.class.getClassLoader().getResourceAsStream("database.properties")) {
             if (input != null) {
                 props.load(input);
                 dbType = props.getProperty("db.type", "sqlite");
+                System.out.println("Database type: " + dbType);
+            } else {
+                System.out.println("WARNING: database.properties not found, using SQLite default");
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -185,11 +188,13 @@ public class DatabaseManager {
                 }
                 try {
                     stmt.execute(groupsTable);
+                    System.out.println("SUCCESS: study_groups table created/verified");
                 } catch (Exception e) {
-                    System.out.println("Error creating groups: " + e.getMessage());
+                    System.out.println("Error creating study_groups: " + e.getMessage());
                 }
                 try {
                     stmt.execute(groupMembersTable);
+                    System.out.println("SUCCESS: group_members table created/verified");
                 } catch (Exception e) {
                     System.out.println("Error creating group_members: " + e.getMessage());
                 }
