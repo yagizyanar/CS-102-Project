@@ -147,11 +147,11 @@ public class DashboardController {
 
             ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
             if (completed > 0)
-                pieData.add(new PieChart.Data("Completed (" + completed + ")", completed));
+                pieData.add(new PieChart.Data("Completed", completed));
             if (pending > 0)
-                pieData.add(new PieChart.Data("Pending (" + pending + ")", pending));
+                pieData.add(new PieChart.Data("Pending", pending));
             if (overdue > 0)
-                pieData.add(new PieChart.Data("Overdue (" + overdue + ")", overdue));
+                pieData.add(new PieChart.Data("Overdue", overdue));
 
             if (pieData.isEmpty()) {
                 pieData.add(new PieChart.Data("No Tasks", 1));
@@ -159,6 +159,23 @@ public class DashboardController {
 
             taskPieChart.setData(pieData);
             taskPieChart.setLabelsVisible(false);
+
+            // Apply colors to match legend
+            javafx.application.Platform.runLater(() -> {
+                for (PieChart.Data data : taskPieChart.getData()) {
+                    String color;
+                    if (data.getName().equals("Completed")) {
+                        color = "#28a745"; // Green
+                    } else if (data.getName().equals("Pending")) {
+                        color = "#ffc107"; // Yellow
+                    } else if (data.getName().equals("Overdue")) {
+                        color = "#dc3545"; // Red
+                    } else {
+                        color = "#cccccc"; // Gray for No Tasks
+                    }
+                    data.getNode().setStyle("-fx-pie-color: " + color + ";");
+                }
+            });
         }
     }
 

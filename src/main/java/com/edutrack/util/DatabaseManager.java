@@ -121,8 +121,8 @@ public class DatabaseManager {
                 + "FOREIGN KEY(user_id) REFERENCES users(id)"
                 + ");";
 
-        // Groups Table
-        String groupsTable = "CREATE TABLE IF NOT EXISTS groups ("
+        // Groups Table (using study_groups to avoid SQL reserved keyword)
+        String groupsTable = "CREATE TABLE IF NOT EXISTS study_groups ("
                 + "id INTEGER PRIMARY KEY " + autoIncrement + ","
                 + "name VARCHAR(255) NOT NULL UNIQUE,"
                 + "owner_id INTEGER NOT NULL,"
@@ -137,7 +137,7 @@ public class DatabaseManager {
                 + "is_ready BOOLEAN DEFAULT FALSE,"
                 + "joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
                 + "PRIMARY KEY(group_id, user_id),"
-                + "FOREIGN KEY(group_id) REFERENCES groups(id),"
+                + "FOREIGN KEY(group_id) REFERENCES study_groups(id),"
                 + "FOREIGN KEY(user_id) REFERENCES users(id)"
                 + ");";
 
