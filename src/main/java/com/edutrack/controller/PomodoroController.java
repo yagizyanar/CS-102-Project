@@ -1,8 +1,13 @@
 package com.edutrack.controller;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.edutrack.Main;
+import com.edutrack.dao.GroupDAO;
+import com.edutrack.model.User;
+import com.edutrack.util.SessionManager;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -167,13 +172,15 @@ public class PomodoroController {
         // Auto-start if half ready
         if (group.isHalfReady() && !isRunning && groupStatusLabel != null) {
             groupStatusLabel.setText("Starting soon...");
-            Platform.runLater(() -> {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
+            // Use Timer to avoid blocking the UI thread
+            Timer autoStartTimer = new Timer();
+            autoStartTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Platform.runLater(() -> startGroupTimer());
+                    autoStartTimer.cancel();
                 }
-                startGroupTimer();
-            });
+            }, 1000);
         }
     }
 
@@ -267,16 +274,25 @@ public class PomodoroController {
     @FXML
     private void toggleReady(ActionEvent e) {
         FriendsController.User currentUser = FriendsController.getCurrentUser();
-        if (currentUser == null)
+        FriendsController.Group currentGroup = FriendsController.getCurrentGroup();
+        if (currentUser == null || currentGroup == null)
             return;
 
-        currentUser.setReady(!currentUser.isReady());
+        boolean newReadyState = !currentUser.isReady();
+        currentUser.setReady(newReadyState);
+
+        // Save ready status to database so other users can see it
+        User sessionUser = SessionManager.getCurrentUser();
+        if (sessionUser != null) {
+            GroupDAO groupDAO = new GroupDAO();
+            groupDAO.setMemberReady(currentGroup.getId(), sessionUser.getId(), newReadyState);
+        }
 
         if (readyButton != null) {
-            readyButton.setText(currentUser.isReady() ? "Not Ready" : "Ready");
-            readyButton.setStyle(currentUser.isReady()
-                    ? "-fx-background-color: #dc3545; -fx-text-fill: white;"
-                    : "-fx-background-color: #28a745; -fx-text-fill: white;");
+            readyButton.setText(newReadyState ? "Not Ready" : "Ready");
+            readyButton.setStyle(newReadyState
+                    ? "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"
+                    : "-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;");
         }
 
         updateReadyCount();
