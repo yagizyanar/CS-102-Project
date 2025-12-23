@@ -40,6 +40,7 @@ public class LoginController {
             SessionManager.setCurrentUser(user);
             System.out.println("Login successful for: " + user.getUsername());
             try {
+                // Navigate to the main layout with persistent nav bar
                 Main.showMainLayout("Dashboard");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -55,6 +56,7 @@ public class LoginController {
             statusLabel.setText(msg);
     }
 
+    // Navigation Methods from User's Demo
     @FXML
     private void goToSignUp(ActionEvent event) throws IOException {
         Main.setRoot("signup");
@@ -63,10 +65,5 @@ public class LoginController {
     @FXML
     private void goToReset(ActionEvent event) throws IOException {
         Main.setRoot("reset");
-    }
-
-    @FXML
-    private void goToReset2(ActionEvent event) throws IOException {
-        Main.setRoot("reset2");
     }
 }

@@ -9,7 +9,7 @@ public class User {
 
     private int xpAmount = 0;
     private int currentStreak = 0;
-    private static final int XP_PER_LEVEL = 500;
+    private static final int XP_PER_LEVEL = 100;
     private java.util.List<Badge> badges = new java.util.ArrayList<>();
 
     public void addBadge(Badge badge) {
@@ -77,6 +77,7 @@ public class User {
         this.major = major;
     }
 
+    // --- New Features (XP/Streak) ---
     public int getXpAmount() {
         return xpAmount;
     }
@@ -85,6 +86,7 @@ public class User {
         this.xpAmount = xpAmount;
     }
 
+    // Alias for compatibility with ProfileController
     public int getXp() {
         return xpAmount;
     }

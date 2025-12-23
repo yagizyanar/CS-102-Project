@@ -469,12 +469,23 @@ public class TaskController {
             if (isNowCompleted && !isOverdue(task.deadline)) {
                 User user = SessionManager.getCurrentUser();
                 if (user != null) {
+                    int oldLevel = user.getLevel(); // Get level BEFORE points
                     boolean pointsAdded = userDAO.addPoints(user.getId(), 10);
+
                     if (pointsAdded) {
-                        // Update local session user to reflect new points immediately
+                        // Update local session user
                         user.setXpAmount(user.getXpAmount() + 10);
-                        // Optional: Show a small popup or log
-                        System.out.println("Awarded 10 points!");
+
+                        int newLevel = user.getLevel(); // Get level AFTER points
+
+                        // Check for Level Up
+                        if (newLevel > oldLevel) {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Level Up!");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Congratulations! You've reached Level " + newLevel + "!");
+                            alert.showAndWait();
+                        }
                     }
                 }
             }

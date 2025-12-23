@@ -48,6 +48,7 @@ public class RegisterController {
             return;
         }
 
+        // Assign random avatar (avatar1.png to avatar12.png)
         int avatarNum = random.nextInt(12) + 1;
         String avatarPath = "com/edutrack/view/avatar" + avatarNum + ".png";
 
@@ -55,6 +56,7 @@ public class RegisterController {
         newUser.setProfilePicture(avatarPath);
 
         if (userDAO.registerUser(newUser)) {
+            // Send Welcome Email (Async to avoid UI freeze)
             new Thread(() -> {
                 com.edutrack.util.EmailService.sendWelcomeEmail(email, username);
             }).start();

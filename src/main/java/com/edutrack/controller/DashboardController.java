@@ -46,7 +46,7 @@ public class DashboardController {
     private final TaskDAO taskDAO = new TaskDAO();
     private final GoalDAO goalDAO = new GoalDAO();
 
-    private static final int XP_PER_LEVEL = 500;
+    private static final int XP_PER_LEVEL = 100;
 
     @FXML
 
@@ -73,6 +73,7 @@ public class DashboardController {
         lblLevelRange.setText("LVL " + level + " → LVL " + (level + 1));
         lvlSlider.setValue((xp % XP_PER_LEVEL) * 100.0 / XP_PER_LEVEL);
 
+        // 🔥 SAME streak as bar
         int streak = user.calculateStreak();
         lblStreak.setText(String.valueOf(streak));
     }
@@ -94,6 +95,7 @@ public class DashboardController {
 
         int userId = user.getId();
 
+        // Load tasks from database - show non-completed, non-overdue
         List<Task> tasks = taskDAO.getTasksByUserId(userId);
         for (Task t : tasks) {
             if (!"COMPLETED".equals(t.getStatus()) && !isOverdue(t.getDueDate())) {
@@ -102,6 +104,7 @@ public class DashboardController {
             }
         }
 
+        // Load goals from database - show non-completed, non-overdue
         List<GoalDAO.GoalRecord> goals = goalDAO.getGoalsByUserId(userId);
         for (GoalDAO.GoalRecord g : goals) {
             if (!g.completed && !isOverdue(g.deadline)) {
@@ -109,6 +112,7 @@ public class DashboardController {
             }
         }
 
+        // If no items, show a placeholder
         if (todoList.getItems().isEmpty()) {
             todoList.getItems().add("No upcoming tasks or goals!");
         }
@@ -118,11 +122,13 @@ public class DashboardController {
         if (dateStr == null || dateStr.isEmpty())
             return false;
         try {
+            // Try MM/dd/yyyy format
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
             LocalDate dueDate = LocalDate.parse(dateStr, formatter);
             return dueDate.isBefore(LocalDate.now());
         } catch (DateTimeParseException e) {
             try {
+                // Try yyyy-MM-dd format
                 LocalDate dueDate = LocalDate.parse(dateStr);
                 return dueDate.isBefore(LocalDate.now());
             } catch (DateTimeParseException e2) {

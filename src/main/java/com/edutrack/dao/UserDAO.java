@@ -160,6 +160,34 @@ public class UserDAO {
         return null;
     }
 
+    public User getUserByEmail(String email) {
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try (Connection conn = DatabaseManager.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                User user = new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("major"));
+                try {
+                    user.setUniversity(rs.getString("university"));
+                    user.setProfilePicture(rs.getString("profile_picture"));
+                } catch (SQLException e) {
+                    // Columns might not exist yet
+                }
+                return user;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
     private boolean isPasswordTaken(String password) {
         String sql = "SELECT id FROM users WHERE password = ?";
         try (Connection conn = DatabaseManager.connect();

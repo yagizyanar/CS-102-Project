@@ -1,0 +1,14 @@
+2025-12-23T05:51:00.601368900: Initializing EmailService...
+2025-12-23T05:51:00.602418900: mail.properties loaded successfully.
+2025-12-23T05:51:00.602418900: Preparing to send welcome email to: projetest1cs@gmail.com
+2025-12-23T05:51:00.602418900: isConfigured check failed. Host value: smtp.example.com
+2025-12-23T05:51:00.603924800: Email Service: SMTP not configured (host NOT found). Skipping welcome email to projetest1cs@gmail.com
+2025-12-23T05:58:38.627163500: Initializing EmailService...
+2025-12-23T05:58:38.628233700: mail.properties loaded successfully.
+2025-12-23T05:58:38.629522600: Preparing to send welcome email to: ayakkabiterli@gmail.com
+2025-12-23T05:58:38.629522600: isConfigured check failed. Host value: smtp.example.com
+2025-12-23T05:58:38.630521400: Email Service: SMTP not configured (host NOT found). Skipping welcome email to ayakkabiterli@gmail.com
+2025-12-23T06:06:06.578338900: Initializing EmailService...
+2025-12-23T06:06:06.580989600: mail.properties loaded successfully.
+2025-12-23T06:06:06.581540100: Preparing to send password reminder to: projetest1cs@gmail.com
+2025-12-23T06:06:08.456744100: Email sent successfully to projetest1cs@gmail.com

@@ -126,6 +126,8 @@ public class DatabaseManager {
                 return;
             }
             try (Statement stmt = conn.createStatement()) {
+                // Execute each table creation separately to prevent one failure from blocking
+                // others
                 try {
                     stmt.execute(userTable);
                 } catch (Exception e) {
@@ -162,6 +164,10 @@ public class DatabaseManager {
                     System.out.println("Error creating events: " + e.getMessage());
                 }
 
+                // --- COMPREHENSIVE SCHEMA MIGRATION ---
+                // We attempt to add ALL non-primary key columns.
+                // If they exist, it throws an exception which we safely ignore.
+
                 // USERS Table
                 try {
                     stmt.execute("ALTER TABLE users ADD COLUMN major VARCHAR(255)");
@@ -181,6 +187,10 @@ public class DatabaseManager {
                 }
                 try {
                     stmt.execute("ALTER TABLE users ADD COLUMN profile_picture VARCHAR(255)");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE users ADD COLUMN points INTEGER DEFAULT 0");
                 } catch (Exception e) {
                 }
 
@@ -212,11 +222,52 @@ public class DatabaseManager {
                 } catch (Exception e) {
                 }
 
-                // FRIENDSHIPS Table
                 try {
                     stmt.execute("ALTER TABLE friendships ADD COLUMN status VARCHAR(20) DEFAULT 'PENDING'");
                 } catch (Exception e) {
                 }
+
+                // GOALS Table
+                try {
+                    stmt.execute("ALTER TABLE goals ADD COLUMN user_id INTEGER");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE goals ADD COLUMN name VARCHAR(255)");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE goals ADD COLUMN deadline VARCHAR(50)");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE goals ADD COLUMN completed BOOLEAN DEFAULT FALSE");
+                } catch (Exception e) {
+                }
+
+                // EVENTS Table
+                try {
+                    stmt.execute("ALTER TABLE events ADD COLUMN user_id INTEGER");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE events ADD COLUMN type VARCHAR(50)");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE events ADD COLUMN name VARCHAR(255)");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE events ADD COLUMN event_date VARCHAR(50)");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE events ADD COLUMN note TEXT");
+                } catch (Exception e) {
+                }
+                // timestamp/created_at might be tricky on MySQL 5.x vs 8.x, skipping for now
+                // unless reported.
 
                 System.out.println("Schema migration attempts completed.");
 
