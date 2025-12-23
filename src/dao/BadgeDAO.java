@@ -9,7 +9,7 @@
 
 package src.dao;
 
-import src.models.user.Badge;
+import com.edutrack.model.Badge;
 
 import java.sql.*;
 import java.time.LocalDate;
