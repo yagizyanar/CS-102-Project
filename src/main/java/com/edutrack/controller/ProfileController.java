@@ -53,6 +53,12 @@ public class ProfileController {
     @FXML
     private Pane badgesOverlay;
 
+    // ----- Overlay Controllers -----
+    @FXML
+    private EditInfoController editInfoOverlayController;
+    @FXML
+    private BadgesController badgesOverlayController;
+
     // ----- Edit info fields (only injected if fx:id matches) -----
     @FXML
     private TextField editUsernameField;
@@ -162,53 +168,58 @@ public class ProfileController {
 
 
     @FXML
-
     private void openEditInfo() {
-        try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/project/fxml/profileEditInfo.fxml") 
-            );
+        if (editInfoOverlay == null || editInfoOverlayController == null)
+            return;
 
-            Pane pane = loader.load();
-            EditInfoController c = loader.getController();
+        User user = SessionManager.getCurrentUser();
+        if (user == null)
+            return;
 
-            User user = SessionManager.getCurrentUser();
+        // Set initial values
+        editInfoOverlayController.setInitialValues(
+            user.getUsername(), 
+            user.getUniversity(), 
+            user.getMajor(), 
+            user.getClassesText()
+        );
 
-            c.setInitialValues(user.getUsername(), user.getUniversity(), user.getMajor(), user.getClassesText());
+        // Set up close callback
+        editInfoOverlayController.setOnClose(() -> {
+            editInfoOverlay.setVisible(false);
+            refresh();
+        });
 
-            c.setOnClose(() -> {
-                editInfoOverlay.getChildren().clear();
-                editInfoOverlay.setVisible(false);
-                refresh();
-            });
+        // Set up save callback
+        editInfoOverlayController.setOnSave(update -> {
+            if (update.username != null && !update.username.isBlank())
+                user.setUsername(update.username);
+            if (update.university != null && !update.university.isBlank())
+                user.setUniversity(update.university);
+            if (update.major != null && !update.major.isBlank())
+                user.setMajor(update.major);
 
-            c.setOnSave(update -> {
-                if (update.username != null)
-                    user.setUsername(update.username);
-                if (update.university != null)
-                    user.setUniversity(update.university);
-                if (update.major != null)
-                    user.setMajor(update.major);
+            if (update.selectedClass != null && !update.selectedClass.isBlank()) {
+                user.addClass(update.selectedClass);
+            }
 
-                if (update.selectedClass != null && !update.selectedClass.isBlank()) {
-                    user.addClass(update.selectedClass);
-                }
+            // Handle avatar selection
+            if (update.avatarResource != null && !update.avatarResource.isBlank()) {
+                user.setProfilePicture(update.avatarResource);
+            }
 
-                if (update.avatarResource != null && !update.avatarResource.isBlank()) {
-                    user.setProfilePicture(update.avatarResource);
-                }
+            // Handle file upload
+            if (update.uploadFile != null) {
+                user.setProfilePicture(update.uploadFile.getAbsolutePath());
+            }
 
-                if (update.uploadFile != null) {
-                    user.setProfilePicture(update.uploadFile.getAbsolutePath());
-                }
-            });
+            // Save to database
+            new UserDAO().updateProfile(user);
+            refresh();
+        });
 
-            editInfoOverlay.getChildren().setAll(pane);
-            editInfoOverlay.setVisible(true);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Show the overlay
+        editInfoOverlay.setVisible(true);
     }
 
     @FXML
@@ -311,8 +322,19 @@ public class ProfileController {
 
     @FXML
     private void openBadges() {
-        if (badgesOverlay != null)
-            badgesOverlay.setVisible(true);
+        if (badgesOverlay == null || badgesOverlayController == null)
+            return;
+
+        // Set up close callback
+        badgesOverlayController.setOnClose(() -> {
+            badgesOverlay.setVisible(false);
+        });
+
+        // You can set badges here if you have them
+        // For example: badgesOverlayController.setBadges(userBadgesList);
+
+        // Show the overlay
+        badgesOverlay.setVisible(true);
     }
 
     @FXML

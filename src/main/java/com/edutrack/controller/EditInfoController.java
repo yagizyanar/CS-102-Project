@@ -88,68 +88,87 @@ public class EditInfoController {
             cmbClasses.getItems().addAll("CS102", "CS202", "MATH102");
         }
 
-        addAvatar(avatar1, "com/edutrack/view/images/avatar1.png");
-        addAvatar(avatar2, "com/edutrack/view/images/avatar2.png");
-        addAvatar(avatar3, "com/edutrack/view/images/avatar3.png");
-        addAvatar(avatar4, "com/edutrack/view/images/avatar4.png");
-        addAvatar(avatar5, "com/edutrack/view/images/avatar5.png");
-        addAvatar(avatar6, "com/edutrack/view/images/avatar6.png");
-        addAvatar(avatar7, "com/edutrack/view/images/avatar7.png");
-        addAvatar(avatar8, "com/edutrack/view/images/avatar8.png");
-        addAvatar(avatar9, "com/edutrack/view/images/avatar9.png");
-        addAvatar(avatar10, "com/edutrack/view/images/avatar10.png");
-        addAvatar(avatar11, "com/edutrack/view/images/avatar11.png");
-        addAvatar(avatar12, "com/edutrack/view/images/avatar12.png");
+        addAvatar(avatar1, "com/edutrack/view/avatar1.png");
+        addAvatar(avatar2, "com/edutrack/view/avatar2.png");
+        addAvatar(avatar3, "com/edutrack/view/avatar3.png");
+        addAvatar(avatar4, "com/edutrack/view/avatar4.png");
+        addAvatar(avatar5, "com/edutrack/view/avatar5.png");
+        addAvatar(avatar6, "com/edutrack/view/avatar6.png");
+        addAvatar(avatar7, "com/edutrack/view/avatar7.png");
+        addAvatar(avatar8, "com/edutrack/view/avatar8.png");
+        addAvatar(avatar9, "com/edutrack/view/avatar9.png");
+        addAvatar(avatar10, "com/edutrack/view/avatar10.png");
+        addAvatar(avatar11, "com/edutrack/view/avatar11.png");
+        addAvatar(avatar12, "com/edutrack/view/avatar12.png");
     }
 
     private void addAvatar(ImageView iv, String resourcePath) {
         if (iv == null)
             return;
         avatarViews.add(iv);
+        
+        // Set cursor style
+        iv.setStyle("-fx-cursor: hand;");
 
         iv.setOnMouseClicked(e -> selectAvatar(resourcePath));
     }
 
     private void selectAvatar(String resourcePath) {
         selectedAvatarResource = resourcePath;
+        selectedUploadFile = null; // Clear any uploaded file
 
+        // Visual feedback: remove highlight from all avatars
         for (ImageView v : avatarViews) {
-            if (v != null)
-                v.setStyle("");
+            if (v != null) {
+                v.setStyle("-fx-cursor: hand;");
+            }
         }
+        
+        // Find and highlight the selected avatar
         for (ImageView v : avatarViews) {
-            if (v == null)
-                continue;
+            if (v == null) continue;
+            
+            // Try to match the resource path
+            String imgUrl = getImageUrl(v);
+            if (imgUrl != null && imgUrl.contains(resourcePath.substring(resourcePath.lastIndexOf('/') + 1))) {
+                v.setStyle("-fx-effect: dropshadow(gaussian, #59B5E0, 10, 0.7, 0, 0); -fx-cursor: hand;");
+                break;
+            }
         }
+    }
+    
+    private String getImageUrl(ImageView iv) {
+        if (iv.getImage() == null) return null;
+        return iv.getImage().getUrl();
     }
 
     @FXML
     private void avatarClicked(MouseEvent e) {
         Object src = e.getSource();
         if (src == avatar1)
-            selectAvatar("project/fxml/avatar1.png");
+            selectAvatar("com/edutrack/view/avatar1.png");
         else if (src == avatar2)
-            selectAvatar("project/fxml/avatar2.png");
+            selectAvatar("com/edutrack/view/avatar2.png");
         else if (src == avatar3)
-            selectAvatar("project/fxml/avatar3.png");
+            selectAvatar("com/edutrack/view/avatar3.png");
         else if (src == avatar4)
-            selectAvatar("project/fxml/avatar4.png");
+            selectAvatar("com/edutrack/view/avatar4.png");
         else if (src == avatar5)
-            selectAvatar("project/fxml/avatar5.png");
+            selectAvatar("com/edutrack/view/avatar5.png");
         else if (src == avatar6)
-            selectAvatar("project/fxml/avatar6.png");
+            selectAvatar("com/edutrack/view/avatar6.png");
         else if (src == avatar7)
-            selectAvatar("project/fxml/avatar7.png");
+            selectAvatar("com/edutrack/view/avatar7.png");
         else if (src == avatar8)
-            selectAvatar("project/fxml/avatar8.png");
+            selectAvatar("com/edutrack/view/avatar8.png");
         else if (src == avatar9)
-            selectAvatar("project/fxml/avatar9.png");
+            selectAvatar("com/edutrack/view/avatar9.png");
         else if (src == avatar10)
-            selectAvatar("project/fxml/avatar10.png");
+            selectAvatar("com/edutrack/view/avatar10.png");
         else if (src == avatar11)
-            selectAvatar("project/fxml/avatar11.png");
+            selectAvatar("com/edutrack/view/avatar11.png");
         else if (src == avatar12)
-            selectAvatar("project/fxml/avatar12.png");
+            selectAvatar("com/edutrack/view/avatar12.png");
     }
 
     public void setOnClose(Runnable onClose) {
