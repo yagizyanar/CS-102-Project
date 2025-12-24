@@ -50,13 +50,13 @@
                   <Insets left="20.0" right="20.0" />
                </padding>
             </VBox>
-            <HBox prefHeight="24.0" prefWidth="745.0" spacing="392.0">
+            <HBox prefHeight="24.0" prefWidth="745.0" spacing="500.0">
                <children>
                   <Label fx:id="statusLabel" text="" textFill="#ff5900" />
-                  <Hyperlink style="-fx-underline: true;" text="Forgot password" onAction="#goToReset"/>
+                  <Hyperlink style="-fx-underline: true;" text="Forgot password?" onAction="#goToReset"/>
                </children>
                <padding>
-                  <Insets left="20.0" />
+                  <Insets left="120.0" />
                </padding>
                <opaqueInsets>
                   <Insets />
@@ -69,7 +69,7 @@
             </Button>
             <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="745.0" spacing="5.0">
                <children>
-                  <Label prefHeight="17.0" prefWidth="140.0" text="Already Have an account?">
+                  <Label prefHeight="17.0" prefWidth="140.0" text="Dont't have an account?">
                      <font>
                         <Font name="Segoe UI" size="12.0" />
                      </font>
