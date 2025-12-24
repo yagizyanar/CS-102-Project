@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.LeaderboardController">
+    <top>
+        <HBox spacing="10" style="-fx-padding: 10;">
+             <Button text="Back to Dashboard" onAction="#handleBack"/>
+             <Label text="Global Leaderboard" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #333333;"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox spacing="10" style="-fx-padding: 20;">
+            <TableView fx:id="leaderboardTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="rankColumn" text="Rank" prefWidth="50"/>
+                    <TableColumn fx:id="userColumn" text="User" prefWidth="200"/>
+                    <TableColumn fx:id="timeColumn" text="Total Study Time (min)" prefWidth="150"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

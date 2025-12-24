@@ -1,25 +1,27 @@
-package src.dao;
+package com.edutrack.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.edutrack.model.UserRequest;
 import com.edutrack.util.DatabaseManager;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+public class FriendDAO {
 
-public class FriendshipDAO {
-
-    // Send a Friend Request
     public boolean sendRequest(int requesterId, int addresseeId) {
         String sql = "INSERT INTO friendships (requester_id, addressee_id, status) VALUES (?, ?, 'PENDING')";
         try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, requesterId);
             pstmt.setInt(2, addresseeId);
             pstmt.executeUpdate();
+            System.out.println("FriendDAO: Friend request sent from user " + requesterId + " to user " + addresseeId);
             return true;
         } catch (SQLException e) {
-            // If it's a duplicate entry, we can consider it "already sent"
             if (e.getMessage().contains("Duplicate")) {
                 System.out.println("Friend request already exists.");
             } else {
@@ -29,11 +31,10 @@ public class FriendshipDAO {
         }
     }
 
-    // Accept a Friend Request
     public void acceptRequest(int requesterId, int addresseeId) {
         String sql = "UPDATE friendships SET status = 'ACCEPTED' WHERE requester_id = ? AND addressee_id = ?";
         try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, requesterId);
             pstmt.setInt(2, addresseeId);
             pstmt.executeUpdate();
@@ -42,11 +43,10 @@ public class FriendshipDAO {
         }
     }
 
-    // Reject/Cancel Request
     public void deleteFriendship(int requesterId, int addresseeId) {
         String sql = "DELETE FROM friendships WHERE (requester_id = ? AND addressee_id = ?) OR (requester_id = ? AND addressee_id = ?)";
         try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, requesterId);
             pstmt.setInt(2, addresseeId);
             pstmt.setInt(3, addresseeId);
@@ -57,11 +57,9 @@ public class FriendshipDAO {
         }
     }
 
-    // Search Users by Prefix (Bidirectional Check)
     public List<UserRequest> searchUsers(String query, int currentUserId) {
         List<UserRequest> users = new ArrayList<>();
 
-        // Find users and join with friendships to see if ANY relationship exists
         String sql = "SELECT u.id, u.username, " +
                 "f.status, f.requester_id " +
                 "FROM users u " +
@@ -71,7 +69,7 @@ public class FriendshipDAO {
                 "WHERE u.username LIKE ? AND u.id != ?";
 
         try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, currentUserId);
             pstmt.setInt(2, currentUserId);
             pstmt.setString(3, query + "%");
@@ -107,7 +105,6 @@ public class FriendshipDAO {
         return users;
     }
 
-    // Get Pending Incoming Requests
     public List<UserRequest> getPendingRequests(int userId) {
         List<UserRequest> requests = new ArrayList<>();
         String sql = "SELECT u.id, u.username, 'PENDING' as status " +
@@ -116,7 +113,8 @@ public class FriendshipDAO {
                 "WHERE f.addressee_id = ? AND f.status = 'PENDING'";
 
         try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            System.out.println("FriendDAO.getPendingRequests: Checking for user ID = " + userId);
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
 
@@ -132,11 +130,8 @@ public class FriendshipDAO {
         return requests;
     }
 
-    // Get Accepted Friends
     public List<UserRequest> getFriends(int userId) {
         List<UserRequest> friends = new ArrayList<>();
-        // Complex query: A friend is someone I added (ACCEPTED) OR someone who added me
-        // (ACCEPTED)
         String sql = "SELECT u.id, u.username, 'ACCEPTED' as status " +
                 "FROM friendships f " +
                 "JOIN users u ON (f.requester_id = u.id OR f.addressee_id = u.id) " +
@@ -144,7 +139,7 @@ public class FriendshipDAO {
                 "AND f.status = 'ACCEPTED' AND u.id != ?";
 
         try (Connection conn = DatabaseManager.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             pstmt.setInt(2, userId);
             pstmt.setInt(3, userId);
@@ -162,4 +157,3 @@ public class FriendshipDAO {
         return friends;
     }
 }
-

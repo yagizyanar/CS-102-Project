@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane stylesheets="@../../../../style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.RegisterController">
+    <center>
+        <VBox alignment="CENTER" spacing="20" style="-fx-padding: 20; -fx-background-color: #2c3e50;">
+            <VBox alignment="CENTER" spacing="15" maxWidth="350" styleClass="card">
+                <Label styleClass="label-header" text="Join EduTrack" style="-fx-text-fill: #3498db;"/>
+                <Label text="Create your account" style="-fx-text-fill: #7f8c8d;"/>
+                
+                <Label fx:id="statusLabel" wrapText="true" textAlignment="CENTER" text="" textFill="red"/>
+                
+                <TextField fx:id="usernameField" promptText="Username" />
+                <TextField fx:id="emailField" promptText="Email Address" />
+                <TextField fx:id="majorField" promptText="Your Major" />
+                <PasswordField fx:id="passwordField" promptText="Password" />
+                <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" />
+                
+                <Button styleClass="button-success" text="Sign Up" maxWidth="Infinity" onAction="#handleRegister"/>
+                <Button style="-fx-background-color: transparent; -fx-text-fill: #3498db; -fx-cursor: hand;" text="← Back to Login" onAction="#goToLogin"/>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

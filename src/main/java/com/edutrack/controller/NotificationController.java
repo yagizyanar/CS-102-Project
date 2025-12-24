@@ -1,0 +1,453 @@
+package com.edutrack.controller;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.edutrack.dao.EventDAO;
+import com.edutrack.dao.FriendDAO;
+import com.edutrack.dao.GoalDAO;
+import com.edutrack.dao.TaskDAO;
+import com.edutrack.model.Task;
+import com.edutrack.model.User;
+import com.edutrack.model.UserRequest;
+import com.edutrack.util.SessionManager;
+
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+
+public class NotificationController {
+
+    @FXML
+    private AnchorPane panelRoot;
+    @FXML
+    private AnchorPane popupRoot;
+    @FXML
+    private VBox listBox;
+    @FXML
+    private Button btnClose;
+    @FXML
+    private Button btnExpand;
+
+    private boolean isPopupMode = false;
+
+    private final List<AppNotification> notifications = new ArrayList<>();
+    private final TaskDAO taskDAO = new TaskDAO();
+    private final GoalDAO goalDAO = new GoalDAO();
+    private final EventDAO eventDAO = new EventDAO();
+    private final FriendDAO friendDAO = new FriendDAO();
+
+    @FXML
+    private void initialize() {
+        // Determine if we're in popup mode
+        isPopupMode = (popupRoot != null);
+        
+        notifications.clear();
+        loadNotifications();
+        render();
+    }
+    
+    public void setPopupMode(boolean popupMode) {
+        this.isPopupMode = popupMode;
+    }
+
+    private void loadNotifications() {
+        User user = SessionManager.getCurrentUser();
+        if (user == null) {
+            System.out.println("NotificationController: No user logged in");
+            notifications.add(new AppNotification("⚠️ Not logged in",
+                    "Please log in to see notifications.", LocalDateTime.now(), false, "INFO", 0));
+            return;
+        }
+        int userId = user.getId();
+        System.out.println("NotificationController: Loading notifications for user " + userId);
+
+        List<UserRequest> pendingRequests = friendDAO.getPendingRequests(userId);
+        System.out.println("NotificationController: Found " + pendingRequests.size() + " pending friend requests");
+        for (UserRequest req : pendingRequests) {
+            System.out.println("  -> Friend request from: " + req.getUsername() + " (ID: " + req.getId() + ")");
+            notifications.add(new AppNotification("👤 Friend request",
+                    req.getUsername() + " sent you a friend request.", 
+                    LocalDateTime.now(), true, "FRIEND_REQUEST", req.getId()));
+        }
+
+        List<Task> tasks = taskDAO.getTasksByUserId(userId);
+        System.out.println("NotificationController: Found " + tasks.size() + " total tasks");
+        for (Task t : tasks) {
+            if (!"COMPLETED".equals(t.getStatus()) && !isOverdue(t.getDueDate())) {
+                String urgency = isDueWithin2Days(t.getDueDate()) ? "📋 Task due soon" : "📋 Upcoming task";
+                notifications.add(new AppNotification(urgency,
+                        "\"" + t.getTitle() + "\" - Due: " + (t.getDueDate() != null ? t.getDueDate() : "No date"),
+                        LocalDateTime.now(), true, "TASK", t.getId()));
+            }
+        }
+
+        List<GoalDAO.GoalRecord> goals = goalDAO.getGoalsByUserId(userId);
+        System.out.println("NotificationController: Found " + goals.size() + " total goals");
+        for (GoalDAO.GoalRecord g : goals) {
+            if (!g.completed && !isOverdue(g.deadline)) {
+                String urgency = isDueWithin2Days(g.deadline) ? "🎯 Goal due soon" : "🎯 Upcoming goal";
+                notifications.add(new AppNotification(urgency,
+                        "\"" + g.name + "\" - Due: " + (g.deadline != null ? g.deadline : "No date"),
+                        LocalDateTime.now(), true, "GOAL", g.id));
+            }
+        }
+
+        List<EventDAO.EventRecord> events = eventDAO.getEventsByUserId(userId);
+        System.out.println("NotificationController: Found " + events.size() + " total events");
+        for (EventDAO.EventRecord ev : events) {
+            if (!isOverdue(ev.eventDate)) {
+                String urgency = isDueWithin2Days(ev.eventDate) ? "📅 Event coming up" : "📅 Upcoming event";
+                notifications.add(new AppNotification(urgency,
+                        "\"" + ev.name + "\" - Date: " + (ev.eventDate != null ? ev.eventDate : "No date"),
+                        LocalDateTime.now(), true, "EVENT", ev.id));
+            }
+        }
+
+        System.out.println("NotificationController: Total notifications loaded: " + notifications.size());
+
+        if (notifications.isEmpty()) {
+            notifications.add(new AppNotification("✅ All caught up!",
+                    "No notifications at this time.", LocalDateTime.now(), false, "INFO", 0));
+        }
+    }
+
+    private boolean isOverdue(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty())
+            return false;
+        try {
+            LocalDate dueDate = parseDate(dateStr);
+            return dueDate != null && dueDate.isBefore(LocalDate.now());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private LocalDate parseDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty())
+            return null;
+        String[] formats = { "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "M/d/yyyy", "d/M/yyyy" };
+        for (String fmt : formats) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fmt);
+                return LocalDate.parse(dateStr, formatter);
+            } catch (DateTimeParseException e) {
+            }
+        }
+        try {
+            return LocalDate.parse(dateStr);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    private boolean isDueWithin2Days(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty())
+            return false;
+        try {
+            LocalDate dueDate = null;
+
+            String[] formats = { "MM/dd/yyyy", "dd/MM/yyyy", "yyyy-MM-dd", "M/d/yyyy", "d/M/yyyy" };
+            for (String fmt : formats) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fmt);
+                    dueDate = LocalDate.parse(dateStr, formatter);
+                    break;
+                } catch (DateTimeParseException e) {
+                }
+            }
+
+            if (dueDate == null) {
+                dueDate = LocalDate.parse(dateStr);
+            }
+
+            LocalDate now = LocalDate.now();
+            LocalDate twoDaysFromNow = now.plusDays(2);
+
+            return !dueDate.isBefore(now) && !dueDate.isAfter(twoDaysFromNow);
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    @FXML
+    private void closePanel() {
+        AnchorPane root = panelRoot != null ? panelRoot : popupRoot;
+        if (root != null && root.getParent() instanceof Pane parent) {
+            parent.getChildren().remove(root);
+        }
+        
+        // Only navigate if we're in full page mode
+        if (!isPopupMode) {
+            try {
+                com.edutrack.Main.setContent("Dashboard");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    @FXML
+    private void closePopup() {
+        AnchorPane root = popupRoot != null ? popupRoot : panelRoot;
+        if (root != null && root.getParent() instanceof Pane parent) {
+            parent.getChildren().remove(root);
+        }
+    }
+    
+    @FXML
+    private void expandToFullPage() {
+        // Close the popup first
+        AnchorPane root = popupRoot != null ? popupRoot : panelRoot;
+        if (root != null && root.getParent() instanceof Pane parent) {
+            parent.getChildren().remove(root);
+        }
+        
+        // Navigate to full notification page
+        try {
+            com.edutrack.Main.setContent("notification");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void render() {
+        if (listBox == null)
+            return;
+        listBox.getChildren().clear();
+        for (AppNotification n : notifications) {
+            listBox.getChildren().add(makeRow(n));
+        }
+    }
+
+    private HBox makeRow(AppNotification n) {
+        Circle dot = new Circle(5);
+        dot.setFill(Color.web("#2aa2d8"));
+        dot.setVisible(n.unread);
+
+        Label title = new Label(n.title);
+        title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #333333;");
+
+        Label time = new Label(n.timeText());
+        time.setStyle("-fx-font-size: 11px; -fx-text-fill: #888888;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox header = new HBox(8, title, spacer, time);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label body = new Label(n.body);
+        body.setWrapText(true);
+        body.setStyle("-fx-font-size: 13px; -fx-text-fill: #555555;");
+
+        VBox textBox = new VBox(6, header, body);
+        
+        // Add action buttons for friend requests
+        if ("FRIEND_REQUEST".equals(n.type)) {
+            HBox buttonBox = new HBox(10);
+            buttonBox.setAlignment(Pos.CENTER_LEFT);
+            
+            Button acceptBtn = new Button("Accept");
+            acceptBtn.setStyle("-fx-background-color: #2aa2d8; " +
+                              "-fx-text-fill: white; " +
+                              "-fx-background-radius: 8; " +
+                              "-fx-cursor: hand; " +
+                              "-fx-padding: 5 15;");
+            acceptBtn.setOnAction(e -> {
+                User currentUser = SessionManager.getCurrentUser();
+                if (currentUser != null) {
+                    friendDAO.acceptRequest(n.relatedId, currentUser.getId());
+                    // Reload notifications
+                    notifications.clear();
+                    loadNotifications();
+                    render();
+                }
+            });
+            
+            Button rejectBtn = new Button("Reject");
+            rejectBtn.setStyle("-fx-background-color: #f44336; " +
+                              "-fx-text-fill: white; " +
+                              "-fx-background-radius: 8; " +
+                              "-fx-cursor: hand; " +
+                              "-fx-padding: 5 15;");
+            rejectBtn.setOnAction(e -> {
+                User currentUser = SessionManager.getCurrentUser();
+                if (currentUser != null) {
+                    friendDAO.deleteFriendship(n.relatedId, currentUser.getId());
+                    // Reload notifications
+                    notifications.clear();
+                    loadNotifications();
+                    render();
+                }
+            });
+            
+            Button viewProfileBtn = new Button("View Profile");
+            viewProfileBtn.setStyle("-fx-background-color: #6c757d; " +
+                                  "-fx-text-fill: white; " +
+                                  "-fx-background-radius: 8; " +
+                                  "-fx-cursor: hand; " +
+                                  "-fx-padding: 5 15;");
+            viewProfileBtn.setOnAction(e -> {
+                showMockProfile(n.relatedId);
+            });
+            
+            buttonBox.getChildren().addAll(viewProfileBtn, acceptBtn, rejectBtn);
+            textBox.getChildren().add(buttonBox);
+        }
+
+        HBox row = new HBox(12, dot, textBox);
+        row.setPadding(new Insets(15));
+        row.setAlignment(Pos.TOP_LEFT);
+        row.setStyle("-fx-background-color: #f8f9fa;" +
+                "-fx-background-radius: 12;" +
+                "-fx-border-radius: 12;" +
+                "-fx-border-color: #e0e0e0;" +
+                "-fx-border-width: 1;");
+
+        row.setOnMouseEntered(e -> {
+            row.setStyle("-fx-background-color: #e8f4f8;" +
+                    "-fx-background-radius: 12;" +
+                    "-fx-border-radius: 12;" +
+                    "-fx-border-color: #2aa2d8;" +
+                    "-fx-border-width: 1;" +
+                    "-fx-cursor: hand;");
+            if (n.unread) {
+                n.unread = false;
+                dot.setVisible(false);
+            }
+        });
+        
+        row.setOnMouseExited(e -> {
+            row.setStyle("-fx-background-color: #f8f9fa;" +
+                    "-fx-background-radius: 12;" +
+                    "-fx-border-radius: 12;" +
+                    "-fx-border-color: #e0e0e0;" +
+                    "-fx-border-width: 1;");
+        });
+
+        return row;
+    }
+
+    private void showMockProfile(int userId) {
+        try {
+            // Get scene from listBox or panelRoot
+            javafx.scene.Scene scene = null;
+            if (listBox != null && listBox.getScene() != null) {
+                scene = listBox.getScene();
+            } else if (panelRoot != null && panelRoot.getScene() != null) {
+                scene = panelRoot.getScene();
+            } else if (popupRoot != null && popupRoot.getScene() != null) {
+                scene = popupRoot.getScene();
+            }
+            
+            if (scene == null) return;
+            
+            javafx.scene.Parent root = scene.getRoot();
+            javafx.scene.layout.StackPane overlayPane = null;
+            
+            // Handle BorderPane structure
+            if (root instanceof javafx.scene.layout.BorderPane) {
+                javafx.scene.layout.BorderPane borderPane = (javafx.scene.layout.BorderPane) root;
+                javafx.scene.Node center = borderPane.getCenter();
+                
+                if (center instanceof javafx.scene.layout.StackPane) {
+                    overlayPane = (javafx.scene.layout.StackPane) center;
+                } else if (center != null) {
+                    overlayPane = new javafx.scene.layout.StackPane(center);
+                    borderPane.setCenter(overlayPane);
+                }
+            } else if (root instanceof javafx.scene.layout.StackPane) {
+                overlayPane = (javafx.scene.layout.StackPane) root;
+            }
+            
+            if (overlayPane == null) return;
+            
+            // Check if profile already open
+            javafx.scene.Node existing = overlayPane.lookup("#mockProfileRoot");
+            if (existing != null) {
+                overlayPane.getChildren().remove(existing);
+                return;
+            }
+            
+            // Load mock profile
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/edutrack/view/mockProfile.fxml"));
+            Parent profile = loader.load();
+            
+            MockProfileController controller = loader.getController();
+            controller.setUserById(userId);
+            
+            // Center the profile
+            javafx.scene.layout.StackPane.setAlignment(profile, Pos.CENTER);
+            
+            overlayPane.getChildren().add(profile);
+            profile.toFront();
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.println("Could not load mock profile: " + ex.getMessage());
+        }
+    }
+
+    public static void showOverlay(StackPane overlayRoot) {
+        try {
+            Parent existing = (Parent) overlayRoot.lookup("#notificationPanel");
+            if (existing != null) {
+                overlayRoot.getChildren().remove(existing);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(
+                    NotificationController.class.getResource("/com/edutrack/view/notification.fxml"));
+            Parent panel = loader.load();
+            panel.setId("notificationPanel");
+
+            StackPane.setAlignment(panel, Pos.TOP_RIGHT);
+            StackPane.setMargin(panel, new Insets(16, 16, 0, 0));
+            overlayRoot.getChildren().add(panel);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static class AppNotification {
+        final String title;
+        final String body;
+        final LocalDateTime time;
+        final String type;
+        final int relatedId;
+        boolean unread;
+
+        AppNotification(String title, String body, LocalDateTime time, boolean unread, String type, int relatedId) {
+            this.title = title;
+            this.body = body;
+            this.time = time;
+            this.unread = unread;
+            this.type = type;
+            this.relatedId = relatedId;
+        }
+
+        String timeText() {
+            return time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        }
+    }
+}

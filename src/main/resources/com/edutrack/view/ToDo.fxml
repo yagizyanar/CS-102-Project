@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.ToDoController">
+    <top>
+        <HBox spacing="10" style="-fx-padding: 10;">
+             <Button text="Back to Dashboard" onAction="#handleBack"/>
+             <Label text="My To-Do List" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <ListView fx:id="taskListView" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                 <Button text="Mark Completed" onAction="#handleMarkCompleted"/>
+                 <Button text="Delete Selected" onAction="#handleDelete"/>
+            </HBox>
+        </VBox>
+    </center>
+    
+    <bottom>
+        <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f4f4f4;">
+             <Label text="Add New Task"/>
+             <HBox spacing="10">
+                 <TextField fx:id="titleField" promptText="Title" HBox.hgrow="ALWAYS"/>
+                 <TextField fx:id="courseField" promptText="Course" prefWidth="100"/>
+                 <DatePicker fx:id="datePicker" promptText="Due Date"/>
+                 <TextField fx:id="timeField" promptText="HH:mm" prefWidth="60"/>
+                 <Button text="Add" onAction="#handleAddTask"/>
+             </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>

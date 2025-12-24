@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.PomodoroController">
+    <top>
+         <Button text="Back to Dashboard" onAction="#handleBack"/>
+    </top>
+    <center>
+        <VBox alignment="CENTER" spacing="30">
+            <padding>
+                <Insets bottom="100"/>
+            </padding>
+            <Text fx:id="timerLabel" text="25:00">
+                <font>
+                    <Font size="96.0"/>
+                </font>
+            </Text>
+            
+            <HBox alignment="CENTER" spacing="20">
+                <Button fx:id="startButton" text="Start" onAction="#handleStart" prefWidth="100"/>
+                <Button fx:id="pauseButton" text="Pause" onAction="#handlePause" prefWidth="100" disable="true"/>
+                <Button fx:id="resetButton" text="Reset" onAction="#handleReset" prefWidth="100"/>
+            </HBox>
+            
+            <HBox alignment="CENTER" spacing="20">
+                <Button text="25 min Work" onAction="#setWorkTime"/>
+                <Button text="5 min Break" onAction="#setShortBreak"/>
+                <Button text="15 min Break" onAction="#setLongBreak"/>
+            </HBox>
+            
+            <Label fx:id="statusLabel" text="Ready to focus?"/>
+        </VBox>
+    </center>
+</BorderPane>
