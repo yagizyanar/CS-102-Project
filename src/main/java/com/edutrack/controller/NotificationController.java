@@ -299,7 +299,17 @@ public class NotificationController {
                 }
             });
             
-            buttonBox.getChildren().addAll(acceptBtn, rejectBtn);
+            Button viewProfileBtn = new Button("View Profile");
+            viewProfileBtn.setStyle("-fx-background-color: #6c757d; " +
+                                  "-fx-text-fill: white; " +
+                                  "-fx-background-radius: 8; " +
+                                  "-fx-cursor: hand; " +
+                                  "-fx-padding: 5 15;");
+            viewProfileBtn.setOnAction(e -> {
+                showMockProfile(n.relatedId);
+            });
+            
+            buttonBox.getChildren().addAll(viewProfileBtn, acceptBtn, rejectBtn);
             textBox.getChildren().add(buttonBox);
         }
 
@@ -334,6 +344,67 @@ public class NotificationController {
         });
 
         return row;
+    }
+
+    private void showMockProfile(int userId) {
+        try {
+            // Get scene from listBox or panelRoot
+            javafx.scene.Scene scene = null;
+            if (listBox != null && listBox.getScene() != null) {
+                scene = listBox.getScene();
+            } else if (panelRoot != null && panelRoot.getScene() != null) {
+                scene = panelRoot.getScene();
+            } else if (popupRoot != null && popupRoot.getScene() != null) {
+                scene = popupRoot.getScene();
+            }
+            
+            if (scene == null) return;
+            
+            javafx.scene.Parent root = scene.getRoot();
+            javafx.scene.layout.StackPane overlayPane = null;
+            
+            // Handle BorderPane structure
+            if (root instanceof javafx.scene.layout.BorderPane) {
+                javafx.scene.layout.BorderPane borderPane = (javafx.scene.layout.BorderPane) root;
+                javafx.scene.Node center = borderPane.getCenter();
+                
+                if (center instanceof javafx.scene.layout.StackPane) {
+                    overlayPane = (javafx.scene.layout.StackPane) center;
+                } else if (center != null) {
+                    overlayPane = new javafx.scene.layout.StackPane(center);
+                    borderPane.setCenter(overlayPane);
+                }
+            } else if (root instanceof javafx.scene.layout.StackPane) {
+                overlayPane = (javafx.scene.layout.StackPane) root;
+            }
+            
+            if (overlayPane == null) return;
+            
+            // Check if profile already open
+            javafx.scene.Node existing = overlayPane.lookup("#mockProfileRoot");
+            if (existing != null) {
+                overlayPane.getChildren().remove(existing);
+                return;
+            }
+            
+            // Load mock profile
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/edutrack/view/mockProfile.fxml"));
+            Parent profile = loader.load();
+            
+            MockProfileController controller = loader.getController();
+            controller.setUserById(userId);
+            
+            // Center the profile
+            javafx.scene.layout.StackPane.setAlignment(profile, Pos.CENTER);
+            
+            overlayPane.getChildren().add(profile);
+            profile.toFront();
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.println("Could not load mock profile: " + ex.getMessage());
+        }
     }
 
     public static void showOverlay(StackPane overlayRoot) {

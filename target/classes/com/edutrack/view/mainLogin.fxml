@@ -53,10 +53,10 @@
             <HBox prefHeight="24.0" prefWidth="745.0" spacing="500.0">
                <children>
                   <Label fx:id="statusLabel" text="" textFill="#ff5900" />
-                  <Hyperlink style="-fx-underline: true;" text="Forgot password?" onAction="#goToReset"/>
+                  <Hyperlink style="-fx-underline: true;" text="Forgot password" onAction="#goToReset"/>
                </children>
                <padding>
-                  <Insets left="120.0" />
+                  <Insets left="20.0" />
                </padding>
                <opaqueInsets>
                   <Insets />

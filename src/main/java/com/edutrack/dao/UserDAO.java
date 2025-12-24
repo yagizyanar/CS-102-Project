@@ -13,7 +13,6 @@ import com.edutrack.util.DatabaseManager;
 public class UserDAO {
 
     public boolean registerUser(User user) {
-        // Enforce Unique Password Policy
         if (isPasswordTaken(user.getPassword())) {
             System.out.println("Registration Failed: Password matches an existing user (Identity Policy).");
             return false;
@@ -52,7 +51,7 @@ public class UserDAO {
                         rs.getString("password"),
                         rs.getString("email"),
                         rs.getString("major"));
-                // Load additional profile fields
+             
                 try {
                     user.setUniversity(rs.getString("university"));
                     user.setBio(rs.getString("bio"));
@@ -138,7 +137,6 @@ public class UserDAO {
         }
     }
 
-    // New method for gamification
     public boolean addPoints(int userId, int points) {
         String sql = "UPDATE users SET points = points + ? WHERE id = ?";
         try (Connection conn = DatabaseManager.connect();
@@ -256,22 +254,57 @@ public class UserDAO {
         return null;
     }
 
+    public User getUserById(int userId) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try (Connection conn = DatabaseManager.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                User user = new User(
+                        rs.getInt("id"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email"),
+                        rs.getString("major"));
+                try {
+                    user.setUniversity(rs.getString("university"));
+                    user.setProfilePicture(rs.getString("profile_picture"));
+                    user.setBio(rs.getString("bio"));
+                    user.setNotes(rs.getString("notes"));
+                    user.setXpAmount(rs.getInt("points"));
+                    String classesStr = rs.getString("classes");
+                    if (classesStr != null && !classesStr.isBlank()) {
+                        for (String c : classesStr.split(",")) {
+                            user.addClass(c.trim());
+                        }
+                    }
+                } catch (SQLException e) {
+                    // Columns might not exist yet
+                }
+                return user;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
     private boolean isPasswordTaken(String password) {
         String sql = "SELECT id FROM users WHERE password = ?";
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, password);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // Returns true if a record exists
+            return rs.next(); 
         } catch (SQLException e) {
             e.printStackTrace();
-            return false; // Fail safe
+            return false; 
         }
     }
 
     public boolean updatePassword(String email, String newPassword) {
-        // Enforce Unique Password Policy (if you want to keep it consistent with
-        // registration)
         if (isPasswordTaken(newPassword)) {
             System.out.println("Password Update Failed: Password matches an existing user (Identity Policy).");
             return false;
