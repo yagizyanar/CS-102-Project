@@ -50,3 +50,7 @@
 2025-12-24T15:09:10.224287700: mail.properties loaded successfully.
 2025-12-24T15:09:10.225290: Preparing to send password reminder to: yagizyanar@hotmail.com
 2025-12-24T15:09:12.398711900: Email sent successfully to yagizyanar@hotmail.com
+2025-12-24T15:12:07.472726: Initializing EmailService...
+2025-12-24T15:12:07.474964100: mail.properties loaded successfully.
+2025-12-24T15:12:07.474964100: Preparing to send password reminder to: yagizyanar@hotmail.com
+2025-12-24T15:12:09.641876600: Email sent successfully to yagizyanar@hotmail.com
