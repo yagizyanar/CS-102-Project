@@ -81,7 +81,7 @@ public class EmailService {
                 + "You requested your password. Here are your login details:\n\n"
                 + "Username: " + username + "\n"
                 + "Password: " + password + "\n\n"
-                + "Please keep this information safe.\n\n"
+                + "Please keep this information safe. Don't forget again!\n\n"
                 + "Best Regards,\nEduTrack Team");
     }
 
