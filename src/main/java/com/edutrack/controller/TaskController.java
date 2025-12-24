@@ -200,8 +200,10 @@ public class TaskController {
     private void loadEvents(int userId) {
         events.clear();
         List<EventDAO.EventRecord> dbEvents = eventDAO.getEventsByUserId(userId);
+        System.out.println("DEBUG: loadEvents called for userId=" + userId + ", found " + dbEvents.size() + " events");
         for (EventDAO.EventRecord ev : dbEvents) {
             events.add(new EventItem(ev.id, ev.type, ev.name, ev.eventDate, ev.note));
+            System.out.println("DEBUG: Loaded event - id=" + ev.id + ", name=" + ev.name);
         }
     }
 
@@ -428,7 +430,7 @@ public class TaskController {
         grid.add(noteField, 0, 7);
 
         dialog.getDialogPane().setContent(grid);
-        dialog.getDialogPane().setStyle("-fx-background-color: #E8E0F0;");
+        dialog.getDialogPane().setStyle("-fx-background-color: #fbf8fdff;");
 
         dialog.setResultConverter(button -> {
             if (button == addButton) {
@@ -463,8 +465,11 @@ public class TaskController {
         });
 
         Optional<EventItem> result = dialog.showAndWait();
+        System.out.println("DEBUG: Dialog result present = " + result.isPresent());
         result.ifPresent(event -> {
+            System.out.println("DEBUG: Event from dialog - type=" + event.type + ", name=" + event.name);
             User user = SessionManager.getCurrentUser();
+            System.out.println("DEBUG: Current user = " + (user != null ? user.getId() : "NULL"));
             if (user != null) {
                 eventDAO.addEvent(user.getId(), event.type, event.name, event.date, event.note);
                 loadEvents(user.getId());
@@ -500,8 +505,12 @@ public class TaskController {
     }
 
     private void refreshEventsList() {
-        if (eventsContainer == null)
+        System.out.println("DEBUG: refreshEventsList called, eventsContainer=" + eventsContainer + ", events.size()="
+                + events.size());
+        if (eventsContainer == null) {
+            System.out.println("DEBUG: eventsContainer is NULL! Events won't be displayed.");
             return;
+        }
         eventsContainer.getChildren().clear();
 
         for (int i = 0; i < events.size(); i++) {
@@ -509,6 +518,7 @@ public class TaskController {
             int index = i;
             HBox row = createEventRow(event, index);
             eventsContainer.getChildren().add(row);
+            System.out.println("DEBUG: Added event row for: " + event.name);
         }
     }
 

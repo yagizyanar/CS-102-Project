@@ -30,18 +30,30 @@ public class EventDAO {
     }
 
     public boolean addEvent(int userId, String type, String name, String eventDate, String note) {
-        String sql = "INSERT INTO events(user_id, type, name, event_date, note) VALUES(?,?,?,?,?)";
+        System.out.println(
+                "DEBUG addEvent: userId=" + userId + ", type=" + type + ", name=" + name + ", date=" + eventDate);
+        // Include 'title' column which exists in the MySQL database
+        String sql = "INSERT INTO events(user_id, type, name, title, event_date, note) VALUES(?,?,?,?,?,?)";
         try (Connection conn = DatabaseManager.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            if (conn == null) {
+                System.out.println("DEBUG addEvent: Connection is NULL!");
+                return false;
+            }
             pstmt.setInt(1, userId);
             pstmt.setString(2, type);
             pstmt.setString(3, name);
-            pstmt.setString(4, eventDate);
-            pstmt.setString(5, note);
-            pstmt.executeUpdate();
-            return true;
+            pstmt.setString(4, name); // Use name as title as well
+            pstmt.setString(5, eventDate);
+            pstmt.setString(6, note);
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("DEBUG addEvent: Rows affected = " + rowsAffected);
+            return rowsAffected > 0;
         } catch (SQLException e) {
             System.out.println("Error adding event: " + e.getMessage());
+            System.out.println("SQL State: " + e.getSQLState());
+            System.out.println("Error Code: " + e.getErrorCode());
+            e.printStackTrace();
             return false;
         }
     }
