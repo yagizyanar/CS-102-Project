@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "com.edutrack/com.edutrack.Main",
+      "projectName": "EduTrack"
+    },
+    {
+      "type": "java",
       "name": "Launcher",
       "request": "launch",
       "mainClass": "com.edutrack/com.edutrack.Launcher",
