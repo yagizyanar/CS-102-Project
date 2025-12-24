@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class DatabaseManager {
     private static Properties props = new Properties();
@@ -17,6 +19,11 @@ public class DatabaseManager {
     private static final String MYSQL_URL = "jdbc:mysql://bovmfyrxqnhunkngnlkb-mysql.services.clever-cloud.com:20497/bovmfyrxqnhunkngnlkb";
     private static final String MYSQL_USER = "uia9z2gxkded5h1h";
     private static final String MYSQL_PASSWORD = "qfhfxDdMBUPViOcFrSE";
+
+    // Connection pool settings
+    private static final int POOL_SIZE = 5;
+    private static BlockingQueue<Connection> connectionPool;
+    private static boolean poolInitialized = false;
 
     static {
         try (InputStream input = DatabaseManager.class.getClassLoader().getResourceAsStream("database.properties")) {
@@ -29,20 +36,369 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Initialize the connection pool with pre-established connections.
+     * This should be called once at application startup.
+     */
+    private static synchronized void initializePool() {
+        if (poolInitialized) {
+            return;
+        }
+
+        connectionPool = new ArrayBlockingQueue<>(POOL_SIZE);
+        String url = props.getProperty("mysql.url", MYSQL_URL);
+        String user = props.getProperty("mysql.user", MYSQL_USER);
+        String password = props.getProperty("mysql.password", MYSQL_PASSWORD);
+
+        System.out.println("Initializing connection pool with " + POOL_SIZE + " connections...");
+
+        for (int i = 0; i < POOL_SIZE; i++) {
+            try {
+                Connection conn = DriverManager.getConnection(url, user, password);
+                connectionPool.offer(conn);
+                System.out.println("Pool connection " + (i + 1) + " established.");
+            } catch (SQLException e) {
+                System.out.println("Failed to create pool connection " + (i + 1) + ": " + e.getMessage());
+            }
+        }
+
+        poolInitialized = true;
+        System.out.println("Connection pool initialized with " + connectionPool.size() + " connections.");
+    }
+
     public static Connection connect() {
+        // Initialize pool if not already done
+        if (!poolInitialized) {
+            initializePool();
+        }
+
         Connection conn = null;
         try {
-            // Always use MySQL remote database
-            String url = props.getProperty("mysql.url", MYSQL_URL);
-            String user = props.getProperty("mysql.user", MYSQL_USER);
-            String password = props.getProperty("mysql.password", MYSQL_PASSWORD);
+            // Try to get a connection from the pool
+            conn = connectionPool.poll();
 
-            conn = DriverManager.getConnection(url, user, password);
+            if (conn != null) {
+                // Validate the connection is still alive
+                if (conn.isClosed() || !conn.isValid(1)) {
+                    // Connection is dead, create a new one
+                    String url = props.getProperty("mysql.url", MYSQL_URL);
+                    String user = props.getProperty("mysql.user", MYSQL_USER);
+                    String password = props.getProperty("mysql.password", MYSQL_PASSWORD);
+                    conn = DriverManager.getConnection(url, user, password);
+                }
+            } else {
+                // Pool is empty, create a new connection
+                String url = props.getProperty("mysql.url", MYSQL_URL);
+                String user = props.getProperty("mysql.user", MYSQL_USER);
+                String password = props.getProperty("mysql.password", MYSQL_PASSWORD);
+                conn = DriverManager.getConnection(url, user, password);
+            }
+
+            // Wrap the connection to return it to the pool when closed
+            return new PooledConnection(conn, connectionPool);
+
         } catch (SQLException e) {
             System.out.println("MySQL Connection Failed!");
             e.printStackTrace();
         }
         return conn;
+    }
+
+    /**
+     * Wrapper class that returns the connection to the pool instead of closing it.
+     */
+    private static class PooledConnection implements Connection {
+        private Connection realConnection;
+        private BlockingQueue<Connection> pool;
+        private boolean isClosed = false;
+
+        public PooledConnection(Connection conn, BlockingQueue<Connection> pool) {
+            this.realConnection = conn;
+            this.pool = pool;
+        }
+
+        @Override
+        public void close() throws SQLException {
+            if (!isClosed && realConnection != null && !realConnection.isClosed()) {
+                // Return to pool instead of closing
+                if (!pool.offer(realConnection)) {
+                    // Pool is full, actually close the connection
+                    realConnection.close();
+                }
+            }
+            isClosed = true;
+        }
+
+        // Delegate all other methods to the real connection
+        @Override
+        public Statement createStatement() throws SQLException {
+            return realConnection.createStatement();
+        }
+
+        @Override
+        public java.sql.PreparedStatement prepareStatement(String sql) throws SQLException {
+            return realConnection.prepareStatement(sql);
+        }
+
+        @Override
+        public java.sql.CallableStatement prepareCall(String sql) throws SQLException {
+            return realConnection.prepareCall(sql);
+        }
+
+        @Override
+        public String nativeSQL(String sql) throws SQLException {
+            return realConnection.nativeSQL(sql);
+        }
+
+        @Override
+        public void setAutoCommit(boolean autoCommit) throws SQLException {
+            realConnection.setAutoCommit(autoCommit);
+        }
+
+        @Override
+        public boolean getAutoCommit() throws SQLException {
+            return realConnection.getAutoCommit();
+        }
+
+        @Override
+        public void commit() throws SQLException {
+            realConnection.commit();
+        }
+
+        @Override
+        public void rollback() throws SQLException {
+            realConnection.rollback();
+        }
+
+        @Override
+        public boolean isClosed() throws SQLException {
+            return isClosed || realConnection.isClosed();
+        }
+
+        @Override
+        public java.sql.DatabaseMetaData getMetaData() throws SQLException {
+            return realConnection.getMetaData();
+        }
+
+        @Override
+        public void setReadOnly(boolean readOnly) throws SQLException {
+            realConnection.setReadOnly(readOnly);
+        }
+
+        @Override
+        public boolean isReadOnly() throws SQLException {
+            return realConnection.isReadOnly();
+        }
+
+        @Override
+        public void setCatalog(String catalog) throws SQLException {
+            realConnection.setCatalog(catalog);
+        }
+
+        @Override
+        public String getCatalog() throws SQLException {
+            return realConnection.getCatalog();
+        }
+
+        @Override
+        public void setTransactionIsolation(int level) throws SQLException {
+            realConnection.setTransactionIsolation(level);
+        }
+
+        @Override
+        public int getTransactionIsolation() throws SQLException {
+            return realConnection.getTransactionIsolation();
+        }
+
+        @Override
+        public java.sql.SQLWarning getWarnings() throws SQLException {
+            return realConnection.getWarnings();
+        }
+
+        @Override
+        public void clearWarnings() throws SQLException {
+            realConnection.clearWarnings();
+        }
+
+        @Override
+        public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
+            return realConnection.createStatement(resultSetType, resultSetConcurrency);
+        }
+
+        @Override
+        public java.sql.PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
+                throws SQLException {
+            return realConnection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+        }
+
+        @Override
+        public java.sql.CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency)
+                throws SQLException {
+            return realConnection.prepareCall(sql, resultSetType, resultSetConcurrency);
+        }
+
+        @Override
+        public java.util.Map<String, Class<?>> getTypeMap() throws SQLException {
+            return realConnection.getTypeMap();
+        }
+
+        @Override
+        public void setTypeMap(java.util.Map<String, Class<?>> map) throws SQLException {
+            realConnection.setTypeMap(map);
+        }
+
+        @Override
+        public void setHoldability(int holdability) throws SQLException {
+            realConnection.setHoldability(holdability);
+        }
+
+        @Override
+        public int getHoldability() throws SQLException {
+            return realConnection.getHoldability();
+        }
+
+        @Override
+        public java.sql.Savepoint setSavepoint() throws SQLException {
+            return realConnection.setSavepoint();
+        }
+
+        @Override
+        public java.sql.Savepoint setSavepoint(String name) throws SQLException {
+            return realConnection.setSavepoint(name);
+        }
+
+        @Override
+        public void rollback(java.sql.Savepoint savepoint) throws SQLException {
+            realConnection.rollback(savepoint);
+        }
+
+        @Override
+        public void releaseSavepoint(java.sql.Savepoint savepoint) throws SQLException {
+            realConnection.releaseSavepoint(savepoint);
+        }
+
+        @Override
+        public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+                throws SQLException {
+            return realConnection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+        }
+
+        @Override
+        public java.sql.PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
+                int resultSetHoldability) throws SQLException {
+            return realConnection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+        }
+
+        @Override
+        public java.sql.CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
+                int resultSetHoldability) throws SQLException {
+            return realConnection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+        }
+
+        @Override
+        public java.sql.PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
+            return realConnection.prepareStatement(sql, autoGeneratedKeys);
+        }
+
+        @Override
+        public java.sql.PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
+            return realConnection.prepareStatement(sql, columnIndexes);
+        }
+
+        @Override
+        public java.sql.PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
+            return realConnection.prepareStatement(sql, columnNames);
+        }
+
+        @Override
+        public java.sql.Clob createClob() throws SQLException {
+            return realConnection.createClob();
+        }
+
+        @Override
+        public java.sql.Blob createBlob() throws SQLException {
+            return realConnection.createBlob();
+        }
+
+        @Override
+        public java.sql.NClob createNClob() throws SQLException {
+            return realConnection.createNClob();
+        }
+
+        @Override
+        public java.sql.SQLXML createSQLXML() throws SQLException {
+            return realConnection.createSQLXML();
+        }
+
+        @Override
+        public boolean isValid(int timeout) throws SQLException {
+            return realConnection.isValid(timeout);
+        }
+
+        @Override
+        public void setClientInfo(String name, String value) throws java.sql.SQLClientInfoException {
+            realConnection.setClientInfo(name, value);
+        }
+
+        @Override
+        public void setClientInfo(java.util.Properties properties) throws java.sql.SQLClientInfoException {
+            realConnection.setClientInfo(properties);
+        }
+
+        @Override
+        public String getClientInfo(String name) throws SQLException {
+            return realConnection.getClientInfo(name);
+        }
+
+        @Override
+        public java.util.Properties getClientInfo() throws SQLException {
+            return realConnection.getClientInfo();
+        }
+
+        @Override
+        public java.sql.Array createArrayOf(String typeName, Object[] elements) throws SQLException {
+            return realConnection.createArrayOf(typeName, elements);
+        }
+
+        @Override
+        public java.sql.Struct createStruct(String typeName, Object[] attributes) throws SQLException {
+            return realConnection.createStruct(typeName, attributes);
+        }
+
+        @Override
+        public void setSchema(String schema) throws SQLException {
+            realConnection.setSchema(schema);
+        }
+
+        @Override
+        public String getSchema() throws SQLException {
+            return realConnection.getSchema();
+        }
+
+        @Override
+        public void abort(java.util.concurrent.Executor executor) throws SQLException {
+            realConnection.abort(executor);
+        }
+
+        @Override
+        public void setNetworkTimeout(java.util.concurrent.Executor executor, int milliseconds) throws SQLException {
+            realConnection.setNetworkTimeout(executor, milliseconds);
+        }
+
+        @Override
+        public int getNetworkTimeout() throws SQLException {
+            return realConnection.getNetworkTimeout();
+        }
+
+        @Override
+        public <T> T unwrap(Class<T> iface) throws SQLException {
+            return realConnection.unwrap(iface);
+        }
+
+        @Override
+        public boolean isWrapperFor(Class<?> iface) throws SQLException {
+            return realConnection.isWrapperFor(iface);
+        }
     }
 
     public static void initialize() {
