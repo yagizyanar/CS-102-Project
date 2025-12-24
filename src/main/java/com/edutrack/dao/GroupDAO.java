@@ -194,6 +194,43 @@ public class GroupDAO {
         }
     }
 
+    // Timer sync methods for group pomodoro
+    public void setGroupTimerState(int groupId, long timerStartTime, int timerDuration, boolean isRunning, boolean isStudyPhase) {
+        String sql = "UPDATE study_groups SET timer_start_time = ?, timer_duration = ?, timer_running = ?, timer_study_phase = ? WHERE id = ?";
+        try (Connection conn = DatabaseManager.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, timerStartTime);
+            pstmt.setInt(2, timerDuration);
+            pstmt.setBoolean(3, isRunning);
+            pstmt.setBoolean(4, isStudyPhase);
+            pstmt.setInt(5, groupId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public long[] getGroupTimerState(int groupId) {
+        // Returns: [timerStartTime, timerDuration, isRunning (0/1), isStudyPhase (0/1)]
+        String sql = "SELECT timer_start_time, timer_duration, timer_running, timer_study_phase FROM study_groups WHERE id = ?";
+        try (Connection conn = DatabaseManager.connect();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, groupId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new long[] {
+                    rs.getLong("timer_start_time"),
+                    rs.getInt("timer_duration"),
+                    rs.getBoolean("timer_running") ? 1 : 0,
+                    rs.getBoolean("timer_study_phase") ? 1 : 0
+                };
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new long[] {0, 0, 0, 1}; // Default: not running, study phase
+    }
+
     public static class GroupRecord {
         public int id;
         public String name;

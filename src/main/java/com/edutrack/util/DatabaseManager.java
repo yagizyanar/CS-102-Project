@@ -308,6 +308,24 @@ public class DatabaseManager {
                     stmt.execute("ALTER TABLE events ADD COLUMN note TEXT");
                 } catch (Exception e) {
                 }
+
+                // STUDY_GROUPS Table - Timer sync columns
+                try {
+                    stmt.execute("ALTER TABLE study_groups ADD COLUMN timer_start_time BIGINT DEFAULT 0");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE study_groups ADD COLUMN timer_duration INTEGER DEFAULT 0");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE study_groups ADD COLUMN timer_running BOOLEAN DEFAULT FALSE");
+                } catch (Exception e) {
+                }
+                try {
+                    stmt.execute("ALTER TABLE study_groups ADD COLUMN timer_study_phase BOOLEAN DEFAULT TRUE");
+                } catch (Exception e) {
+                }
                 // timestamp/created_at might be tricky on MySQL 5.x vs 8.x, skipping for now
                 // unless reported.
             }

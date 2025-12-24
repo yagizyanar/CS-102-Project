@@ -65,6 +65,11 @@ public class PomodoroController {
     private static int tempStudyValue = 25;
     private static int tempBreakValue = 5;
     private static boolean savedPressed = false;
+    
+    // Group timer sync
+    private static Timer syncTimer;
+    private static long groupTimerStartTime = 0;
+    private static int groupTimerDuration = 0;
 
     @FXML
     private void initialize() {
@@ -116,6 +121,8 @@ public class PomodoroController {
         // Update group members list if in group page
         if (membersListBox != null) {
             updateMembersList();
+            // Start polling for group timer state
+            startGroupTimerPolling();
         }
 
         // Update ready count
@@ -260,6 +267,11 @@ public class PomodoroController {
 
     @FXML
     private void backToStartPomodoro(ActionEvent e) {
+        // Stop polling when leaving group page
+        if (syncTimer != null) {
+            syncTimer.cancel();
+            syncTimer = null;
+        }
         try {
             Main.setContent("PomodoroStart");
         } catch (IOException ex) {
@@ -356,15 +368,25 @@ public class PomodoroController {
             showAlert("Not Allowed", "Only the group owner can start the timer.");
             return;
         }
-        // Set all members as ready when owner starts
+        
         FriendsController.Group group = FriendsController.getCurrentGroup();
-        if (group != null) {
-            for (FriendsController.User member : group.getMembers()) {
-                member.setReady(true);
-            }
+        if (group == null) return;
+        
+        // Save timer state to database for sync
+        long startTime = System.currentTimeMillis();
+        int duration = studyTimeValue * 60;
+        
+        GroupDAO groupDAO = new GroupDAO();
+        groupDAO.setGroupTimerState(group.getId(), startTime, duration, true, true);
+        
+        // Set all members as ready when owner starts
+        for (FriendsController.User member : group.getMembers()) {
+            member.setReady(true);
         }
         updateMembersList();
-        startGroupTimer();
+        
+        // Start local timer
+        startGroupTimerFromSync(startTime, duration, true);
     }
 
     @FXML
@@ -373,6 +395,14 @@ public class PomodoroController {
             showAlert("Not Allowed", "Only the group owner can stop the timer.");
             return;
         }
+        
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group != null) {
+            // Save stopped state to database
+            GroupDAO groupDAO = new GroupDAO();
+            groupDAO.setGroupTimerState(group.getId(), 0, 0, false, true);
+        }
+        
         if (timeline != null) {
             timeline.stop();
             isRunning = false;
@@ -403,6 +433,110 @@ public class PomodoroController {
 
         if (groupStatusLabel != null) {
             groupStatusLabel.setText("Session in progress!");
+        }
+    }
+    
+    // Start timer from synced database state
+    private void startGroupTimerFromSync(long startTime, int totalDuration, boolean studyPhase) {
+        if (timeline != null) {
+            timeline.stop();
+        }
+        
+        // Calculate remaining time based on when timer started
+        long elapsed = (System.currentTimeMillis() - startTime) / 1000;
+        remainingSeconds = (int) Math.max(0, totalDuration - elapsed);
+        isStudyPhase = studyPhase;
+        groupTimerStartTime = startTime;
+        groupTimerDuration = totalDuration;
+        
+        updateTimerLabel();
+        updatePhaseLabel();
+        
+        if (remainingSeconds > 0) {
+            timeline = new Timeline(new KeyFrame(Duration.millis(1000), event -> {
+                remainingSeconds--;
+                updateTimerLabel();
+                if (remainingSeconds <= 0) {
+                    switchPhaseForGroup();
+                }
+            }));
+            timeline.setCycleCount(Timeline.INDEFINITE);
+            timeline.play();
+            isRunning = true;
+            
+            if (groupStatusLabel != null) {
+                groupStatusLabel.setText("Session in progress!");
+            }
+        }
+    }
+    
+    // Polling to sync timer state from database
+    private void startGroupTimerPolling() {
+        if (syncTimer != null) {
+            syncTimer.cancel();
+        }
+        
+        syncTimer = new Timer();
+        syncTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> checkAndSyncGroupTimer());
+            }
+        }, 0, 2000); // Check every 2 seconds
+    }
+    
+    private void checkAndSyncGroupTimer() {
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group == null) return;
+        
+        GroupDAO groupDAO = new GroupDAO();
+        long[] state = groupDAO.getGroupTimerState(group.getId());
+        // state: [timerStartTime, timerDuration, isRunning (0/1), isStudyPhase (0/1)]
+        
+        long dbStartTime = state[0];
+        int dbDuration = (int) state[1];
+        boolean dbRunning = state[2] == 1;
+        boolean dbStudyPhase = state[3] == 1;
+        
+        if (dbRunning && dbStartTime > 0) {
+            // Timer is running in database
+            if (!isRunning || groupTimerStartTime != dbStartTime) {
+                // Need to sync - either not running locally or different timer
+                startGroupTimerFromSync(dbStartTime, dbDuration, dbStudyPhase);
+            }
+        } else if (!dbRunning && isRunning) {
+            // Timer stopped in database but running locally
+            if (timeline != null) {
+                timeline.stop();
+            }
+            isRunning = false;
+            if (groupStatusLabel != null) {
+                groupStatusLabel.setText("Waiting for owner to start...");
+            }
+        }
+    }
+    
+    private void switchPhaseForGroup() {
+        // For group timer, owner controls phase switches
+        // This is called when local timer reaches 0
+        if (isCurrentUserOwner()) {
+            FriendsController.Group group = FriendsController.getCurrentGroup();
+            if (group != null) {
+                isStudyPhase = !isStudyPhase;
+                int newDuration = isStudyPhase ? studyTimeValue * 60 : breakTimeValue * 60;
+                long newStartTime = System.currentTimeMillis();
+                
+                GroupDAO groupDAO = new GroupDAO();
+                groupDAO.setGroupTimerState(group.getId(), newStartTime, newDuration, true, isStudyPhase);
+                
+                remainingSeconds = newDuration;
+                groupTimerStartTime = newStartTime;
+                groupTimerDuration = newDuration;
+                updatePhaseLabel();
+            }
+        } else {
+            // Non-owner: just switch locally, polling will sync if needed
+            switchPhase();
         }
     }
 
