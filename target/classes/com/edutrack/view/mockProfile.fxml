@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.shape.Circle?>
+
+<AnchorPane fx:id="mockProfileRoot"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.edutrack.controller.MockProfileController"
+            prefWidth="400" prefHeight="550"
+            maxWidth="400" maxHeight="550"
+            style="-fx-background-color: white;
+                   -fx-background-radius: 16;
+                   -fx-border-radius: 16;
+                   -fx-border-color: rgba(0,0,0,0.15);
+                   -fx-border-width: 2;
+                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0.15, 0, 6);">
+
+    <children>
+        <VBox spacing="0"
+              AnchorPane.topAnchor="0.0"
+              AnchorPane.rightAnchor="0.0"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0">
+
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-background-color: #2aa2d8; -fx-padding: 15;">
+                <children>
+                    <Label text="User Profile" textFill="white">
+                        <font>
+                            <Font name="System Bold" size="18"/>
+                        </font>
+                    </Label>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <Button fx:id="btnClose" text="✕" onAction="#closeProfile"
+                            style="-fx-background-color: rgba(255,255,255,0.3); 
+                                   -fx-text-fill: white;
+                                   -fx-background-radius: 10; 
+                                   -fx-cursor: hand;
+                                   -fx-font-size: 16px;
+                                   -fx-font-weight: bold;
+                                   -fx-padding: 5 10;"/>
+                </children>
+            </HBox>
+
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background: transparent; -fx-background-color: transparent;">
+                <content>
+                    <VBox spacing="20" alignment="TOP_CENTER">
+                        <padding>
+                            <Insets top="25" right="25" bottom="25" left="25"/>
+                        </padding>
+
+                        <StackPane>
+                            <Circle fx:id="profileCircle" radius="60" 
+                                    style="-fx-stroke: #2aa2d8;
+                                           -fx-stroke-width: 3;"/>
+                        </StackPane>
+
+                        <Label fx:id="lblUsername" text="Username" textFill="#333333">
+                            <font>
+                                <Font name="System Bold" size="22"/>
+                            </font>
+                        </Label>
+
+                        <HBox alignment="CENTER" spacing="8"
+                              style="-fx-background-color: #323435ff;
+                                     -fx-background-radius: 20;
+                                     -fx-padding: 8 20;">
+                            <Label text="🏆" style="-fx-font-size: 16px;"/>
+                            <Label fx:id="lblLevel" text="Level 1" textFill="#2aa2d8">
+                                <font>
+                                    <Font name="System Bold" size="14"/>
+                                </font>
+                            </Label>
+                        </HBox>
+
+                        <VBox spacing="12" style="-fx-background-color: #f8f9fa;
+                                                   -fx-background-radius: 12;
+                                                   -fx-padding: 15;">
+
+                            <VBox spacing="5">
+                                <Label text="📚 Major" textFill="#888888">
+                                    <font>
+                                        <Font name="System Bold" size="11"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="lblMajor" text="Not specified" wrapText="true" textFill="#333333">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <Separator/>
+
+                            <VBox spacing="5">
+                                <Label text="🎓 University" textFill="#888888">
+                                    <font>
+                                        <Font name="System Bold" size="11"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="lblUniversity" text="Not specified" wrapText="true" textFill="#333333">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                            <Separator/>
+
+                            <VBox spacing="5">
+                                <Label text="📖 Classes" textFill="#888888">
+                                    <font>
+                                        <Font name="System Bold" size="11"/>
+                                    </font>
+                                </Label>
+                                <Label fx:id="lblClasses" text="No classes" wrapText="true" textFill="#333333">
+                                    <font>
+                                        <Font size="14"/>
+                                    </font>
+                                </Label>
+                            </VBox>
+
+                        </VBox>
+
+                        <VBox spacing="10">
+                            <Label text="🏅 Badges" textFill="#333333">
+                                <font>
+                                    <Font name="System Bold" size="16"/>
+                                </font>
+                            </Label>
+
+                            <FlowPane fx:id="badgesContainer" hgap="10" vgap="10"
+                                      alignment="CENTER"
+                                      style="-fx-background-color: #f8f9fa;
+                                             -fx-background-radius: 12;
+                                             -fx-padding: 15;">
+                            </FlowPane>
+                        </VBox>
+
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+        </VBox>
+    </children>
+</AnchorPane>

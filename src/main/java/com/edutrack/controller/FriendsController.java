@@ -50,15 +50,14 @@ public class FriendsController {
     private Button leaveGroupButton;
 
     private final com.edutrack.dao.GroupDAO groupDAO = new com.edutrack.dao.GroupDAO();
-    private static HashMap<String, User> allUsers = new HashMap<>(); // Cache for valid users check
+    private static HashMap<String, User> allUsers = new HashMap<>(); 
     private static ArrayList<User> friends = new ArrayList<>();
-    // private static HashMap<String, Group> allGroups = new HashMap<>(); // Removed
+   
     private static Group currentGroup = null;
     private static User currentUser = null;
     private static final int GROUP_CAPACITY = 10;
     private static boolean allUsersLoaded = false; // Cache flag to prevent repeated loading
 
-    // Inner class for User
     public static class User {
         String username;
         String profileImage;
@@ -102,9 +101,9 @@ public class FriendsController {
         }
     }
 
-    // Inner class for Group
+
     public static class Group {
-        int id; // added id
+        int id;
         String groupName;
         ArrayList<User> members;
         User owner;
@@ -205,12 +204,11 @@ public class FriendsController {
             currentUser = new User(sessionUser.getUsername(), avatar, sessionUser.getLevel());
         }
 
-        initializeSampleData(); // Populate allUsers for local lookups
+        initializeSampleData(); 
 
         loadFriendsFromDB();
         refreshFriendsList();
 
-        // Load current group from DB
         loadGroupFromDB();
         refreshGroupView();
     }
@@ -296,7 +294,6 @@ public class FriendsController {
         if (friendsContainer == null)
             return;
 
-        // Keep only the existing children that aren't friend rows
         friendsContainer.getChildren().clear();
 
         if (friends.isEmpty()) {
@@ -334,8 +331,20 @@ public class FriendsController {
         Button removeBtn = new Button("✕");
         removeBtn.setStyle("-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-background-radius: 15;");
         removeBtn.setOnAction(e -> {
+        
+            com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+            if (sessionUser != null) {
+                com.edutrack.model.User targetUser = new UserDAO().getUserByUsername(user.username);
+                if (targetUser != null) {
+                    FriendDAO friendDAO = new FriendDAO();
+                    friendDAO.deleteFriendship(sessionUser.getId(), targetUser.getId());
+                    System.out.println("FriendsController: Removed friendship between " + sessionUser.getUsername() + " and " + user.username);
+                }
+            }
+      
             friends.remove(user);
             refreshFriendsList();
+            showInfo("Unfriended", "You are no longer friends with " + user.username);
         });
 
         row.getChildren().addAll(profileCircle, infoBox, spacer, removeBtn);
@@ -355,7 +364,7 @@ public class FriendsController {
         }
     }
 
-    @FXML
+        @FXML
     private void showAddFriendDialog(ActionEvent e) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Add a Friend");
@@ -373,18 +382,88 @@ public class FriendsController {
             } else if (currentUser != null && username.equals(currentUser.username)) {
                 showError("Error", "You cannot add yourself as a friend.");
             } else {
-                com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
-                if (sessionUser != null) {
-                    com.edutrack.model.User targetUser = new UserDAO().getUserByUsername(username);
-                    if (targetUser != null) {
-                        FriendDAO friendDAO = new FriendDAO();
-                        friendDAO.sendRequest(sessionUser.getId(), targetUser.getId());
+            
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                confirm.setTitle("Add Friend");
+                confirm.setHeaderText("Send friend request to " + username + "?");
+                confirm.setContentText("Would you like to view their profile first?");
+                
+                ButtonType viewProfileBtn = new ButtonType("View Profile");
+                ButtonType sendRequestBtn = new ButtonType("Send Request");
+                ButtonType cancelBtn = new ButtonType("Cancel", ButtonType.CANCEL.getButtonData());
+                
+                confirm.getButtonTypes().setAll(viewProfileBtn, sendRequestBtn, cancelBtn);
+                
+                Optional<ButtonType> choice = confirm.showAndWait();
+                
+                if (choice.isPresent() && choice.get() == viewProfileBtn) {
+                    showMockProfile(username);
+                } else if (choice.isPresent() && choice.get() == sendRequestBtn) {
+                    com.edutrack.model.User sessionUser = SessionManager.getCurrentUser();
+                    if (sessionUser != null) {
+                        com.edutrack.model.User targetUser = new UserDAO().getUserByUsername(username);
+                        if (targetUser != null) {
+                            FriendDAO friendDAO = new FriendDAO();
+                            friendDAO.sendRequest(sessionUser.getId(), targetUser.getId());
+                            showInfo("Friend Request Sent", "Your friend request has been sent to " + username + ". Wait for them to accept!");
+                        }
                     }
+                    refreshFriendsList();
                 }
-                refreshFriendsList();
-                showInfo("Friend Request Sent", "Your friend request has been sent to " + username + ". Wait for them to accept!");
             }
         });
+    }
+    
+    private void showMockProfile(String username) {
+        try {
+            javafx.scene.Scene scene = friendsContainer.getScene();
+            if (scene == null) return;
+            
+            javafx.scene.Parent root = scene.getRoot();
+            javafx.scene.layout.StackPane overlayPane = null;
+
+            if (root instanceof javafx.scene.layout.BorderPane) {
+                javafx.scene.layout.BorderPane borderPane = (javafx.scene.layout.BorderPane) root;
+                javafx.scene.Node center = borderPane.getCenter();
+                
+                if (center instanceof javafx.scene.layout.StackPane) {
+                    overlayPane = (javafx.scene.layout.StackPane) center;
+                } else if (center != null) {
+                    
+                    overlayPane = new javafx.scene.layout.StackPane(center);
+                    borderPane.setCenter(overlayPane);
+                }
+            } else if (root instanceof javafx.scene.layout.StackPane) {
+                overlayPane = (javafx.scene.layout.StackPane) root;
+            }
+            
+            if (overlayPane == null) {
+                showError("Error", "Could not display profile.");
+                return;
+            }
+
+            javafx.scene.Node existing = overlayPane.lookup("#mockProfileRoot");
+            if (existing != null) {
+                overlayPane.getChildren().remove(existing);
+                return;
+            }
+
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/com/edutrack/view/mockProfile.fxml"));
+            javafx.scene.Parent profile = loader.load();
+            
+            MockProfileController controller = loader.getController();
+            controller.setUserByUsername(username);
+
+            javafx.scene.layout.StackPane.setAlignment(profile, javafx.geometry.Pos.CENTER);
+            
+            overlayPane.getChildren().add(profile);
+            profile.toFront();
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            showError("Error", "Could not load profile view: " + ex.getMessage());
+        }
     }
 
     @FXML
@@ -410,7 +489,6 @@ public class FriendsController {
             if (sessionUser == null)
                 return;
 
-            // DB Create
             if (groupDAO.getGroupByName(groupName) != null) {
                 showError("Group Exists", "A group with this name already exists.");
             } else {
@@ -497,24 +575,22 @@ public class FriendsController {
         if (groupContainer == null)
             return;
 
-        // Remove dynamic elements
         groupContainer.getChildren().removeIf(node -> node == groupMembersContainer || node == capacityLabel ||
                 node == groupNameLabel || node == leaveGroupButton);
 
         if (currentGroup == null) {
-            // Show create/join buttons
+           
             if (groupButtonsBox != null) {
                 groupButtonsBox.setVisible(true);
                 groupButtonsBox.setManaged(true);
             }
         } else {
-            // Hide create/join buttons
+          
             if (groupButtonsBox != null) {
                 groupButtonsBox.setVisible(false);
                 groupButtonsBox.setManaged(false);
             }
 
-            // Show group info
             groupNameLabel = new Label(currentGroup.groupName);
             groupNameLabel.setFont(Font.font("System Bold", 22));
             groupNameLabel.setStyle("-fx-text-fill: #59B5E0;");
@@ -574,7 +650,6 @@ public class FriendsController {
             row.getChildren().add(ownerBadge);
         }
 
-        // Ready indicator
         Circle readyDot = new Circle(6);
         readyDot.setFill(user.isReady ? Color.web("#28a745") : Color.web("#ccc"));
         row.getChildren().add(readyDot);

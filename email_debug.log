@@ -28,3 +28,7 @@
 2025-12-23T21:12:58.174835300: mail.properties loaded successfully.
 2025-12-23T21:12:58.175843800: Preparing to send welcome email to: yagizyanar@gmail.com
 2025-12-23T21:12:58.200410700: Failed to send email to yagizyanar@gmail.com. Error: Illegal address
+2025-12-24T04:56:46.397741100: Initializing EmailService...
+2025-12-24T04:56:46.398744700: mail.properties loaded successfully.
+2025-12-24T04:56:46.399744600: Preparing to send password reminder to: isgndrlielsn41@gmail.com
+2025-12-24T04:56:48.240735100: Email sent successfully to isgndrlielsn41@gmail.com
