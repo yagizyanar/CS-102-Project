@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane alignment="CENTER" prefHeight="900.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.PomodoroController">
+<StackPane alignment="CENTER" prefHeight="900.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.edutrack.controller.PomodoroController">
    <children>
       <ImageView fitHeight="1080.0" fitWidth="1920.0" preserveRatio="false">
          <image>
@@ -19,54 +19,53 @@
          </image>
       </ImageView>
       
-      <VBox alignment="TOP_CENTER" maxWidth="1200.0" prefHeight="750.0" prefWidth="1200.0" 
-            style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
+      <VBox alignment="TOP_CENTER" maxWidth="1753.0" prefHeight="1020.0" prefWidth="1753.0" style="-fx-background-color: #ffffff; -fx-background-radius: 20;">
          <StackPane.margin>
             <Insets bottom="30.0" top="30.0" />
          </StackPane.margin>
          <padding>
-            <Insets top="40.0" left="50.0" right="50.0" bottom="40.0"/>
+            <Insets bottom="40.0" left="50.0" right="50.0" top="40.0" />
          </padding>
          
          <children>
             <!-- Title -->
-            <Label text="Group Study Session" style="-fx-text-fill: #59B5E0;">
+            <Label style="-fx-text-fill: #59B5E0;" text="Group Study Session">
                <font>
                   <Font name="System Bold" size="32.0" />
                </font>
             </Label>
             
             <!-- Timer Display -->
-            <Label fx:id="timerLabel" text="25:00" style="-fx-text-fill: #333;">
+            <Label fx:id="timerLabel" style="-fx-text-fill: #333;" text="25:00">
                <font>
                   <Font size="72.0" />
                </font>
                <VBox.margin>
-                  <Insets top="30.0" bottom="10.0"/>
+                  <Insets bottom="10.0" top="30.0" />
                </VBox.margin>
             </Label>
             
             <!-- Phase Label -->
-            <Label fx:id="phaseLabel" text="Study Time" style="-fx-text-fill: #666; -fx-font-size: 18;"/>
+            <Label fx:id="phaseLabel" style="-fx-text-fill: #666; -fx-font-size: 18;" text="Study Time" />
             
             <!-- Ready Count -->
-            <Label fx:id="readyCountLabel" text="0/0 Ready" style="-fx-text-fill: #59B5E0; -fx-font-size: 16; -fx-font-weight: bold;">
+            <Label fx:id="readyCountLabel" style="-fx-text-fill: #59B5E0; -fx-font-size: 16; -fx-font-weight: bold;" text="0/0 Ready">
                <VBox.margin>
-                  <Insets top="20.0"/>
+                  <Insets top="20.0" />
                </VBox.margin>
             </Label>
             
             <!-- Group Status -->
-            <Label fx:id="groupStatusLabel" text="Waiting for members to be ready..." style="-fx-text-fill: #888; -fx-font-size: 14;">
+            <Label fx:id="groupStatusLabel" style="-fx-text-fill: #888; -fx-font-size: 14;" text="Waiting for members to be ready...">
                <VBox.margin>
-                  <Insets top="5.0" bottom="20.0"/>
+                  <Insets bottom="20.0" top="5.0" />
                </VBox.margin>
             </Label>
             
             <!-- Members List -->
-            <Label text="Group Members" style="-fx-font-weight: bold; -fx-font-size: 16; -fx-text-fill: #333333;">
+            <Label style="-fx-font-weight: bold; -fx-font-size: 16; -fx-text-fill: #333333;" text="Group Members">
                <VBox.margin>
-                  <Insets top="10.0"/>
+                  <Insets top="10.0" />
                </VBox.margin>
             </Label>
             
@@ -76,30 +75,25 @@
                   </VBox>
                </content>
                <VBox.margin>
-                  <Insets top="10.0"/>
+                  <Insets top="10.0" />
                </VBox.margin>
             </ScrollPane>
             
             <!-- Buttons -->
             <HBox alignment="CENTER" spacing="30.0">
                <VBox.margin>
-                  <Insets top="30.0"/>
+                  <Insets top="30.0" />
                </VBox.margin>
                <children>
-                  <Button fx:id="startTimerButton" text="Start Timer" onAction="#startGroupTimerAsOwner"
-                          style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"/>
+                  <Button fx:id="startTimerButton" onAction="#startGroupTimerAsOwner" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;" text="Start Timer" />
                   
-                  <Button fx:id="stopTimerButton" text="Stop Timer" onAction="#stopGroupTimerAsOwner"
-                          style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"/>
+                  <Button fx:id="stopTimerButton" onAction="#stopGroupTimerAsOwner" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;" text="Stop Timer" />
                   
-                  <Button fx:id="readyButton" text="Ready" onAction="#toggleReady"
-                          style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"/>
+                  <Button fx:id="readyButton" onAction="#toggleReady" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;" text="Ready" />
                   
-                  <Button text="Timer Settings" onAction="#openSettingsFromGroup"
-                          style="-fx-background-color: #59B5E0; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 25;"/>
+                  <Button onAction="#openSettingsFromGroup" style="-fx-background-color: #59B5E0; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 25;" text="Timer Settings" />
                   
-                  <Button text="Back" onAction="#backToStartPomodoro"
-                          style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 25;"/>
+                  <Button onAction="#backToStartPomodoro" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 25;" text="Back" />
                </children>
             </HBox>
          </children>
