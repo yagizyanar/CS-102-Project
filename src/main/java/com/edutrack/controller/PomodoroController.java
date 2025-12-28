@@ -1,0 +1,619 @@
+package com.edutrack.controller;
+
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import com.edutrack.Main;
+import com.edutrack.dao.GroupDAO;
+import com.edutrack.model.User;
+import com.edutrack.util.SessionManager;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+
+public class PomodoroController {
+
+    private static String settingsReturnPage;
+    private static int studyTimeValue = 25;
+    private static int breakTimeValue = 5;
+
+    @FXML
+    private Slider studyTime;
+    @FXML
+    private Slider breakTime;
+    @FXML
+    private Label studyTimeLabel;
+    @FXML
+    private Label breakTimeLabel;
+    @FXML
+    private Label timerLabel;
+    @FXML
+    private Label phaseLabel;
+    @FXML
+    private Label groupStatusLabel;
+    @FXML
+    private Label readyCountLabel;
+    @FXML
+    private Button startButton;
+    @FXML
+    private Button stopButton;
+    @FXML
+    private Button resetButton;
+    @FXML
+    private Button readyButton;
+    @FXML
+    private Button startTimerButton;
+    @FXML
+    private Button stopTimerButton;
+    @FXML
+    private VBox membersListBox;
+
+    private static Timeline timeline;
+    private static int remainingSeconds;
+    private static boolean isStudyPhase = true;
+    private static boolean isRunning = false;
+    private static int tempStudyValue = 25;
+    private static int tempBreakValue = 5;
+    private static boolean savedPressed = false;
+    
+    // Group timer sync
+    private static Timer syncTimer;
+    private static long groupTimerStartTime = 0;
+    private static int groupTimerDuration = 0;
+
+    @FXML
+    private void initialize() {
+        if (timerLabel != null) {
+            updateTimerLabel();
+
+            if (isRunning && timeline != null) {
+                timeline.stop();
+                timeline = new Timeline(new KeyFrame(Duration.millis(1000), event -> {
+                    remainingSeconds--;
+                    updateTimerLabel();
+                    if (remainingSeconds <= 0) {
+                        switchPhase();
+                    }
+                }));
+                timeline.setCycleCount(Timeline.INDEFINITE);
+                timeline.play();
+            }
+        }
+
+        if (phaseLabel != null) {
+            updatePhaseLabel();
+        }
+
+        if (studyTime != null) {
+            savedPressed = false;
+            tempStudyValue = studyTimeValue;
+            tempBreakValue = breakTimeValue;
+
+            studyTime.setValue(studyTimeValue);
+            studyTimeLabel.setText(String.valueOf(studyTimeValue));
+
+            studyTime.valueProperty().addListener((obs, oldVal, newVal) -> {
+                studyTimeValue = newVal.intValue();
+                studyTimeLabel.setText(String.valueOf(studyTimeValue));
+            });
+        }
+
+        if (breakTime != null) {
+            breakTime.setValue(breakTimeValue);
+            breakTimeLabel.setText(String.valueOf(breakTimeValue));
+
+            breakTime.valueProperty().addListener((obs, oldVal, newVal) -> {
+                breakTimeValue = newVal.intValue();
+                breakTimeLabel.setText(String.valueOf(breakTimeValue));
+            });
+        }
+
+        // Update group members list if in group page
+        if (membersListBox != null) {
+            updateMembersList();
+            // Start polling for group timer state
+            startGroupTimerPolling();
+        }
+
+        // Update ready count
+        if (readyCountLabel != null) {
+            updateReadyCount();
+        }
+
+        // Show/hide start/stop timer buttons based on owner status
+        updateOwnerButtonVisibility();
+    }
+
+    private void updateMembersList() {
+        if (membersListBox == null)
+            return;
+        membersListBox.getChildren().clear();
+
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group == null)
+            return;
+
+        for (FriendsController.User member : group.getMembers()) {
+            javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(10);
+            row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            row.setPadding(new javafx.geometry.Insets(8));
+            row.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 8;");
+
+            javafx.scene.shape.Circle dot = new javafx.scene.shape.Circle(6);
+            dot.setFill(
+                    member.isReady() ? javafx.scene.paint.Color.web("#28a745") : javafx.scene.paint.Color.web("#ccc"));
+
+            Label nameLabel = new Label(member.getUsername());
+            nameLabel.setStyle("-fx-font-size: 13; -fx-text-fill: #333333;");
+
+            Label statusLabel = new Label(member.isReady() ? "Ready" : "Not Ready");
+            statusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: " + (member.isReady() ? "#28a745" : "#999") + ";");
+
+            javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+            javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+            row.getChildren().addAll(dot, nameLabel, spacer, statusLabel);
+            membersListBox.getChildren().add(row);
+        }
+    }
+
+    private void updateOwnerButtonVisibility() {
+        boolean isOwner = isCurrentUserOwner();
+        if (startTimerButton != null) {
+            startTimerButton.setVisible(isOwner);
+            startTimerButton.setManaged(isOwner);
+        }
+        if (stopTimerButton != null) {
+            stopTimerButton.setVisible(isOwner);
+            stopTimerButton.setManaged(isOwner);
+        }
+    }
+
+    private void updateReadyCount() {
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group == null) {
+            if (readyCountLabel != null)
+                readyCountLabel.setText("0/0 Ready");
+            return;
+        }
+
+        int ready = group.getReadyCount();
+        int total = group.getMemberCount();
+        int needed = (int) Math.ceil(total / 2.0);
+
+        if (readyCountLabel != null) {
+            readyCountLabel.setText(ready + "/" + total + " Ready (Need " + needed + ")");
+        }
+
+        // Auto-start if half ready
+        if (group.isHalfReady() && !isRunning && groupStatusLabel != null) {
+            groupStatusLabel.setText("Starting soon...");
+            // Use Timer to avoid blocking the UI thread
+            Timer autoStartTimer = new Timer();
+            autoStartTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Platform.runLater(() -> startGroupTimer());
+                    autoStartTimer.cancel();
+                }
+            }, 1000);
+        }
+    }
+
+    @FXML
+    private void openSettingsFromStart(ActionEvent e) {
+        settingsReturnPage = "PomodoroStart";
+        try {
+            Main.setContent("PomodoroSettings");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void goToGroupPomodoro(ActionEvent e) {
+        // Check if user has a group
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group == null) {
+            showAlert("No Group",
+                    "You need to join or create a group first!\nGo to Friends page to create or join a group.");
+            return;
+        }
+
+        try {
+            Main.setContent("PomodoroGroup");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void goDashboard(ActionEvent e) {
+        try {
+            Main.setContent("Dashboard");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void openSettingsFromGroup(ActionEvent e) {
+        settingsReturnPage = "PomodoroGroup";
+        try {
+            Main.setContent("PomodoroSettings");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void goToMembers(ActionEvent e) {
+        try {
+            Main.setContent("PomodoroMembers");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void backToStartPomodoro(ActionEvent e) {
+        // Stop polling when leaving group page
+        if (syncTimer != null) {
+            syncTimer.cancel();
+            syncTimer = null;
+        }
+        try {
+            Main.setContent("PomodoroStart");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void backToGroupPomodoro(ActionEvent e) {
+        try {
+            Main.setContent("PomodoroGroup");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void exitSettings(ActionEvent e) {
+        studyTimeValue = tempStudyValue;
+        breakTimeValue = tempBreakValue;
+
+        if (settingsReturnPage != null) {
+            try {
+                Main.setContent(settingsReturnPage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @FXML
+    private void toggleReady(ActionEvent e) {
+        FriendsController.User currentUser = FriendsController.getCurrentUser();
+        FriendsController.Group currentGroup = FriendsController.getCurrentGroup();
+        if (currentUser == null || currentGroup == null)
+            return;
+
+        boolean newReadyState = !currentUser.isReady();
+        currentUser.setReady(newReadyState);
+
+        // Save ready status to database so other users can see it
+        User sessionUser = SessionManager.getCurrentUser();
+        if (sessionUser != null) {
+            GroupDAO groupDAO = new GroupDAO();
+            groupDAO.setMemberReady(currentGroup.getId(), sessionUser.getId(), newReadyState);
+        }
+
+        if (readyButton != null) {
+            readyButton.setText(newReadyState ? "Not Ready" : "Ready");
+            readyButton.setStyle(newReadyState
+                    ? "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;"
+                    : "-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 30; -fx-font-size: 14;");
+        }
+
+        updateReadyCount();
+        updateMembersList();
+    }
+
+    @FXML
+    private void startTimer(ActionEvent e) {
+        if (isRunning)
+            return;
+
+        if (remainingSeconds <= 0) {
+            isStudyPhase = true;
+            remainingSeconds = studyTimeValue * 60;
+            updatePhaseLabel();
+        }
+
+        timeline = new Timeline(new KeyFrame(Duration.millis(1000), event -> {
+            remainingSeconds--;
+            updateTimerLabel();
+            if (remainingSeconds <= 0) {
+                switchPhase();
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+        isRunning = true;
+    }
+
+    private boolean isCurrentUserOwner() {
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        FriendsController.User currentUser = FriendsController.getCurrentUser();
+        if (group == null || currentUser == null || group.getOwner() == null) {
+            return false;
+        }
+        return currentUser.getUsername().equals(group.getOwner().getUsername());
+    }
+
+    @FXML
+    private void startGroupTimerAsOwner(ActionEvent e) {
+        if (!isCurrentUserOwner()) {
+            showAlert("Not Allowed", "Only the group owner can start the timer.");
+            return;
+        }
+        
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group == null) return;
+        
+        // Save timer state to database for sync
+        long startTime = System.currentTimeMillis();
+        int duration = studyTimeValue * 60;
+        
+        GroupDAO groupDAO = new GroupDAO();
+        groupDAO.setGroupTimerState(group.getId(), startTime, duration, true, true);
+        
+        // Set all members as ready when owner starts
+        for (FriendsController.User member : group.getMembers()) {
+            member.setReady(true);
+        }
+        updateMembersList();
+        
+        // Start local timer
+        startGroupTimerFromSync(startTime, duration, true);
+    }
+
+    @FXML
+    private void stopGroupTimerAsOwner(ActionEvent e) {
+        if (!isCurrentUserOwner()) {
+            showAlert("Not Allowed", "Only the group owner can stop the timer.");
+            return;
+        }
+        
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group != null) {
+            // Save stopped state to database
+            GroupDAO groupDAO = new GroupDAO();
+            groupDAO.setGroupTimerState(group.getId(), 0, 0, false, true);
+        }
+        
+        if (timeline != null) {
+            timeline.stop();
+            isRunning = false;
+            if (groupStatusLabel != null) {
+                groupStatusLabel.setText("Timer stopped by owner.");
+            }
+        }
+    }
+
+    private void startGroupTimer() {
+        if (isRunning)
+            return;
+
+        isStudyPhase = true;
+        remainingSeconds = studyTimeValue * 60;
+        updatePhaseLabel();
+
+        timeline = new Timeline(new KeyFrame(Duration.millis(1000), event -> {
+            remainingSeconds--;
+            updateTimerLabel();
+            if (remainingSeconds <= 0) {
+                switchPhase();
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+        isRunning = true;
+
+        if (groupStatusLabel != null) {
+            groupStatusLabel.setText("Session in progress!");
+        }
+    }
+    
+    // Start timer from synced database state
+    private void startGroupTimerFromSync(long startTime, int totalDuration, boolean studyPhase) {
+        if (timeline != null) {
+            timeline.stop();
+        }
+        
+        // Calculate remaining time based on when timer started
+        long elapsed = (System.currentTimeMillis() - startTime) / 1000;
+        remainingSeconds = (int) Math.max(0, totalDuration - elapsed);
+        isStudyPhase = studyPhase;
+        groupTimerStartTime = startTime;
+        groupTimerDuration = totalDuration;
+        
+        updateTimerLabel();
+        updatePhaseLabel();
+        
+        if (remainingSeconds > 0) {
+            timeline = new Timeline(new KeyFrame(Duration.millis(1000), event -> {
+                remainingSeconds--;
+                updateTimerLabel();
+                if (remainingSeconds <= 0) {
+                    switchPhaseForGroup();
+                }
+            }));
+            timeline.setCycleCount(Timeline.INDEFINITE);
+            timeline.play();
+            isRunning = true;
+            
+            if (groupStatusLabel != null) {
+                groupStatusLabel.setText("Session in progress!");
+            }
+        }
+    }
+    
+    // Polling to sync timer state from database
+    private void startGroupTimerPolling() {
+        if (syncTimer != null) {
+            syncTimer.cancel();
+        }
+        
+        syncTimer = new Timer();
+        syncTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> checkAndSyncGroupTimer());
+            }
+        }, 0, 2000); // Check every 2 seconds
+    }
+    
+    private void checkAndSyncGroupTimer() {
+        FriendsController.Group group = FriendsController.getCurrentGroup();
+        if (group == null) return;
+        
+        GroupDAO groupDAO = new GroupDAO();
+        long[] state = groupDAO.getGroupTimerState(group.getId());
+        // state: [timerStartTime, timerDuration, isRunning (0/1), isStudyPhase (0/1)]
+        
+        long dbStartTime = state[0];
+        int dbDuration = (int) state[1];
+        boolean dbRunning = state[2] == 1;
+        boolean dbStudyPhase = state[3] == 1;
+        
+        if (dbRunning && dbStartTime > 0) {
+            // Timer is running in database
+            if (!isRunning || groupTimerStartTime != dbStartTime) {
+                // Need to sync - either not running locally or different timer
+                startGroupTimerFromSync(dbStartTime, dbDuration, dbStudyPhase);
+            }
+        } else if (!dbRunning && isRunning) {
+            // Timer stopped in database but running locally
+            if (timeline != null) {
+                timeline.stop();
+            }
+            isRunning = false;
+            if (groupStatusLabel != null) {
+                groupStatusLabel.setText("Waiting for owner to start...");
+            }
+        }
+    }
+    
+    private void switchPhaseForGroup() {
+        // For group timer, owner controls phase switches
+        // This is called when local timer reaches 0
+        if (isCurrentUserOwner()) {
+            FriendsController.Group group = FriendsController.getCurrentGroup();
+            if (group != null) {
+                isStudyPhase = !isStudyPhase;
+                int newDuration = isStudyPhase ? studyTimeValue * 60 : breakTimeValue * 60;
+                long newStartTime = System.currentTimeMillis();
+                
+                GroupDAO groupDAO = new GroupDAO();
+                groupDAO.setGroupTimerState(group.getId(), newStartTime, newDuration, true, isStudyPhase);
+                
+                remainingSeconds = newDuration;
+                groupTimerStartTime = newStartTime;
+                groupTimerDuration = newDuration;
+                updatePhaseLabel();
+            }
+        } else {
+            // Non-owner: just switch locally, polling will sync if needed
+            switchPhase();
+        }
+    }
+
+    private void updateTimerLabel() {
+        int minutes = remainingSeconds / 60;
+        int seconds = remainingSeconds % 60;
+        if (timerLabel != null) {
+            timerLabel.setText(String.format("%02d:%02d", minutes, seconds));
+        }
+    }
+
+    private void updatePhaseLabel() {
+        if (phaseLabel != null) {
+            phaseLabel.setText(isStudyPhase ? "Study Time" : "Break Time");
+        }
+    }
+
+    private void switchPhase() {
+        isStudyPhase = !isStudyPhase;
+        remainingSeconds = isStudyPhase ? studyTimeValue * 60 : breakTimeValue * 60;
+        updatePhaseLabel();
+    }
+
+    @FXML
+    private void stopTimer(ActionEvent e) {
+        if (timeline != null) {
+            timeline.stop();
+            isRunning = false;
+            if (startButton != null) {
+                startButton.setText("Start");
+            }
+        }
+    }
+
+    @FXML
+    private void resetTimer(ActionEvent e) {
+        if (timeline != null) {
+            timeline.stop();
+        }
+        isRunning = false;
+        isStudyPhase = true;
+        remainingSeconds = studyTimeValue * 60;
+        updateTimerLabel();
+        updatePhaseLabel();
+        if (startButton != null) {
+            startButton.setText("Start");
+        }
+    }
+
+    @FXML
+    private void saveAndExitSettings(ActionEvent e) {
+        savedPressed = true;
+        tempStudyValue = studyTimeValue;
+        tempBreakValue = breakTimeValue;
+
+        if (timeline != null) {
+            timeline.stop();
+        }
+
+        isRunning = false;
+        isStudyPhase = true;
+        remainingSeconds = studyTimeValue * 60;
+
+        if (settingsReturnPage != null) {
+            try {
+                Main.setContent(settingsReturnPage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+}

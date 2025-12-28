@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="popupRoot"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.edutrack.controller.NotificationController"
+            prefWidth="360" prefHeight="420"
+            maxWidth="360" maxHeight="420"
+            style="-fx-background-color: white;
+                   -fx-background-radius: 16;
+                   -fx-border-radius: 16;
+                   -fx-border-color: rgba(0,0,0,0.15);
+                   -fx-border-width: 1;
+                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0.15, 0, 6);">
+
+    <children>
+        <VBox spacing="10"
+              AnchorPane.topAnchor="0.0"
+              AnchorPane.rightAnchor="0.0"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0">
+            <padding>
+                <Insets top="14" right="14" bottom="14" left="14"/>
+            </padding>
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <children>
+                    <Label text="Notifications" textFill="#2aa2d8">
+                        <font>
+                            <Font name="System Bold" size="16"/>
+                        </font>
+                    </Label>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <Button fx:id="btnExpand" text="⛶" onAction="#expandToFullPage"
+                            style="-fx-background-color: #2aa2d8; 
+                                   -fx-text-fill: white;
+                                   -fx-background-radius: 10; 
+                                   -fx-cursor: hand;
+                                   -fx-font-size: 14px;
+                                   -fx-font-weight: bold;"/>
+
+                    <Button fx:id="btnClose" text="✕" onAction="#closePopup"
+                            style="-fx-background-color: #f1f1f1; 
+                                   -fx-background-radius: 10; 
+                                   -fx-cursor: hand;
+                                   -fx-font-weight: bold;"/>
+                </children>
+            </HBox>
+
+            <Separator/>
+
+            <ScrollPane fitToWidth="true"
+                        style="-fx-background: transparent; -fx-background-color: transparent;">
+                <content>
+                    <VBox fx:id="listBox" spacing="10">
+                        <padding>
+                            <Insets top="4" right="4" bottom="4" left="4"/>
+                        </padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+        </VBox>
+    </children>
+</AnchorPane>

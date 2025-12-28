@@ -1,0 +1,56 @@
+2025-12-23T05:51:00.601368900: Initializing EmailService...
+2025-12-23T05:51:00.602418900: mail.properties loaded successfully.
+2025-12-23T05:51:00.602418900: Preparing to send welcome email to: projetest1cs@gmail.com
+2025-12-23T05:51:00.602418900: isConfigured check failed. Host value: smtp.example.com
+2025-12-23T05:51:00.603924800: Email Service: SMTP not configured (host NOT found). Skipping welcome email to projetest1cs@gmail.com
+2025-12-23T05:58:38.627163500: Initializing EmailService...
+2025-12-23T05:58:38.628233700: mail.properties loaded successfully.
+2025-12-23T05:58:38.629522600: Preparing to send welcome email to: ayakkabiterli@gmail.com
+2025-12-23T05:58:38.629522600: isConfigured check failed. Host value: smtp.example.com
+2025-12-23T05:58:38.630521400: Email Service: SMTP not configured (host NOT found). Skipping welcome email to ayakkabiterli@gmail.com
+2025-12-23T06:06:06.578338900: Initializing EmailService...
+2025-12-23T06:06:06.580989600: mail.properties loaded successfully.
+2025-12-23T06:06:06.581540100: Preparing to send password reminder to: projetest1cs@gmail.com
+2025-12-23T06:06:08.456744100: Email sent successfully to projetest1cs@gmail.com
+2025-12-23T18:52:54.495108200: Initializing EmailService...
+2025-12-23T18:52:54.497109: mail.properties loaded successfully.
+2025-12-23T18:52:54.497109: Preparing to send welcome email to: muhammedserhatmutlu@gmail.com
+2025-12-23T18:52:54.533103200: Failed to send email to muhammedserhatmutlu@gmail.com. Error: Illegal address
+2025-12-23T19:17:49.766182600: Initializing EmailService...
+2025-12-23T19:17:49.768207: mail.properties loaded successfully.
+2025-12-23T19:17:49.768207: Preparing to send welcome email to: yagizyanar@hotmail.com
+2025-12-23T19:17:49.790941800: Failed to send email to yagizyanar@hotmail.com. Error: Illegal address
+2025-12-23T20:39:19.114531600: Initializing EmailService...
+2025-12-23T20:39:19.115614: mail.properties loaded successfully.
+2025-12-23T20:39:19.115614: Preparing to send welcome email to: yagizyanar@hotmail.com
+2025-12-23T20:39:19.139091900: Failed to send email to yagizyanar@hotmail.com. Error: Illegal address
+2025-12-23T21:12:58.173777100: Initializing EmailService...
+2025-12-23T21:12:58.174835300: mail.properties loaded successfully.
+2025-12-23T21:12:58.175843800: Preparing to send welcome email to: yagizyanar@gmail.com
+2025-12-23T21:12:58.200410700: Failed to send email to yagizyanar@gmail.com. Error: Illegal address
+2025-12-24T04:56:46.397741100: Initializing EmailService...
+2025-12-24T04:56:46.398744700: mail.properties loaded successfully.
+2025-12-24T04:56:46.399744600: Preparing to send password reminder to: isgndrlielsn41@gmail.com
+2025-12-24T04:56:48.240735100: Email sent successfully to isgndrlielsn41@gmail.com
+2025-12-24T14:38:33.729175: Initializing EmailService...
+2025-12-24T14:38:33.731180500: mail.properties loaded successfully.
+2025-12-24T14:38:33.732182500: Preparing to send password reminder to: yagizyanar@hotmail.com
+2025-12-24T14:38:33.788891600: Failed to send email to yagizyanar@hotmail.com. Error: Illegal address
+2025-12-24T14:39:34.783718800: Preparing to send welcome email to: yagizyanarr@gmail.com
+2025-12-24T14:39:34.788818100: Failed to send email to yagizyanarr@gmail.com. Error: Illegal address
+2025-12-24T14:39:42.042272500: Preparing to send password reminder to: yagizyanarr@gmail.com
+2025-12-24T14:39:42.048701300: Failed to send email to yagizyanarr@gmail.com. Error: Illegal address
+2025-12-24T14:41:33.663257300: Initializing EmailService...
+2025-12-24T14:41:33.666879900: mail.properties loaded successfully.
+2025-12-24T14:41:33.667385800: Preparing to send welcome email to: yagiz.yanar@ug.bilkent.edu.tr
+2025-12-24T14:41:33.708063600: Failed to send email to yagiz.yanar@ug.bilkent.edu.tr. Error: Illegal address
+2025-12-24T14:41:43.828930800: Preparing to send password reminder to: yagiz.yanar@ug.bilkent.edu.tr
+2025-12-24T14:41:43.834499400: Failed to send email to yagiz.yanar@ug.bilkent.edu.tr. Error: Illegal address
+2025-12-24T15:09:10.221001800: Initializing EmailService...
+2025-12-24T15:09:10.224287700: mail.properties loaded successfully.
+2025-12-24T15:09:10.225290: Preparing to send password reminder to: yagizyanar@hotmail.com
+2025-12-24T15:09:12.398711900: Email sent successfully to yagizyanar@hotmail.com
+2025-12-24T15:12:07.472726: Initializing EmailService...
+2025-12-24T15:12:07.474964100: mail.properties loaded successfully.
+2025-12-24T15:12:07.474964100: Preparing to send password reminder to: yagizyanar@hotmail.com
+2025-12-24T15:12:09.641876600: Email sent successfully to yagizyanar@hotmail.com
