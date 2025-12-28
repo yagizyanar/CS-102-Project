@@ -1,0 +1,10 @@
+
+15.09.2025 - 25.11.2025: We did our reports and designed and also discussed who is going to do which part.
+25.11.2025 - 03.12.2025: I started to implement the GUI pages using SceneBuilder with Yağız.
+01.12.2025 - 09.12.2025: Had some difficulties while writing the controller classes so did some research how to combine GUI's with other codes.
+08.12.2025 - 15.12.2025: In this week I finished the GUI pages that I was responsible for. These are profile, forums, dashboard, notification.
+15.12.2025 - 24.12.2025: We implemented GUI with Yağız so in this week when we try to combine our codes there were some errors we fixed these errors and we made GUI more efficient. After that I helped my friends with database and servers.
+22.12.2025 - I made friend request more efficient and updated dashboard page.
+24.12.2025 - Implementation and merging of written codes and classes with groupmates and testing the application.
+
+Group meetings were held each Tuesday of the week after CS102 class until last week of the project when we met 5 times.
