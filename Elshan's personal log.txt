@@ -1,0 +1,7 @@
+15.09.2025 - 25.11.2025: Making resarch about the tools needed for the project, learning how to work in SQLlite, MySQL Workbench and JavaFX SceneBuilder, contributing to the project reports and presentations
+25.11.2025 - 01.12.2025: Starting the java codes for basic classes such as Task.java, Event.java, Goal.java etc. Writing the manager classes for these classes in a personal folder
+01.12.2025 - 08.12.2025: Refining current written classes and changing logic in some classes. Making research about how to use remote database and chaning focus from SQLite to only MySQL
+08.12.2025 - 15.12.2025: Making tables for variables to be stored in the remote database and writing my part of DAO classes, helping groupmates with controller and fxml classes, after finalizing my coding part of project.
+15.12.2025 - 24.12.2025: Implementation and merging of written codes and classes with groupmates and testing the application.
+
+Group meetings were held each tuesday of the week after CS102 class until last week of the project when we met 5 times.

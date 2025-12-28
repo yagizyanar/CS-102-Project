@@ -1,0 +1,7 @@
+15.09.2025 - 25.11.2025: We did our reports and designed and discussed what we are going to do.
+25.11.2025 - 01.12.2025: I started to implement the GUI pages.
+01.12.2025 - 08.12.2025: I had some difficulty in controller classes so I did some research from internet and I learned how I should implement the controller classes.
+08.12.2025 - 15.12.2025: In this week I finished the GUI pages that I responsible with. These are login, pomodoro, friends and, task management.
+15.12.2025 - 24.12.2025: We implemented GUI with Cinar so in this week when we try to combine our codes there were some errors we fixed these errors and we made GUI more efficient. After that I helped my friends with database and servers.
+
+Group meetings were held each tuesday of the week after CS102 class until last week of the project when we met 5 times.

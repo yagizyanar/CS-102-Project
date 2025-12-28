@@ -1,0 +1,7 @@
+15.09.2025 - 25.11.2025: As a group, we started to decide project structure and design
+25.11.2025 - 01.12.2025: Started writing Java code for core classes of User, Badge, Friendship, Notification
+01.12.2025 - 08.12.2025: I had some changes, improvements on the core classes written beforehand
+08.12.2025 - 15.12.2025: Started to write my part of DAO classes of FriendshipDAO, BadgeDAO
+15.12.2025 - 24.12.2025: After finishing core classes and JavaFX, we initiated to combine codes and look for shortages to fix
+
+Group meetings were held each tuesday of the week after CS102 class until last week of the project when we met 5 times.

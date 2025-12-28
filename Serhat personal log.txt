@@ -1,0 +1,7 @@
+15.09.2025 - 25.11.2025: We started to decide on the tools we are going to use and what the project will likely be.
+25.11.2025 - 01.12.2025: Starting the Java code for basic classes such as Course, ForumPost, and Pomodoro.
+01.12.2025 - 08.12.2025: I researched how to open a remote database server for MySQL.
+08.12.2025 - 15.12.2025: I started to write my part of the DAO classes, such as UserDAO, ForumPostDAO, PomodoroDAO, and GroupDAO.
+15.12.2025 - 24.12.2025: After we finished our parts, we started to combine our parts and fix the problems.
+
+Group meetings were held each tuesday of the week after CS102 class until last week of the project when we met 5 times.
